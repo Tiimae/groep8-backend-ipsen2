@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -27,16 +28,22 @@ public class User {
 
     @ManyToMany
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "userid", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "roleid", referencedColumnName = "id"))
+    @JsonBackReference
     private Set<Role> roles;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private Set<Reservation> reservations;
 
     public User() { }
 
-    public User(String name, String email, String password, Department department, Set<Role> roles) {
+    public User(String name, String email, String password, Department department, Set<Role> roles, Set<Reservation> reservations) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.department = department;
         this.roles = roles;
+        this.reservations = reservations;
     }
 
     public String getId() {
@@ -85,5 +92,13 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public Set<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(Set<Reservation> reservations) {
+        this.reservations = reservations;
     }
 }

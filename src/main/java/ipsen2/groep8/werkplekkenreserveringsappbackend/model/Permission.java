@@ -1,5 +1,6 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -18,6 +19,7 @@ public class Permission {
 
     @ManyToMany
     @JoinTable(name = "roles_permissions", joinColumns = @JoinColumn(name = "permissionid", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "roleid", referencedColumnName = "id"))
+    @JsonBackReference
     private Set<Role> roles;
 
     public Permission() { }

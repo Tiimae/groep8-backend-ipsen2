@@ -21,11 +21,16 @@ public class Department {
     @JsonManagedReference
     private Set<User> users;
 
+    @ManyToMany
+    @JoinTable(name = "department_wings", joinColumns = @JoinColumn(name = "departmentid", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "wingid", referencedColumnName = "id"))
+    private Set<Wing> wings;
+
     public Department() { }
 
-    public Department(String name, Set<User> users) {
+    public Department(String name, Set<User> users, Set<Wing> wings) {
         this.name = name;
         this.users = users;
+        this.wings = wings;
     }
 
     public String getId() {
@@ -50,5 +55,13 @@ public class Department {
 
     public void setUsers(Set<User> users) {
         this.users = users;
+    }
+
+    public Set<Wing> getWings() {
+        return wings;
+    }
+
+    public void setWings(Set<Wing> wings) {
+        this.wings = wings;
     }
 }
