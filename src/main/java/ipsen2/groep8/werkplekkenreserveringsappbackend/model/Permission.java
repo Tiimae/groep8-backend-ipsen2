@@ -17,9 +17,7 @@ public class Permission {
 
     private String name;
 
-    @ManyToMany
-    @JoinTable(name = "roles_permissions", joinColumns = @JoinColumn(name = "permissionid", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "roleid", referencedColumnName = "id"))
-    @JsonBackReference
+    @ManyToMany(mappedBy = "permissions")
     private Set<Role> roles;
 
     public Permission() { }
@@ -27,6 +25,14 @@ public class Permission {
     public Permission(String name, Set<Role> roles) {
         this.name = name;
         this.roles = roles;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.security.PrivilegedAction;
 import java.util.Set;
 
 @Entity
@@ -22,14 +23,17 @@ public class User {
     private String email;
     private String password;
 
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonBackReference
     private Department department;
-
-    @ManyToMany
-    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "userid", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "roleid", referencedColumnName = "id"))
-    @JsonBackReference
-    private Set<Role> roles;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -37,12 +41,12 @@ public class User {
 
     public User() { }
 
-    public User(String name, String email, String password, Department department, Set<Role> roles, Set<Reservation> reservations) {
+    public User(String name, String email, String password, Set<Role> roles, Department department, Set<Reservation> reservations) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.department = department;
         this.roles = roles;
+        this.department = department;
         this.reservations = reservations;
     }
 
@@ -78,20 +82,24 @@ public class User {
         this.password = password;
     }
 
-    public Department getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
-
     public Set<Role> getRoles() {
         return roles;
     }
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
     public Set<Reservation> getReservations() {

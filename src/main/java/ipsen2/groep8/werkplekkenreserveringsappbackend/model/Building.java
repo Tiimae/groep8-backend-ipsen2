@@ -1,5 +1,6 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -26,8 +27,7 @@ public class Building {
     @JsonManagedReference
     private Set<Wing> wings;
 
-    @OneToOne(mappedBy = "building", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @OneToOne(mappedBy = "building")
     private Variable variable;
 
     public Building() { }

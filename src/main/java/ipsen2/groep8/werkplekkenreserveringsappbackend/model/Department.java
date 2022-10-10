@@ -1,5 +1,6 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -21,8 +22,7 @@ public class Department {
     @JsonManagedReference
     private Set<User> users;
 
-    @ManyToMany
-    @JoinTable(name = "department_wings", joinColumns = @JoinColumn(name = "departmentid", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "wingid", referencedColumnName = "id"))
+    @ManyToMany(mappedBy = "departments")
     private Set<Wing> wings;
 
     public Department() { }

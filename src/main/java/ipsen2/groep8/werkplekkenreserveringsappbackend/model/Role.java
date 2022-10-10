@@ -18,21 +18,22 @@ public class Role {
     @Column(unique = true)
     private String name;
 
-    @ManyToMany
-    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "userid", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "roleid", referencedColumnName = "id"))
+    @ManyToMany(mappedBy = "roles")
     private Set<User> users;
 
     @ManyToMany
-    @JoinTable(name = "roles_permissions", joinColumns = @JoinColumn(name = "permissionid", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "roleid", referencedColumnName = "id"))
-    @JsonBackReference
+    @JoinTable(
+            name = "roles_permissions",
+            joinColumns = @JoinColumn(name = "permissionid", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "roleid", referencedColumnName = "id")
+    )
     private Set<Permission> permissions;
 
     public Role() { }
 
-    public Role(String name, Set<User> users, Set<Permission> permissions) {
+    public Role(String name, Set<User> users) {
         this.name = name;
         this.users = users;
-        this.permissions = permissions;
     }
 
     public String getId() {
@@ -59,11 +60,7 @@ public class Role {
         this.users = users;
     }
 
-    public Set<Permission> getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(Set<Permission> permissions) {
-        this.permissions = permissions;
+    public void addUser(User user) {
+        this.users.add(user);
     }
 }

@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -20,26 +21,28 @@ public class Wing {
     private Long workplaces;
     private Long floor;
 
-
     @ManyToMany
-    @JoinTable(name = "department_wings", joinColumns = @JoinColumn(name = "departmentid", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "wingid", referencedColumnName = "id"))
-    @JsonBackReference
+    @JoinTable(
+            name = "departments_wings",
+            joinColumns = @JoinColumn(name = "wing_id"),
+            inverseJoinColumns = @JoinColumn(name = "department_id")
+    )
     private Set<Department> departments;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonBackReference
     private Building building;
 
+    @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private Set<Reservation> reservations;
 
     @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private Set<MeetingRoom> meetingRooms;
 
-    @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private Set<Reservation> reservations;
-
-    public Wing() { }
+    public Wing() {
+    }
 
     public Wing(String name, Long workplaces, Long floor, Set<Department> departments, Building building, Set<MeetingRoom> meetingRooms, Set<Reservation> reservations) {
         this.name = name;
@@ -107,10 +110,12 @@ public class Wing {
         this.meetingRooms = meetingRooms;
     }
 
+    @JsonManagedReference(value = "wing-reservation")
     public Set<Reservation> getReservations() {
         return reservations;
     }
 
+    @JsonManagedReference(value = "wing-reservation")
     public void setReservations(Set<Reservation> reservations) {
         this.reservations = reservations;
     }

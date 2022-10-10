@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -28,32 +29,28 @@ public class Reservation {
     @Column(columnDefinition = "TEXT")
     private String note;
 
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonBackReference
+    private User user;
+
+    @ManyToMany(mappedBy = "reservations")
+    private Set<MeetingRoom> meetingRooms;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonBackReference
     private Wing wing;
 
-
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonBackReference
-    private User user;
-
-    @ManyToMany
-    @JoinTable(name = "reservaton_meetingrooms", joinColumns = @JoinColumn(name = "meetingroomid", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "reservationid", referencedColumnName = "id"))
-    @JsonBackReference
-    private Set<MeetingRoom> meetingRooms;
-
     public Reservation() { }
 
-    public Reservation(LocalDateTime startDate, LocalDateTime endDate, boolean status, int amount, String note, Wing wing, User user, Set<MeetingRoom> meetingRooms) {
+    public Reservation(LocalDateTime startDate, LocalDateTime endDate, boolean status, int amount, String note, User user, Set<MeetingRoom> meetingRooms, Wing wing) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = status;
         this.amount = amount;
         this.note = note;
-        this.wing = wing;
         this.user = user;
         this.meetingRooms = meetingRooms;
+        this.wing = wing;
     }
 
     public String getId() {
@@ -104,14 +101,6 @@ public class Reservation {
         this.note = note;
     }
 
-    public Wing getWing() {
-        return wing;
-    }
-
-    public void setWing(Wing wing) {
-        this.wing = wing;
-    }
-
     public User getUser() {
         return user;
     }
@@ -127,4 +116,17 @@ public class Reservation {
     public void setMeetingRooms(Set<MeetingRoom> meetingRooms) {
         this.meetingRooms = meetingRooms;
     }
+
+
+    @JsonBackReference(value = "wing-reservation")
+    public Wing getWing() {
+        return wing;
+    }
+
+    @JsonBackReference(value = "wing-reservation")
+    public void setWing(Wing wing) {
+        this.wing = wing;
+    }
+
+
 }

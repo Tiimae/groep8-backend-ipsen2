@@ -14,8 +14,7 @@ public class Variable {
     @Column(name = "id", columnDefinition = "VARCHAR(255)")
     private String id;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonBackReference
+    @OneToOne
     private Building building;
 
     public Variable() { }
