@@ -2,6 +2,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sun.istack.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -17,10 +18,14 @@ public class User {
     @Column(name = "id", columnDefinition = "VARCHAR(255)")
     private String id;
 
+    @NotNull
     private String name;
 
     @Column(unique = true)
+    @NotNull
     private String email;
+
+    @NotNull
     private String password;
 
     @ManyToMany

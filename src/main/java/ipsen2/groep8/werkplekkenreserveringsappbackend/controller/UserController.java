@@ -2,6 +2,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,8 @@ import java.util.Optional;
 @Controller
 @RequestMapping(value = "/api/user")
 public class UserController {
+
+    private final AuthenticationService authenticationService = new AuthenticationService();
     private final UserDAO userDAO;
 
     public UserController(UserDAO userDAO) {
@@ -32,6 +35,8 @@ public class UserController {
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
     public String postUser(@RequestBody User user) {
+        final String hash = this.authenticationService.hash(user.getPassword().toCharArray());
+        user.setPassword(hash);
         this.userDAO.saveUserToDatabase(user);
         return "User has been posted to the database";
     }
