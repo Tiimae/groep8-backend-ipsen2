@@ -54,4 +54,11 @@ public class UserController {
         this.userDAO.deleteUserFromDatabase(userid);
         return "User has been deleted";
     }
+
+    @RequestMapping(value = "/{userid}/role/{roleid}", method = RequestMethod.PUT)
+    @ResponseBody
+    public String appendRoleToUser(@PathVariable String roleid, @PathVariable String userid) {
+        this.userDAO.appendUserToRole(roleid, userid);
+        return "Role has been added to user!";
+    }
 }
