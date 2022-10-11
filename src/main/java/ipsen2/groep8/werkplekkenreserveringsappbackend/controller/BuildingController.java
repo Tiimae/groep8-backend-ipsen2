@@ -13,7 +13,6 @@ import java.util.Optional;
 @RequestMapping(value = "/api/building")
 public class BuildingController {
 
-    private final AuthenticationService authenticationService = new AuthenticationService();
     private final BuildingDAO buildingDAO;
 
     public BuildingController(BuildingDAO buildingDAO) {
