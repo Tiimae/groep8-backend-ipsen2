@@ -55,7 +55,7 @@ public class AuthenticationService {
         return 1 << cost;
     }
 
-    public String hash(char[] password)$$
+    public String hash(char[] password)
     {
         byte[] salt = new byte[SIZE / 8];
         random.nextBytes(salt);
