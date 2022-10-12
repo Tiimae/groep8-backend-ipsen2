@@ -22,7 +22,7 @@ public class UserController {
 
     @RequestMapping(value = "/{userid}", method = RequestMethod.GET)
     @ResponseBody
-    public Optional<User> getUser(@PathVariable String userid) {
+    public User getUser(@PathVariable String userid) {
         return this.userDAO.getUserFromDatabase(userid);
     }
 

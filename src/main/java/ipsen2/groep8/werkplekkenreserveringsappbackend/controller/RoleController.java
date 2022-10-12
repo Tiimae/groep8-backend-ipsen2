@@ -21,7 +21,7 @@ public class RoleController {
 
     @RequestMapping(value = "/{roleid}", method = RequestMethod.GET)
     @ResponseBody
-    public Optional<Role> getRole(@PathVariable String roleid) {
+    public Role getRole(@PathVariable String roleid) {
         return this.roleDAO.getRoleFromDatabase(roleid);
     }
 
@@ -45,10 +45,10 @@ public class RoleController {
         return "The role has been updated!";
     }
 
-    @RequestMapping(value = "", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{roleid}", method = RequestMethod.DELETE)
     @ResponseBody
-    public String deleteRole(@RequestBody Role role) {
-        this.roleDAO.removeRoleToDatabase(role);
+    public String deleteRole(@PathVariable String roleid) {
+        this.roleDAO.removeRoleToDatabase(roleid);
         return "The role has been posted!";
     }
 

@@ -19,8 +19,8 @@ public class RoleDAO {
         this.roleRepository = roleRepository;
     }
 
-    public Optional<Role> getRoleFromDatabase(String roleid) {
-        return this.roleRepository.findById(roleid);
+    public Role getRoleFromDatabase(String roleid) {
+        return this.roleRepository.getById(roleid);
     }
 
     public List<Role> getAllRolesFromDatabase() {
@@ -35,8 +35,14 @@ public class RoleDAO {
         this.roleRepository.save(role);
     }
 
-    public void removeRoleToDatabase(Role role) {
-        this.roleRepository.delete(role);
+    public void removeRoleToDatabase(String roleId) {
+        final Role role = this.roleRepository.findById(roleId).get();
+
+        for (User user : role.getUsers()) {
+            role.getUsers().remove(user);
+        }
+
+        this.roleRepository.deleteById(roleId);
     }
 
 }
