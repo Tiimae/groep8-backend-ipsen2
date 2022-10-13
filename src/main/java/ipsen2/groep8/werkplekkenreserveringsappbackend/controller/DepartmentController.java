@@ -63,7 +63,7 @@ public class DepartmentController {
         return new ApiResponse(HttpStatus.ACCEPTED, "Department has been removed in the database!");
     }
 
-    @RequestMapping(value = "/{departmentId}/user/{userId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{departmentId}/user/{userId}attach", method = RequestMethod.POST)
     @ResponseBody
     public ApiResponse addUserToDepartment(@PathVariable String departmentId, @PathVariable String userId) {
         this.departmentDAO.addDepartmentToUserInDatabase(departmentId, userId);
@@ -77,6 +77,22 @@ public class DepartmentController {
         this.departmentDAO.detachDepartmentToUserInDatabase(departmentId, userId);
 
         return new ApiResponse(HttpStatus.ACCEPTED, "the department has been detached to the user");
+    }
+
+    @RequestMapping(value = "/{departmentId}/wing/{wingId}/attach", method = RequestMethod.POST)
+    @ResponseBody
+    public ApiResponse attachWingToDeparment(@PathVariable String departmentId, @PathVariable String wingId) {
+        this.departmentDAO.attachWingToDepartmentInDatabase(departmentId, wingId);
+
+        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been attached to the department");
+    }
+
+    @RequestMapping(value = "/{departmentId}/wing/{wingId}/detach", method = RequestMethod.POST)
+    @ResponseBody
+    public ApiResponse detachWingToDeparment(@PathVariable String departmentId, @PathVariable String wingId) {
+        this.departmentDAO.detachWingFromDepartmentInDatabase(departmentId, wingId);
+
+        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been detached to the department");
     }
 
 }
