@@ -21,8 +21,8 @@ public class UserDAO {
         this.roleRepository = roleRepository;
     }
 
-    public User getUserFromDatabase(String userid) {
-        return this.userRepository.getById(userid);
+    public Optional<User> getUserFromDatabase(String userid) {
+        return this.userRepository.findById(userid);
     }
 
     public List<User> getAllUsersFromDatabase() {

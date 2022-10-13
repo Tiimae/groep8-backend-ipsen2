@@ -1,8 +1,10 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.BuildingDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Building;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,34 +23,40 @@ public class BuildingController {
 
     @RequestMapping(value = "/{buildingid}", method = RequestMethod.GET)
     @ResponseBody
-    public Optional<Building> getBuilding(@PathVariable String buildingid) {
-        return this.buildingDAO.getBuildingFromDatabase(buildingid);
+    public ApiResponse<Optional<Building>> getBuilding(@PathVariable String buildingid) {
+        final Optional<Building> building = this.buildingDAO.getBuildingFromDatabase(buildingid);
+        if (building.isEmpty()) {
+            return new ApiResponse(HttpStatus.NOT_FOUND, "Dit gebouw bestaat niet");
+        }
+
+        return new ApiResponse(HttpStatus.ACCEPTED, building);
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
-    public List<Building> getBuildings() {
-        return this.buildingDAO.getAllBuildingsFromDatabase();
+    public ApiResponse<List<Building>> getBuildings() {
+        final List<Building> allBuildingsFromDatabase = this.buildingDAO.getAllBuildingsFromDatabase();
+        return new ApiResponse(HttpStatus.ACCEPTED, allBuildingsFromDatabase);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public String postBuilding(@RequestBody Building building) {
+    public ApiResponse postBuilding(@RequestBody Building building) {
         this.buildingDAO.saveBuildingToDatabase(building);
-        return "Building has been posted to the database";
+        return new ApiResponse(HttpStatus.CREATED, "Building has been posted to the database");
     }
 
     @PutMapping(value = "")
     @ResponseBody
-    public String updateBuilding(@RequestBody Building building) {
+    public ApiResponse updateBuilding(@RequestBody Building building) {
         this.buildingDAO.updateBuildingInDatabase(building);
-        return "User has been updated";
+        return new ApiResponse(HttpStatus.ACCEPTED, "User has been updated");
     }
 
     @DeleteMapping(value = "/{buildingid}")
     @ResponseBody
-    public String deleteBuilding(@PathVariable String buildingid) {
+    public ApiResponse deleteBuilding(@PathVariable String buildingid) {
         this.buildingDAO.deleteBuildingFromDatabase(buildingid);
-        return "Building has been deleted";
+        return new ApiResponse(HttpStatus.ACCEPTED, "Building has been deleted");
     }
 }

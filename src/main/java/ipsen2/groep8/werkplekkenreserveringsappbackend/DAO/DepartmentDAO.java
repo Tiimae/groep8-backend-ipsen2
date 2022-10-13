@@ -7,6 +7,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class DepartmentDAO {
@@ -19,8 +20,8 @@ public class DepartmentDAO {
         this.userRepository = userRepository;
     }
 
-    public Department getDepartmentFromDatabase(String departmentid) {
-        return this.departmentRepository.findById(departmentid).get();
+    public Optional<Department> getDepartmentFromDatabase(String departmentid) {
+        return this.departmentRepository.findById(departmentid);
     }
 
     public List<Department> getAllDepartmentsFromDatabase() {
