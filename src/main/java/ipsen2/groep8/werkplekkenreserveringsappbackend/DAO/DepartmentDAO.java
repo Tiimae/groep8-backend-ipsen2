@@ -17,12 +17,10 @@ public class DepartmentDAO {
 
     private DepartmentRepository departmentRepository;
     private UserRepository userRepository;
-    private WingRepository wingRepository;
 
-    public DepartmentDAO(DepartmentRepository departmentRepository, UserRepository userRepository, WingRepository wingRepository) {
+    public DepartmentDAO(DepartmentRepository departmentRepository, UserRepository userRepository) {
         this.departmentRepository = departmentRepository;
         this.userRepository = userRepository;
-        this.wingRepository = wingRepository;
     }
 
     public Optional<Department> getDepartmentFromDatabase(String departmentid) {
@@ -67,25 +65,5 @@ public class DepartmentDAO {
         department.getUsers().remove(user);
         user.setDepartment(null);
         this.userRepository.save(user);
-    }
-
-
-    public void attachWingToDepartmentInDatabase(String departmentId, String wingId) {
-        final Wing wing = this.wingRepository.findById(wingId).get();
-        final Department department = this.departmentRepository.findById(departmentId).get();
-
-        final Set<Wing> wings = department.getWings();
-        wings.add(wing);
-        department.setWings(wings);
-
-        this.departmentRepository.save(department);
-    }
-
-    public void detachWingFromDepartmentInDatabase(String departmentId, String wingId) {
-        final Wing wing = this.wingRepository.findById(wingId).get();
-        final Department department = this.departmentRepository.findById(departmentId).get();
-
-        department.getWings().remove(wing);
-        this.departmentRepository.save(department);
     }
 }

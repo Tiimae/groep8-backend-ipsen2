@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping(value = "/api/meetingroom")
+@RequestMapping(value = "/api/meeting-room")
 public class MeetingRoomController {
     private final MeetingRoomDAO meetingRoomDAO;
 

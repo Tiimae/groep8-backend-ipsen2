@@ -59,4 +59,20 @@ public class BuildingController {
         this.buildingDAO.deleteBuildingFromDatabase(buildingid);
         return new ApiResponse(HttpStatus.ACCEPTED, "Building has been deleted");
     }
+
+    @RequestMapping(value = "/{buildingid}/wing/{wingid}/attach", method = RequestMethod.POST)
+    @ResponseBody
+    public ApiResponse attachBuildingFromWing(@PathVariable String buildingid, @PathVariable String wingid) {
+        this.buildingDAO.attachBuildingToWingInDatabase(buildingid, wingid);
+
+        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been added from the building");
+    }
+
+    @RequestMapping(value = "/{buildingid}/wing/{wingid}/detach", method = RequestMethod.POST)
+    @ResponseBody
+    public ApiResponse detachBuildingFromWing(@PathVariable String buildingid, @PathVariable String wingid) {
+        this.buildingDAO.detachBuildingToWingInDatabase(buildingid, wingid);
+
+        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been removed from the building");
+    }
 }

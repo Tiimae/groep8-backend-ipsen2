@@ -77,4 +77,20 @@ public class WingController {
 
         return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been detached to a meeting room");
     }
+
+    @RequestMapping(value = "/{wingId}/department/{departmentId}/attach", method = RequestMethod.POST)
+    @ResponseBody
+    public ApiResponse attachWingToDeparment(@PathVariable String departmentId, @PathVariable String wingId) {
+        this.wingDAO.attachWingToDepartmentInDatabase(wingId, departmentId);
+
+        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been attached to the department");
+    }
+
+    @RequestMapping(value = "/{wingId}/department/{departmentId}/detach", method = RequestMethod.POST)
+    @ResponseBody
+    public ApiResponse detachWingToDeparment(@PathVariable String wingId, @PathVariable String departmentId) {
+        this.wingDAO.detachWingFromDepartmentInDatabase(wingId, departmentId);
+
+        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been detached to the department");
+    }
 }
