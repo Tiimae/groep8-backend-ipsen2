@@ -16,30 +16,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.naming.AuthenticationException;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping(value = "/api/auth")
 public class AuthenticationController {
 
-    @Autowired
-    private UserRepository userRepo;
-    @Autowired
-    private JWTUtil jwtUtil;
-    @Autowired
-    private AuthenticationManager authManager;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
+    @Autowired private UserRepository userRepo;
+    @Autowired private JWTUtil jwtUtil;
+    @Autowired private AuthenticationManager authManager;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     @PostMapping(value = "/register", consumes = {"application/json"})
     @ResponseBody
-    public Map<String, Object> register(@RequestBody User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public Map<String, Object> register(@RequestBody User user, HttpServletResponse response) {
+
+        Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
+        if (foundUser.isPresent()){
+
+            Map<String, Object> res = new HashMap<>();
+            res.put("message", "user already exists, use the login route");
+
+            return res;
+        }
+
+        String encodedPass = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPass);
         user = userRepo.save(user);
         String token = jwtUtil.generateToken(user.getEmail());
-
+        
         return Collections.singletonMap("jwt-token", token);
     }
 
@@ -48,7 +58,7 @@ public class AuthenticationController {
     public Map<String, Object> login(@RequestBody User user) throws AuthenticationException {
 
         UsernamePasswordAuthenticationToken authInputToken =
-                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+        new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 
         authManager.authenticate(authInputToken);
 
