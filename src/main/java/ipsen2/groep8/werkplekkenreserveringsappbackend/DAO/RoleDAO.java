@@ -19,8 +19,8 @@ public class RoleDAO {
         this.roleRepository = roleRepository;
     }
 
-    public Role getRoleFromDatabase(String roleid) {
-        return this.roleRepository.getById(roleid);
+    public Optional<Role> getRoleFromDatabase(String roleid) {
+        return this.roleRepository.findById(roleid);
     }
 
     public List<Role> getAllRolesFromDatabase() {

@@ -1,7 +1,9 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.WingDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,33 +21,44 @@ public class WingController {
 
     @GetMapping(value = "/{id}")
     @ResponseBody
-    public Optional<Wing> getWing(@PathVariable String id) {
-        return this.wingDAO.getWingFromDatabase(id);
+    public ApiResponse<Optional<Wing>> getWing(@PathVariable String id) {
+        Optional<Wing> wing = this.wingDAO.getWingFromDatabase(id);
+
+        if (wing.isEmpty()) {
+            return new ApiResponse(HttpStatus.NOT_FOUND, "The wing has not been found!");
+        }
+
+        return new ApiResponse(HttpStatus.ACCEPTED, wing);
     }
 
     @GetMapping(value = "")
     @ResponseBody
-    public List<Wing> getWings() {
-        return this.wingDAO.getAllWingsFromDatabase();
+    public ApiResponse<List<Wing>> getWings() {
+        List<Wing> allWings = this.wingDAO.getAllWingsFromDatabase();
+
+        return new ApiResponse(HttpStatus.ACCEPTED, allWings);
     }
 
     @PostMapping(value = "", consumes = {"application/json"})
     @ResponseBody
-    public Wing postWing(@RequestBody Wing wing) {
+    public ApiResponse postWing(@RequestBody Wing wing) {
         this.wingDAO.saveWingToDatabase(wing);
-        return wing;
+
+        return new ApiResponse(HttpStatus.CREATED, "The wing has been posted!");
     }
 
     @PutMapping(value = "", consumes = {"application/json"})
     @ResponseBody
-    public Wing updateWing(@RequestBody Wing wing) {
+    public ApiResponse updateWing(@RequestBody Wing wing) {
         this.wingDAO.updateWingInDatabase(wing);
-        return wing;
+        return new ApiResponse(HttpStatus.ACCEPTED, "The wing has been updated!");
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseBody
-    public void deleteWing(@PathVariable String id) {
+    public ApiResponse deleteWing(@PathVariable String id) {
         this.wingDAO.deleteWingFromDatabase(id);
+
+        return new ApiResponse(HttpStatus.ACCEPTED, "The wing has been deleted");
     }
 }
