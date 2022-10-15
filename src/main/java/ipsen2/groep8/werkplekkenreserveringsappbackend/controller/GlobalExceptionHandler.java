@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,9 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
-    @ExceptionHandler(EntryNotFoundException.class)
-    protected ResponseEntity<Object> handleEntryNotFound(EntryNotFoundException ex) {
+    @ExceptionHandler({EntryNotFoundException.class, EmptyResultDataAccessException.class})
+    protected ResponseEntity<Object> handleEntryNotFound(Exception ex) {
         Map<String, String> res = new HashMap<>();
         res.put("error", ex.getMessage());
 
