@@ -2,7 +2,9 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.RoleDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,35 +23,43 @@ public class RoleController {
 
     @RequestMapping(value = "/{roleid}", method = RequestMethod.GET)
     @ResponseBody
-    public Optional<Role> getRole(@PathVariable String roleid) {
-        return this.roleDAO.getRoleFromDatabase(roleid);
+    public ApiResponse<Optional<Role>> getRole(@PathVariable String roleid) {
+        Optional<Role> role = this.roleDAO.getRoleFromDatabase(roleid);
+
+        if (role.isEmpty()) {
+            return new ApiResponse(HttpStatus.NOT_FOUND, "The role has not been found");
+        }
+
+        return new ApiResponse(HttpStatus.ACCEPTED, role);
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
-    public List<Role> getRole() {
-        return this.roleDAO.getAllRolesFromDatabase();
+    public ApiResponse<List<Role>> getRole() {
+        List<Role> allRoles = this.roleDAO.getAllRolesFromDatabase();
+
+        return new ApiResponse(HttpStatus.ACCEPTED, allRoles);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
-    public String postRole(@RequestBody Role role) {
+    public ApiResponse postRole(@RequestBody Role role) {
         this.roleDAO.saveRoleToDatabase(role);
-        return "The role has been posted!";
+        return new ApiResponse(HttpStatus.CREATED, "The role has been posted!");
     }
 
     @RequestMapping(value = "", method = RequestMethod.PUT)
     @ResponseBody
-    public String updateRole(@RequestBody Role role) {
+    public ApiResponse updateRole(@RequestBody Role role) {
         this.roleDAO.updateRoleToDatabase(role);
-        return "The role has been updated!";
+        return new ApiResponse(HttpStatus.ACCEPTED, "The role has been updated!");
     }
 
-    @RequestMapping(value = "", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{roleid}", method = RequestMethod.DELETE)
     @ResponseBody
-    public String deleteRole(@RequestBody Role role) {
-        this.roleDAO.removeRoleToDatabase(role);
-        return "The role has been posted!";
+    public ApiResponse deleteRole(@PathVariable String roleid) {
+        this.roleDAO.removeRoleToDatabase(roleid);
+        return new ApiResponse(HttpStatus.ACCEPTED, "The role has been posted!");
     }
 
 }

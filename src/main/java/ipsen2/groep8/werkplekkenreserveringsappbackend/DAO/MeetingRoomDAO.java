@@ -34,4 +34,5 @@ public class MeetingRoomDAO {
     public void deleteMeetingRoomFromDatabase(String meetingRoomId) {
         this.meetingRoomRepository.deleteById(meetingRoomId);
     }
+
 }

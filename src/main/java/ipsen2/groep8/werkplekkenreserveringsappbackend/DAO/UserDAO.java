@@ -38,6 +38,11 @@ public class UserDAO {
     }
 
     public void deleteUserFromDatabase(String userid) {
+        final User user = this.userRepository.findById(userid).get();
+        for (Role role : user.getRoles()) {
+            user.getRoles().remove(role);
+        }
+
         this.userRepository.deleteById(userid);
     }
 

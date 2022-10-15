@@ -1,8 +1,10 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,43 +24,52 @@ public class UserController {
 
     @RequestMapping(value = "/{userid}", method = RequestMethod.GET)
     @ResponseBody
-    public Optional<User> getUser(@PathVariable String userid) {
-        return this.userDAO.getUserFromDatabase(userid);
+    public ApiResponse<Optional<User>> getUser(@PathVariable String userid) {
+        Optional<User> user = this.userDAO.getUserFromDatabase(userid);
+        if (user.isEmpty()) {
+             return new ApiResponse(HttpStatus.NOT_FOUND, "The user has not been found!");
+        }
+
+        return new ApiResponse(HttpStatus.ACCEPTED, user);
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
-    public List<User> getUsers() {
-        return this.userDAO.getAllUsersFromDatabase();
+    public ApiResponse<List<User>> getUsers() {
+        List<User> allUsers = this.userDAO.getAllUsersFromDatabase();
+
+        return new ApiResponse(HttpStatus.ACCEPTED, allUsers);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public String postUser(@RequestBody User user) {
+    public ApiResponse postUser(@RequestBody User user) {
         final String hash = this.authenticationService.hash(user.getPassword().toCharArray());
         user.setPassword(hash);
         this.userDAO.saveUserToDatabase(user);
-        return "User has been posted to the database";
+
+        return new ApiResponse(HttpStatus.CREATED, "User has been posted to the database!");
     }
 
     @PutMapping(value = "")
     @ResponseBody
-    public String updateUser(@RequestBody User user) {
+    public ApiResponse updateUser(@RequestBody User user) {
         this.userDAO.updateUserInDatabase(user);
-        return "User has been updated";
+
+        return new ApiResponse(HttpStatus.ACCEPTED, "User has been updated");
     }
 
     @DeleteMapping(value = "/{userid}")
     @ResponseBody
-    public String deleteUser(@PathVariable String userid) {
+    public ApiResponse deleteUser(@PathVariable String userid) {
         this.userDAO.deleteUserFromDatabase(userid);
-        return "User has been deleted";
+        return new ApiResponse(HttpStatus.ACCEPTED, "User has been deleted");
     }
 
     @RequestMapping(value = "/{userid}/role/{roleid}", method = RequestMethod.PUT)
     @ResponseBody
-    public String appendRoleToUser(@PathVariable String roleid, @PathVariable String userid) {
+    public ApiResponse appendRoleToUser(@PathVariable String roleid, @PathVariable String userid) {
         this.userDAO.appendUserToRole(roleid, userid);
-        return "Role has been added to user!";
+        return new ApiResponse(HttpStatus.ACCEPTED, "Role has been added to user!");
     }
 }
