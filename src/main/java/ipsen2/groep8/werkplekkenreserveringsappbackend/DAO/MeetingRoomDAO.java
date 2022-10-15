@@ -15,7 +15,7 @@ public class MeetingRoomDAO {
         this.meetingRoomRepository = meetingRoomRepository;
     }
 
-    public Optional<MeetingRoom> getMeetingRoomFromDatabase(Long meetingRoomId) {
+    public Optional<MeetingRoom> getMeetingRoomFromDatabase(String meetingRoomId) {
         return this.meetingRoomRepository.findById(meetingRoomId);
     }
 
@@ -31,7 +31,7 @@ public class MeetingRoomDAO {
         this.meetingRoomRepository.save(meetingRoom);
     }
 
-    public void deleteMeetingRoomFromDatabase(long meetingRoomId) {
+    public void deleteMeetingRoomFromDatabase(String meetingRoomId) {
         this.meetingRoomRepository.deleteById(meetingRoomId);
     }
 }

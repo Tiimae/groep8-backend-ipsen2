@@ -20,7 +20,7 @@ public class MeetingRoomController {
 
     @GetMapping(value = "/{meetingRoomId}")
     @ResponseBody
-    public Optional<MeetingRoom> getMeetingRoom(@PathVariable Long meetingRoomId) {
+    public Optional<MeetingRoom> getMeetingRoom(@PathVariable String meetingRoomId) {
         return this.meetingRoomDAO.getMeetingRoomFromDatabase(meetingRoomId);
     }
 
@@ -49,7 +49,7 @@ public class MeetingRoomController {
     @DeleteMapping(value = "/{meetingRoomId}")
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String deleteUser(@PathVariable Long meetingRoomId) {
+    public String deleteUser(@PathVariable String meetingRoomId) {
         this.meetingRoomDAO.deleteMeetingRoomFromDatabase(meetingRoomId);
         return "MeetingRoom has been deleted";
     }
