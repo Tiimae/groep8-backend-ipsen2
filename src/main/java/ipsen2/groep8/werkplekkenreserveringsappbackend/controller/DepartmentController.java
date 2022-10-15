@@ -63,7 +63,7 @@ public class DepartmentController {
         return new ApiResponse(HttpStatus.ACCEPTED, "Department has been removed in the database!");
     }
 
-    @RequestMapping(value = "/{departmentId}/user/{userId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{departmentId}/user/{userId}attach", method = RequestMethod.POST)
     @ResponseBody
     public ApiResponse addUserToDepartment(@PathVariable String departmentId, @PathVariable String userId) {
         this.departmentDAO.addDepartmentToUserInDatabase(departmentId, userId);

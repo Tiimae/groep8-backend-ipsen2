@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping(value = "/api/meetingroom")
+@RequestMapping(value = "/api/meeting-room")
 public class MeetingRoomController {
     private final MeetingRoomDAO meetingRoomDAO;
 
@@ -21,7 +21,7 @@ public class MeetingRoomController {
 
     @GetMapping(value = "/{meetingRoomId}")
     @ResponseBody
-    public ApiResponse<Optional<MeetingRoom>> getMeetingRoom(@PathVariable Long meetingRoomId) {
+    public ApiResponse<Optional<MeetingRoom>> getMeetingRoom(@PathVariable String meetingRoomId) {
         Optional<MeetingRoom> meetingRoom = this.meetingRoomDAO.getMeetingRoomFromDatabase(meetingRoomId);
 
         if (meetingRoom.isEmpty()) {
@@ -55,7 +55,7 @@ public class MeetingRoomController {
 
     @DeleteMapping(value = "/{meetingRoomId}")
     @ResponseBody
-    public ApiResponse deleteUser(@PathVariable Long meetingRoomId) {
+    public ApiResponse deleteUser(@PathVariable String meetingRoomId) {
         this.meetingRoomDAO.deleteMeetingRoomFromDatabase(meetingRoomId);
         return new ApiResponse(HttpStatus.ACCEPTED, "MeetingRoom has been deleted");
     }
