@@ -1,16 +1,23 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "reservation")
+@Getter
+@Setter
 public class Reservation {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -30,13 +37,20 @@ public class Reservation {
     private String note;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    TODO: write propper mapper and DTO
+//    @JsonIgnoreProperties("reservations")
     @JsonBackReference
     private User user;
 
-    @ManyToMany(mappedBy = "reservations")
-    private Set<MeetingRoom> meetingRooms;
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, mappedBy = "reservations")
+//    TODO: write propper mapper and DTO
+//    @JsonIgnoreProperties("reservations")
+    @JsonBackReference
+    private Set<MeetingRoom> meetingRooms = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    TODO: write propper mapper and DTO
+//    @JsonIgnoreProperties("reservations")
     @JsonBackReference
     private Wing wing;
 
@@ -49,74 +63,22 @@ public class Reservation {
         this.amount = amount;
         this.note = note;
         this.user = user;
-        this.meetingRooms = meetingRooms;
         this.wing = wing;
+
+        for (MeetingRoom meetingRoom : meetingRooms) {
+            this.addMeetingRoom(meetingRoom);
+        }
     }
 
-    public String getId() {
-        return id;
+    public void addMeetingRoom(MeetingRoom meetingRoom) {
+        this.meetingRooms.add(meetingRoom);
+        meetingRoom.getReservations().add(this);
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void removeMeetingRoom(MeetingRoom meetingRoom) {
+        this.meetingRooms.remove(meetingRoom);
+        meetingRoom.getReservations().remove(this);
     }
-
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Set<MeetingRoom> getMeetingRooms() {
-        return meetingRooms;
-    }
-
-    public void setMeetingRooms(Set<MeetingRoom> meetingRooms) {
-        this.meetingRooms = meetingRooms;
-    }
-
 
     @JsonBackReference(value = "wing-reservation")
     public Wing getWing() {
@@ -127,6 +89,4 @@ public class Reservation {
     public void setWing(Wing wing) {
         this.wing = wing;
     }
-
-
 }
