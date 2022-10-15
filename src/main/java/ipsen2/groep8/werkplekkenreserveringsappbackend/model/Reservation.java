@@ -1,9 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -38,20 +36,20 @@ public class Reservation {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    TODO: write propper mapper and DTO
-//    @JsonIgnoreProperties("reservations")
-    @JsonBackReference
+    @JsonIgnoreProperties("reservations")
+//    @JsonManagedReference
     private User user;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, mappedBy = "reservations")
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "reservations")
 //    TODO: write propper mapper and DTO
-//    @JsonIgnoreProperties("reservations")
-    @JsonBackReference
+    @JsonIgnoreProperties("reservations")
+//    @JsonManagedReference
     private Set<MeetingRoom> meetingRooms = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    TODO: write propper mapper and DTO
 //    @JsonIgnoreProperties("reservations")
-    @JsonBackReference
+    @JsonBackReference( value = "wing-reservation")
     private Wing wing;
 
     public Reservation() { }

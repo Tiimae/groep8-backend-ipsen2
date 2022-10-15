@@ -2,18 +2,23 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.ReservationDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.ReservationDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequestMapping(value = "/api/reservation")
+@Validated
 public class ReservationController {
     private final ReservationDAO reservationDAO;
     private final ReservationMapper reservationMapper;
@@ -24,54 +29,45 @@ public class ReservationController {
     }
 
     @GetMapping(value = "/{id}")
-    @ResponseBody
-    public Optional<Reservation> getReservation(@PathVariable String id) {
-        return this.reservationDAO.getReservationFromDatabase(id);
+    public ResponseEntity<Reservation> getReservation(@PathVariable String id) throws EntryNotFoundException {
+        Optional<Reservation> reservationEntry = this.reservationDAO.getReservationFromDatabase(id);
+        if (reservationEntry.isEmpty()) throw new EntryNotFoundException("Reservation not found");
+        return new ResponseEntity<>(reservationEntry.get(), HttpStatus.OK);
     }
 
-    @GetMapping(value = "")
+    @GetMapping
     @ResponseBody
     public List<Reservation> getReservations() {
         return this.reservationDAO.getAllReservations();
     }
 
-    @PostMapping(value = "", consumes = {"application/json"})
-    @ResponseBody
-    @ResponseStatus(HttpStatus.CREATED)
-    public Reservation postReservation(@RequestBody ReservationDTO reservationDTO) {
+    @PostMapping(consumes = {"application/json"})
+    public ResponseEntity<Reservation> postReservation(@RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
         Reservation reservation = reservationMapper.toReservation(reservationDTO);
         this.reservationDAO.saveReservationToDatabase(reservation);
-        return reservation;
+        return new ResponseEntity<>(reservation, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "", consumes = {"apllication/json"})
-    @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    //TODO: move to DTO
-    public Reservation updateReservation(@RequestBody Reservation reservation) {
-        this.reservationDAO.updateReservationInDatabase(reservation);
-        return reservation;
+    @PutMapping(value ="/{id}", consumes = {"application/json"})
+    public ResponseEntity<Reservation> updateReservation(@PathVariable String id, @RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
+        Reservation reservation = reservationMapper.toReservation(reservationDTO);
+        this.reservationDAO.updateReservationInDatabase(id, reservation);
+        return new ResponseEntity<>(reservation, HttpStatus.ACCEPTED);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public String deleteReservation(@PathVariable String id) {
+    public void deleteReservation(@PathVariable String id) {
         this.reservationDAO.deleteReservationFromDatabase(id);
-        return id;
     }
 
     @GetMapping(value = "/{id}/user")
-    @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
-    public User getReservationUser(@PathVariable String id) {
-        Optional<Reservation> reservation = this.reservationDAO.getReservationFromDatabase(id);
+    public ResponseEntity<User> getReservationUser(@PathVariable String id) throws EntryNotFoundException {
+        Optional<Reservation> reservationEntry = this.reservationDAO.getReservationFromDatabase(id);
 
-        if (reservation.isPresent()) {
-            Reservation presentReservation = reservation.get();
-            return presentReservation.getUser();
-        }
+        if (reservationEntry.isEmpty()) throw new EntryNotFoundException("Reservation not found");
 
-        return null;
+        Reservation presentReservation = reservationEntry.get();
+        return new ResponseEntity<>(presentReservation.getUser(), HttpStatus.OK);
     }
 }
