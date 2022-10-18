@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.security.PrivilegedAction;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -38,7 +39,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonBackReference
@@ -46,7 +47,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
-    private Set<Reservation> reservations;
+    private Set<Reservation> reservations = new HashSet<>();
 
     public User() { }
 
@@ -66,24 +67,32 @@ public class User {
     }
 
     public void addRoles(Role role) {
-        this.roles.add(role);
-        role.getUsers().add(this);
+        if (role != null) {
+            this.roles.add(role);
+            role.getUsers().add(this);
+        }
     }
 
 
     public void removeRoles(Role role) {
-        this.roles.remove(role);
-        role.getUsers().remove(this);
+        if (role != null) {
+            this.roles.remove(role);
+            role.getUsers().remove(this);
+        }
     }
 
     public void addReservation(Reservation reservation) {
-        this.reservations.add(reservation);
-        reservation.setUser(this) ;
+        if (reservation != null) {
+            this.reservations.add(reservation);
+            reservation.setUser(this);
+        }
     }
 
 
     public void removeReservation(Reservation reservation) {
-        this.reservations.remove(reservation);
-        reservation.setUser(this);
+        if (reservation != null) {
+            this.reservations.remove(reservation);
+            reservation.setUser(this);
+        }
     }
 }
