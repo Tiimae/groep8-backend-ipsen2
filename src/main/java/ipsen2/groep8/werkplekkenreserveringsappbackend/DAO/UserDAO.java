@@ -5,6 +5,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserReposi
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class UserDAO {
     private UserRepository userRepository;
     private UserMapper userMapper;
 
-    public UserDAO(UserRepository userRepository, UserMapper userMapper) {
+    public UserDAO(UserRepository userRepository, @Lazy UserMapper userMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
     }
