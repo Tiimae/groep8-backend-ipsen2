@@ -1,6 +1,10 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.ReservationDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
@@ -8,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,44 +22,43 @@ public class UserController {
 
     private final AuthenticationService authenticationService = new AuthenticationService();
     private final UserDAO userDAO;
+    private final UserMapper userMapper;
 
-    public UserController(UserDAO userDAO) {
+    public UserController(UserDAO userDAO, UserMapper userMapper) {
         this.userDAO = userDAO;
+        this.userMapper = userMapper;
     }
 
     @RequestMapping(value = "/{userid}", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<Optional<User>> getUser(@PathVariable String userid) {
+    public ApiResponse<User> getUser(@PathVariable String userid) {
         Optional<User> user = this.userDAO.getUserFromDatabase(userid);
         if (user.isEmpty()) {
              return new ApiResponse(HttpStatus.NOT_FOUND, "The user has not been found!");
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, user);
+        return new ApiResponse(HttpStatus.ACCEPTED, user.get());
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
     public ApiResponse<List<User>> getUsers() {
-        List<User> allUsers = this.userDAO.getAllUsersFromDatabase();
-
-        return new ApiResponse(HttpStatus.ACCEPTED, allUsers);
+        return new ApiResponse(HttpStatus.ACCEPTED, this.userDAO.getAllUsersFromDatabase());
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postUser(@RequestBody User user) {
-        final String hash = this.authenticationService.hash(user.getPassword().toCharArray());
-        user.setPassword(hash);
+    public ApiResponse postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
+        User user = userMapper.toUser(userDTO);
         this.userDAO.saveUserToDatabase(user);
-
         return new ApiResponse(HttpStatus.CREATED, "User has been posted to the database!");
     }
 
-    @PutMapping(value = "")
+    @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse updateUser(@RequestBody User user) {
-        this.userDAO.updateUserInDatabase(user);
+    public ApiResponse updateUser(@PathVariable String id, @RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
+        User user = this.userMapper.toUser(userDTO);
+        this.userDAO.updateUserInDatabase(id, user);
 
         return new ApiResponse(HttpStatus.ACCEPTED, "User has been updated");
     }
@@ -65,11 +69,11 @@ public class UserController {
         this.userDAO.deleteUserFromDatabase(userid);
         return new ApiResponse(HttpStatus.ACCEPTED, "User has been deleted");
     }
-
-    @RequestMapping(value = "/{userid}/role/{roleid}", method = RequestMethod.PUT)
-    @ResponseBody
-    public ApiResponse appendRoleToUser(@PathVariable String roleid, @PathVariable String userid) {
-        this.userDAO.appendUserToRole(roleid, userid);
-        return new ApiResponse(HttpStatus.ACCEPTED, "Role has been added to user!");
-    }
+//
+//    @RequestMapping(value = "/{userid}/role/{roleid}", method = RequestMethod.PUT)
+//    @ResponseBody
+//    public ApiResponse appendRoleToUser(@PathVariable String roleid, @PathVariable String userid) {
+//        this.userDAO.appendUserToRole(roleid, userid);
+//        return new ApiResponse(HttpStatus.ACCEPTED, "Role has been added to user!");
+//    }
 }
