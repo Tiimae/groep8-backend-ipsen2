@@ -2,12 +2,15 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.DepartmentRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.WingRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 public class DepartmentDAO {
