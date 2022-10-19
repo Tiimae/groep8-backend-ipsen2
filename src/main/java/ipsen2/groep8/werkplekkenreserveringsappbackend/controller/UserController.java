@@ -69,11 +69,4 @@ public class UserController {
         this.userDAO.deleteUserFromDatabase(userid);
         return new ApiResponse(HttpStatus.ACCEPTED, "User has been deleted");
     }
-//
-//    @RequestMapping(value = "/{userid}/role/{roleid}", method = RequestMethod.PUT)
-//    @ResponseBody
-//    public ApiResponse appendRoleToUser(@PathVariable String roleid, @PathVariable String userid) {
-//        this.userDAO.appendUserToRole(roleid, userid);
-//        return new ApiResponse(HttpStatus.ACCEPTED, "Role has been added to user!");
-//    }
 }
