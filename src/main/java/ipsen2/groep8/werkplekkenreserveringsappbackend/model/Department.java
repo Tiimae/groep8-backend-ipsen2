@@ -2,6 +2,8 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -9,6 +11,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "department")
+@Getter
+@Setter
 public class Department {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -29,39 +33,43 @@ public class Department {
 
     public Department(String name, Set<User> users, Set<Wing> wings) {
         this.name = name;
-        this.users = users;
-        this.wings = wings;
+
+        for (User user : users) {
+            this.addUser(user);
+        }
+
+        for (Wing wing : wings) {
+            this.addWing(wing);
+        }
     }
 
-    public String getId() {
-        return id;
+    private void addUser(User user) {
+        if (user != null) {
+            this.getUsers().add(user);
+            user.setDepartment(this);
+        }
     }
 
-    public void setId(String id) {
-        this.id = id;
+    private void removeUser(User user) {
+        if (user != null) {
+            this.getUsers().remove(user);
+            user.setDepartment(null);
+        }
     }
 
-    public String getName() {
-        return name;
+    private void addWing(Wing wing) {
+        if (wing != null) {
+            this.getWings().add(wing);
+            wing.getDepartments().add(this);
+        }
     }
 
-    public void setName(String name) {
-        this.name = name;
+    private void removeWing(Wing wing) {
+        if (wing != null) {
+            this.getWings().remove(wing);
+            wing.getDepartments().remove(this);
+        }
     }
 
-    public Set<User> getUsers() {
-        return users;
-    }
 
-    public void setUsers(Set<User> users) {
-        this.users = users;
-    }
-
-    public Set<Wing> getWings() {
-        return wings;
-    }
-
-    public void setWings(Set<Wing> wings) {
-        this.wings = wings;
-    }
 }
