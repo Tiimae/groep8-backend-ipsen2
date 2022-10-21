@@ -3,9 +3,11 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.DepartmentRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.MeetingRoomRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.WingRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.WingMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.MeetingRoom;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,13 +17,11 @@ import java.util.Set;
 @Component
 public class WingDAO {
     private WingRepository wingRepository;
-    private MeetingRoomRepository meetingRoomRepository;
-    private DepartmentRepository departmentRepository;
+    private WingMapper wingMapper;
 
-    public WingDAO(WingRepository wingRepository, MeetingRoomRepository meetingRoomRepository, DepartmentRepository departmentRepository) {
+    public WingDAO(WingRepository wingRepository, MeetingRoomRepository meetingRoomRepository, DepartmentRepository departmentRepository, @Lazy WingMapper wingMapper) {
         this.wingRepository = wingRepository;
-        this.meetingRoomRepository = meetingRoomRepository;
-        this.departmentRepository = departmentRepository;
+        this.wingMapper = wingMapper;
     }
 
     public Optional<Wing> getWingFromDatabase(String wingId) {
@@ -36,47 +36,12 @@ public class WingDAO {
         this.wingRepository.save(wing);
     }
 
-    public void updateWingInDatabase(Wing wing) {
-        this.wingRepository.save(wing);
+    public void updateWingInDatabase(String id, Wing wingUpdate) {
+        final Wing wing = this.wingMapper.mergeWing(this.wingRepository.getById(id), wingUpdate);
+        this.wingRepository.saveAndFlush(wing);
     }
 
     public void deleteWingFromDatabase(String wingId) {
         this.wingRepository.deleteById(wingId);
-    }
-
-    public void attachMeetingRoomToWingInDatabase(String wingId, String meetingRoomId) {
-        final MeetingRoom meetingRoom = this.meetingRoomRepository.findById(meetingRoomId).get();
-        final Wing wing = this.wingRepository.findById(wingId).get();
-
-        meetingRoom.setWing(wing);
-        this.meetingRoomRepository.save(meetingRoom);
-    }
-
-    public void detachMeetingRoomToWingInDatabase(String wingId, String meetingRoomId) {
-        final MeetingRoom meetingRoom = this.meetingRoomRepository.findById(meetingRoomId).get();
-        final Wing wing = this.wingRepository.findById(wingId).get();
-
-        wing.getMeetingRooms().remove(meetingRoom);
-        meetingRoom.setWing(null);
-
-        this.wingRepository.save(wing);
-        this.meetingRoomRepository.save(meetingRoom);
-    }
-
-    public void attachWingToDepartmentInDatabase(String wingId, String departmentId) {
-        final Wing wing = this.wingRepository.findById(wingId).get();
-        final Department department = this.departmentRepository.findById(departmentId).get();
-
-        wing.getDepartments().add(department);
-
-        this.wingRepository.save(wing);
-    }
-
-    public void detachWingFromDepartmentInDatabase(String wingId, String departmentId) {
-        final Wing wing = this.wingRepository.findById(wingId).get();
-        final Department department = this.departmentRepository.findById(departmentId).get();
-
-        wing.getDepartments().remove(department);
-        this.wingRepository.save(wing);
     }
 }
