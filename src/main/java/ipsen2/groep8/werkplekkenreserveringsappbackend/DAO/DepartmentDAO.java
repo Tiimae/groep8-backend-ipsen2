@@ -39,7 +39,7 @@ public class DepartmentDAO {
     public void updateDepartmentInDatabase(String id, Department departmentUpdate) {
         Department department = this.departmentRepository.getById(id);
         department = this.departmentMapper.updateDepartment(department, departmentUpdate);
-        this.departmentRepository.save(department);
+        this.departmentRepository.saveAndFlush(department);
     }
 
     public void removeDepartmentFromDatabase(String departmentId) {
