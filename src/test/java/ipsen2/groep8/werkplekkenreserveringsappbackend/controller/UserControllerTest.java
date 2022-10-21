@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,9 +23,12 @@ public class UserControllerTest {
 
     private UserController userController;
 
+    @Mock
+    private UserMapper userMapper;
+
     @Before
     public void setup() {
-        this.userController = new UserController(this.userDAO);
+        this.userController = new UserController(this.userDAO, this.userMapper);
     }
 
     @Test

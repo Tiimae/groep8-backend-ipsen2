@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -24,10 +25,10 @@ public class Department {
 
     @OneToMany(mappedBy = "department", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
-    private Set<User> users;
+    private Set<User> users = new HashSet<>();
 
     @ManyToMany(mappedBy = "departments")
-    private Set<Wing> wings;
+    private Set<Wing> wings = new HashSet<>();
 
     public Department() { }
 
