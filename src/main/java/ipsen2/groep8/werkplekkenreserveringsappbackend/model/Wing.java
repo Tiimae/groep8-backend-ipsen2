@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -31,7 +32,7 @@ public class Wing {
             joinColumns = @JoinColumn(name = "wing_id"),
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
-    private Set<Department> departments;
+    private Set<Department> departments = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonBackReference
@@ -39,11 +40,11 @@ public class Wing {
 
     @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
-    private Set<Reservation> reservations;
+    private Set<Reservation> reservations = new HashSet<>();
 
     @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
-    private Set<MeetingRoom> meetingRooms;
+    private Set<MeetingRoom> meetingRooms = new HashSet<>();
 
     public Wing() {
     }
