@@ -1,7 +1,8 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -9,6 +10,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "building")
+@Getter
+@Setter
 public class Building {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -37,63 +40,24 @@ public class Building {
         this.address = address;
         this.zipcode = zipcode;
         this.city = city;
-        this.wings = wings;
         this.variable = variable;
+
+        for (Wing wing : wings) {
+            this.addWing(wing);
+        }
     }
 
-    public String getId() {
-        return id;
+    private void addWing(Wing wing) {
+        if (wing != null) {
+            this.getWings().add(wing);
+            wing.setBuilding(this);
+        }
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getZipcode() {
-        return zipcode;
-    }
-
-    public void setZipcode(String zipcode) {
-        this.zipcode = zipcode;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public Set<Wing> getWings() {
-        return wings;
-    }
-
-    public void setWings(Set<Wing> wings) {
-        this.wings = wings;
-    }
-
-    public Variable getVariable() {
-        return variable;
-    }
-
-    public void setVariable(Variable variable) {
-        this.variable = variable;
+    private void removeWing(Wing wing) {
+        if (wing != null) {
+            this.getWings().remove(wing);
+            wing.setBuilding(null);
+        }
     }
 }
