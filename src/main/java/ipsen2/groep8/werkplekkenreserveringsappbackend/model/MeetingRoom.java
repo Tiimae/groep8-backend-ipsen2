@@ -2,13 +2,18 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "meetingRoom")
+@Getter
+@Setter
 public class MeetingRoom {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -28,45 +33,30 @@ public class MeetingRoom {
             joinColumns = @JoinColumn(name = "meetingroom_id"),
             inverseJoinColumns = @JoinColumn(name = "reservation_id")
     )
-    private Set<Reservation> reservations;
+    private Set<Reservation> reservations = new HashSet<>();
 
     public MeetingRoom() { }
 
     public MeetingRoom(Long amountPeople, Wing wing, Set<Reservation> reservations) {
         this.amountPeople = amountPeople;
         this.wing = wing;
-        this.reservations = reservations;
+
+        for (Reservation reservation : reservations) {
+            this.addReservation(reservation);
+        }
     }
 
-    public String getId() {
-        return id;
+    public void addReservation(Reservation reservation) {
+        if (reservation != null) {
+            this.getReservations().add(reservation);
+            reservation.getMeetingRooms().add(this);
+        }
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Long getAmountPeople() {
-        return amountPeople;
-    }
-
-    public void setAmountPeople(Long amountPeople) {
-        this.amountPeople = amountPeople;
-    }
-
-    public Wing getWing() {
-        return wing;
-    }
-
-    public void setWing(Wing wing) {
-        this.wing = wing;
-    }
-
-    public Set<Reservation> getReservations() {
-        return reservations;
-    }
-
-    public void setReservations(Set<Reservation> reservations) {
-        this.reservations = reservations;
+    public void removeReservation(Reservation reservation) {
+        if (reservation != null) {
+            this.getReservations().remove(reservation);
+            reservation.getMeetingRooms().remove(this);
+        }
     }
 }
