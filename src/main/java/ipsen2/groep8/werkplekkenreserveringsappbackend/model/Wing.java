@@ -3,13 +3,18 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "wing")
+@Getter
+@Setter
 public class Wing {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -27,7 +32,7 @@ public class Wing {
             joinColumns = @JoinColumn(name = "wing_id"),
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
-    private Set<Department> departments;
+    private Set<Department> departments = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonBackReference
@@ -35,11 +40,11 @@ public class Wing {
 
     @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
-    private Set<Reservation> reservations;
+    private Set<Reservation> reservations = new HashSet<>();
 
     @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
-    private Set<MeetingRoom> meetingRooms;
+    private Set<MeetingRoom> meetingRooms = new HashSet<>();
 
     public Wing() {
     }
@@ -48,66 +53,63 @@ public class Wing {
         this.name = name;
         this.workplaces = workplaces;
         this.floor = floor;
-        this.departments = departments;
         this.building = building;
-        this.meetingRooms = meetingRooms;
-        this.reservations = reservations;
+
+        for (Department department : departments ) {
+            this.addDepartment(department);
+        }
+
+        for (MeetingRoom meetingRoom : meetingRooms) {
+            this.addMeetingRoom(meetingRoom);
+        }
+
+        for (Reservation reservation : reservations) {
+            this.addReservation(reservation);
+        }
     }
 
-    public String getId() {
-        return id;
+    public void addDepartment(Department department) {
+        if (department != null) {
+            this.departments.add(department);
+            department.getWings().add(this);
+        }
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void removeDepartment(Department department) {
+        if (department != null) {
+            this.departments.remove(department);
+            department.getWings().remove(this);
+        }
     }
 
-    public String getName() {
-        return name;
+
+    public void addMeetingRoom(MeetingRoom meetingRoom) {
+        if (meetingRoom != null) {
+            this.meetingRooms.add(meetingRoom);
+            meetingRoom.setWing(this);
+        }
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void removeMeetingRoom(MeetingRoom meetingRoom) {
+        if (meetingRoom != null) {
+            this.meetingRooms.remove(meetingRoom);
+            meetingRoom.setWing(null);
+        }
     }
 
-    public Long getWorkplaces() {
-        return workplaces;
+
+    public void addReservation(Reservation reservation) {
+        if (reservation != null) {
+            this.reservations.add(reservation);
+            reservation.setWing(this);
+        }
     }
 
-    public void setWorkplaces(Long workplaces) {
-        this.workplaces = workplaces;
-    }
-
-    public Long getFloor() {
-        return floor;
-    }
-
-    public void setFloor(Long floor) {
-        this.floor = floor;
-    }
-
-    public Set<Department> getDepartments() {
-        return departments;
-    }
-
-    public void setDepartments(Set<Department> departments) {
-        this.departments = departments;
-    }
-
-    public Building getBuilding() {
-        return building;
-    }
-
-    public void setBuilding(Building building) {
-        this.building = building;
-    }
-
-    public Set<MeetingRoom> getMeetingRooms() {
-        return meetingRooms;
-    }
-
-    public void setMeetingRooms(Set<MeetingRoom> meetingRooms) {
-        this.meetingRooms = meetingRooms;
+    public void removeReservation(Reservation reservation) {
+        if (reservation != null) {
+            this.reservations.remove(reservation);
+            reservation.setWing(null);
+        }
     }
 
     @JsonManagedReference(value = "wing-reservation")

@@ -36,7 +36,7 @@ public class UserMapper {
         if (userDTO.getDepartmentId() != null) {
             final Optional<Department> departmentEntry = departmentDAO.getDepartmentFromDatabase(userDTO.getDepartmentId());
             if (departmentEntry.isEmpty()) {
-                throw new EntryNotFoundException("Department not found.");
+                throw new EntryNotFoundException("User not found.");
             }
 
             department = departmentEntry.get();
