@@ -29,7 +29,7 @@ public class VariableDAO {
     }
 
     public void updateVariableInDatabase(Variable variable) {
-        this.variableRepository.save(variable);
+        this.variableRepository.saveAndFlush(variable);
     }
 
     public void deleteVariableFromDatabase(String variableid) {
