@@ -8,6 +8,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.WingDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.*;
 import lombok.extern.java.Log;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Component
 public class WingMapper {
 
     private ReservationDAO reservationDAO;

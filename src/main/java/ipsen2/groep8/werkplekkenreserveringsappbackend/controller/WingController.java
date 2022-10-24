@@ -17,6 +17,7 @@ import java.util.Optional;
 @Controller
 @RequestMapping(value = "/api/wing")
 public class WingController {
+
     private final WingDAO wingDAO;
     private final WingMapper wingMapper;
 
