@@ -48,10 +48,10 @@ public class UserController {
 
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
+    public ApiResponse<User> postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
         User user = userMapper.toUser(userDTO);
         this.userDAO.saveUserToDatabase(user);
-        return new ApiResponse(HttpStatus.CREATED, "User has been posted to the database!");
+        return new ApiResponse(HttpStatus.CREATED, user);
     }
 
     @PutMapping(value = "/{id}", consumes = {"application/json"})
