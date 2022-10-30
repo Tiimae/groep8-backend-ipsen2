@@ -2,10 +2,14 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,10 +35,13 @@ public class AuthenticationController {
     @Autowired private JWTUtil jwtUtil;
     @Autowired private AuthenticationManager authManager;
     @Autowired private PasswordEncoder passwordEncoder;
-
-    @PostMapping(value = "/register", consumes = {"application/json"})
+    private final UserMapper userMapper;
+    public AuthenticationController(UserMapper userMapper){
+        this.userMapper = userMapper;
+    }
+    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> register(@RequestBody User user, HttpServletResponse response) {
+    public Map<String, Object> register(@RequestBody UserDTO user, HttpServletResponse response) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()){
@@ -47,15 +54,17 @@ public class AuthenticationController {
 
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
-        user = userRepo.save(user);
-        String token = jwtUtil.generateToken(user.getEmail());
+        User newUser = userMapper.toUser(user);
+
+        newUser = userRepo.save(newUser);
+        String token = jwtUtil.generateToken(newUser.getEmail());
         
         return Collections.singletonMap("jwt-token", token);
     }
 
-    @PostMapping(value = "/login", consumes = {"application/json"})
+    @PostMapping(value = "/login",  consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> login(@RequestBody User user) throws AuthenticationException {
+    public Map<String, Object> login(@RequestBody UserDTO user) throws AuthenticationException {
 
         UsernamePasswordAuthenticationToken authInputToken =
         new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());

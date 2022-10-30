@@ -22,7 +22,7 @@ public class JWTUtil {
         .withSubject("User Details")
         .withClaim("email", email)
         .withIssuedAt(new Date())
-        .withIssuer("YOUR APPLICATION/PROJECT/COMPANY NAME")
+        .withIssuer("groep8.ipsen2")
         .sign(Algorithm.HMAC256(secret));
     }
 
