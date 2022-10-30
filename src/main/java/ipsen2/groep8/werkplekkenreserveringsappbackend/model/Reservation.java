@@ -55,8 +55,8 @@ public class Reservation {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    TODO: write propper mapper and DTO
-//    @JsonIgnoreProperties("reservations")
-    @JsonBackReference( value = "wing-reservation")
+    @JsonIgnoreProperties("reservations")
+//    @JsonBackReference( value = "wing-reservation")
     private Wing wing;
 
     public Reservation() { }
@@ -86,12 +86,12 @@ public class Reservation {
         meetingRoom.getReservations().remove(this);
     }
 
-    @JsonBackReference(value = "wing-reservation")
+//    @JsonBackReference(value = "wing-reservation")
     public Wing getWing() {
         return wing;
     }
 
-    @JsonBackReference(value = "wing-reservation")
+//    @JsonBackReference(value = "wing-reservation")
     public void setWing(Wing wing) {
         this.wing = wing;
     }
