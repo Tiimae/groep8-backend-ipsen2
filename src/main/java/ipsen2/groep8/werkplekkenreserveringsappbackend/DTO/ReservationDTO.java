@@ -26,6 +26,9 @@ public class ReservationDTO {
     @NotNull(message = "endtime must exist")
     private long endtime;
 
+    @NotNull(message = "Type must exist")
+    private String type;
+
     private String[] meetingRoomIds;
     private String wingId;
 }

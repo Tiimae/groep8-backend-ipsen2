@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,6 +32,8 @@ public class ReservationMapper {
         //required parameters
         LocalDateTime starttime = LocalDateTime.ofInstant(Instant.ofEpochMilli(reservationDTO.getStarttime()), TimeZone.getDefault().toZoneId());
         LocalDateTime endtime = LocalDateTime.ofInstant(Instant.ofEpochMilli(reservationDTO.getEndtime()), TimeZone.getDefault().toZoneId());
+
+        String type = reservationDTO.getType();
 
         Optional<User> userEntry = userDAO.getUserFromDatabase(reservationDTO.getUserId());
         if (userEntry.isEmpty()) throw new EntryNotFoundException("User not found.");
@@ -61,7 +62,7 @@ public class ReservationMapper {
 
         String note = reservationDTO.getNote();
 
-        return new Reservation(starttime, endtime, status, amount, note, user, meetingRooms, wing);
+        return new Reservation(starttime, endtime, status, amount, note, user, meetingRooms, wing, type);
     }
 
     public Reservation mergeReservations(Reservation base, Reservation update) {
@@ -73,6 +74,7 @@ public class ReservationMapper {
         base.setUser(update.getUser());
         base.setMeetingRooms(update.getMeetingRooms());
         base.setWing(update.getWing());
+        base.setType(update.getType());
 
         return base;
     }

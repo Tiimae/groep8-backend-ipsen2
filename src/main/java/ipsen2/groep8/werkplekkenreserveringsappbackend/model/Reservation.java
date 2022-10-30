@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,16 +24,22 @@ public class Reservation {
     @Column(name = "id", columnDefinition = "VARCHAR(255)")
     private String id;
 
+    @NotNull
     private LocalDateTime startDate;
+    @NotNull
     private LocalDateTime endDate;
     private boolean status;
 
     @Column(length = 2)
     @Value("1")
+    @NotNull
     private int amount;
 
     @Column(columnDefinition = "TEXT")
     private String note;
+
+    @NotNull
+    private String type;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    TODO: write propper mapper and DTO
@@ -54,7 +61,7 @@ public class Reservation {
 
     public Reservation() { }
 
-    public Reservation(LocalDateTime startDate, LocalDateTime endDate, boolean status, int amount, String note, User user, Set<MeetingRoom> meetingRooms, Wing wing) {
+    public Reservation(LocalDateTime startDate, LocalDateTime endDate, boolean status, int amount, String note, User user, Set<MeetingRoom> meetingRooms, Wing wing, String type) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = status;
@@ -62,6 +69,7 @@ public class Reservation {
         this.note = note;
         this.user = user;
         this.wing = wing;
+        this.type = type;
 
         for (MeetingRoom meetingRoom : meetingRooms) {
             this.addMeetingRoom(meetingRoom);
