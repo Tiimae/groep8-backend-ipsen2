@@ -11,12 +11,10 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -33,8 +31,8 @@ public class ReservationMapper {
 
     public Reservation toReservation(ReservationDTO reservationDTO) throws EntryNotFoundException {
         //required parameters
-        LocalDateTime starttime = LocalDateTime.ofEpochSecond(reservationDTO.getStarttime(), 0, ZoneOffset.UTC);
-        LocalDateTime endtime = LocalDateTime.ofEpochSecond(reservationDTO.getEndtime(), 0, ZoneOffset.UTC);
+        LocalDateTime starttime = LocalDateTime.ofInstant(Instant.ofEpochMilli(reservationDTO.getStarttime()), TimeZone.getDefault().toZoneId());
+        LocalDateTime endtime = LocalDateTime.ofInstant(Instant.ofEpochMilli(reservationDTO.getEndtime()), TimeZone.getDefault().toZoneId());
 
         Optional<User> userEntry = userDAO.getUserFromDatabase(reservationDTO.getUserId());
         if (userEntry.isEmpty()) throw new EntryNotFoundException("User not found.");
