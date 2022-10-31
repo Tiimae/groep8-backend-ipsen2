@@ -14,11 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.OngoingStubbing;
-
-import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -93,7 +89,6 @@ public class UserMapperTest {
         final User expectedUser = new User("test", "test", "test", roles, department, reservations);
 
         //Act
-
         final User actualUser = this.userMapper.toUser(userDTO);
 
         //Assert
@@ -108,7 +103,7 @@ public class UserMapperTest {
     @Test
     public void should_returnupdateduser_when_mergeusermethodhasbeencalled() {
 
-        //Assign
+        //Arrange
         final User oldUser = new User("test", "test", "test", new HashSet<>(), new Department(), new HashSet<>());
         final User expectedUser = new User("Tim", "test", "test", new HashSet<>(), new Department(), new HashSet<>());
 
