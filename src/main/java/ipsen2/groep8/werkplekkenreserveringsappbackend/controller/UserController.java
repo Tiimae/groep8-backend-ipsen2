@@ -8,7 +8,9 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +25,7 @@ public class UserController {
     private final AuthenticationService authenticationService = new AuthenticationService();
     private final UserDAO userDAO;
     private final UserMapper userMapper;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     public UserController(UserDAO userDAO, UserMapper userMapper) {
         this.userDAO = userDAO;
@@ -50,6 +53,8 @@ public class UserController {
     @ResponseBody
     public ApiResponse<User> postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
         User user = userMapper.toUser(userDTO);
+        String encodedPass = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPass);
         this.userDAO.saveUserToDatabase(user);
         return new ApiResponse(HttpStatus.CREATED, user);
     }

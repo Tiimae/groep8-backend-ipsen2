@@ -26,12 +26,9 @@ public class UserMapperTest {
 
     private UserMapper userMapper;
 
-    @Mock
-    private DepartmentDAO departmentDAO;
-    @Mock
-    private RoleDAO roleDAO;
-    @Mock
-    private ReservationDAO reservationDAO;
+    @Mock private DepartmentDAO departmentDAO;
+    @Mock private RoleDAO roleDAO;
+    @Mock private ReservationDAO reservationDAO;
 
     @Before
     public void setup() {

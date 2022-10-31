@@ -25,10 +25,8 @@ import static org.mockito.Mockito.*;
 public class DepartmentMapperTest {
     private DepartmentMapper departmentMapper;
 
-    @Mock
-    private WingDAO wingDAO;
-    @Mock
-    private UserDAO userDAO;
+    @Mock private WingDAO wingDAO;
+    @Mock private UserDAO userDAO;
 
     @Before
     public void setup() {
