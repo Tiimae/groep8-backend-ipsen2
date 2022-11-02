@@ -6,6 +6,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,17 @@ public class UserController {
         this.userDAO.deleteUserFromDatabase(userid);
         return new ApiResponse(HttpStatus.ACCEPTED, "User has been deleted");
     }
+
+
+    @GetMapping(value = "/{userid}/reservations")
+    @ResponseBody
+    public ApiResponse<List<Reservation>> getUserReservations(@PathVariable String userid) throws EntryNotFoundException {
+        Optional<User> userEntry = this.userDAO.getUserFromDatabase(userid);
+        if (userEntry.isEmpty()) throw new EntryNotFoundException("The user has not been found!");
+        User presentUser = userEntry.get();
+        return new ApiResponse(HttpStatus.OK, presentUser.getReservations());
+    }
+
 //
 //    @RequestMapping(value = "/{userid}/role/{roleid}", method = RequestMethod.PUT)
 //    @ResponseBody
