@@ -13,6 +13,5 @@ public class BuildingDTO {
     private String city;
 
     private String[] wingIds;
-    private String variableId;
 
 }

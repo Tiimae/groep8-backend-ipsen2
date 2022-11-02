@@ -30,17 +30,14 @@ public class Building {
     @JsonManagedReference
     private Set<Wing> wings;
 
-    @OneToOne(mappedBy = "building")
-    private Variable variable;
 
     public Building() { }
 
-    public Building(String name, String address, String zipcode, String city, Set<Wing> wings, Variable variable) {
+    public Building(String name, String address, String zipcode, String city, Set<Wing> wings) {
         this.name = name;
         this.address = address;
         this.zipcode = zipcode;
         this.city = city;
-        this.variable = variable;
 
         for (Wing wing : wings) {
             this.addWing(wing);
