@@ -1,13 +1,18 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "permission")
+@Getter
+@Setter
 public class Permission {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -18,36 +23,29 @@ public class Permission {
     private String name;
 
     @ManyToMany(mappedBy = "permissions")
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     public Permission() { }
 
     public Permission(String name, Set<Role> roles) {
         this.name = name;
-        this.roles = roles;
+
+        for (Role role : roles) {
+            this.addRole(role);
+        }
     }
 
-    public String getId() {
-        return id;
+    public void addRole(Role role) {
+        if (role != null) {
+            this.roles.add(role);
+            role.getPermissions().add(this);
+        }
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void removeRole(Role role) {
+        if (role != null) {
+            this.roles.remove(role);
+            role.getPermissions().remove(this);
+        }
     }
 }
