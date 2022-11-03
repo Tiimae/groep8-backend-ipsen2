@@ -2,8 +2,11 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.RoleMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
+import jdk.jfr.Label;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,9 +17,11 @@ import java.util.Set;
 public class RoleDAO {
 
     private RoleRepository roleRepository;
+    private RoleMapper roleMapper;
 
-    public RoleDAO(RoleRepository roleRepository) {
+    public RoleDAO(RoleRepository roleRepository, @Lazy RoleMapper roleMapper) {
         this.roleRepository = roleRepository;
+        this.roleMapper = roleMapper;
     }
 
     public Optional<Role> getRoleFromDatabase(String roleid) {
@@ -31,8 +36,10 @@ public class RoleDAO {
         this.roleRepository.save(role);
     }
 
-    public void updateRoleToDatabase(Role role) {
-        this.roleRepository.save(role);
+    public void updateRoleToDatabase(String id, Role roleUpdate) {
+        Role role = this.roleRepository.getById(id);
+        role = this.roleMapper.mergeRole(role, roleUpdate);
+        this.roleRepository.saveAndFlush(role);
     }
 
     public void removeRoleToDatabase(String roleId) {
