@@ -1,7 +1,5 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.mappers;
 
-
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.VariableDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.WingDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.BuildingDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
@@ -25,12 +23,10 @@ public class BuildingMapperTest {
 
     @Mock
     private WingDAO wingDAO;
-    @Mock
-    private VariableDAO variableDAO;
 
     @Before
     public void setup() {
-        this.buildingMapper = new BuildingMapper(this.variableDAO, this.wingDAO);
+        this.buildingMapper = new BuildingMapper(this.wingDAO);
     }
 
     @Test
@@ -47,10 +43,7 @@ public class BuildingMapperTest {
         wings.add(wing1);
         wings.add(wing2);
 
-        final Variable variable = new Variable();
-        variable.setId("1");
-
-        Building expectedBuilding = new Building("test", "test", "test", "test", wings, variable);
+        Building expectedBuilding = new Building("test", "test", "test", "test", wings);
 
         final BuildingDTO buildingDTO = new BuildingDTO();
         buildingDTO.setName("test");
@@ -58,11 +51,9 @@ public class BuildingMapperTest {
         buildingDTO.setZipcode("test");
         buildingDTO.setCity("test");
         buildingDTO.setWingIds(new String[]{wing1.getId(), wing2.getId()});
-        buildingDTO.setVariableId(variable.getId());
 
         when(this.wingDAO.getWingFromDatabase(wing1.getId())).thenReturn(Optional.of(wing1));
         when(this.wingDAO.getWingFromDatabase(wing2.getId())).thenReturn(Optional.of(wing2));
-        when(this.variableDAO.getVariableFromDatabase(variable.getId())).thenReturn(Optional.of(variable));
 
         //Act
         final Building actualBuilding = this.buildingMapper.toBuilding(buildingDTO);
@@ -73,7 +64,6 @@ public class BuildingMapperTest {
         assertEquals(expectedBuilding.getZipcode(), actualBuilding.getZipcode());
         assertEquals(expectedBuilding.getCity(), actualBuilding.getCity());
         assertEquals(expectedBuilding.getWings(), actualBuilding.getWings());
-        assertEquals(expectedBuilding.getVariable(), actualBuilding.getVariable());
 
     }
 
@@ -81,8 +71,8 @@ public class BuildingMapperTest {
     public void should_returnupdatedbuilding_when_mergebuildingmethodhasbeencalled() {
 
         //Arrange
-        Building oldBuilding = new Building("test", "test", "test", "test", new HashSet<>(), null);
-        Building expectedBuilding = new Building("testBuilding", "test", "test", "test", new HashSet<>(), null);
+        Building oldBuilding = new Building("test", "test", "test", "test", new HashSet<>());
+        Building expectedBuilding = new Building("testBuilding", "test", "test", "test", new HashSet<>());
 
 
         //Act
@@ -94,7 +84,6 @@ public class BuildingMapperTest {
         assertEquals(expectedBuilding.getZipcode(), actualBuilding.getZipcode());
         assertEquals(expectedBuilding.getCity(), actualBuilding.getCity());
         assertEquals(expectedBuilding.getWings(), actualBuilding.getWings());
-        assertEquals(expectedBuilding.getVariable(), actualBuilding.getVariable());
     }
 
 }

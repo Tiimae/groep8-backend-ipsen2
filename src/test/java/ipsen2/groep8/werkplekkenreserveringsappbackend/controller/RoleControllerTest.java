@@ -2,6 +2,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.RoleDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.RoleMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import org.junit.Before;
@@ -19,14 +20,14 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class RoleControllerTest {
 
-    @Mock
-    private RoleDAO roleDAO;
+    @Mock private RoleDAO roleDAO;
+    @Mock private RoleMapper roleMapper;
 
     private RoleController roleController;
 
     @Before
     public void setup() {
-        this.roleController = new RoleController(this.roleDAO);
+        this.roleController = new RoleController(this.roleDAO, this.roleMapper);
     }
 
     @Test
