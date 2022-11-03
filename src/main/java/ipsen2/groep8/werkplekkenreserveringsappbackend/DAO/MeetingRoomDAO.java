@@ -32,6 +32,11 @@ public class MeetingRoomDAO {
     }
 
     public void deleteMeetingRoomFromDatabase(String meetingRoomId) {
+        final MeetingRoom meetingRoom = this.meetingRoomRepository.getById(meetingRoomId);
+
+        meetingRoom.getWing().getMeetingRooms().remove(meetingRoom);
+        meetingRoom.setWing(null);
+
         this.meetingRoomRepository.deleteById(meetingRoomId);
     }
 

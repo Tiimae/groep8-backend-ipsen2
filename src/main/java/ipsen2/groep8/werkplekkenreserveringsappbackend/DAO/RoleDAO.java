@@ -3,6 +3,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.RoleMapper;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Permission;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import jdk.jfr.Label;
@@ -47,6 +48,11 @@ public class RoleDAO {
 
         for (User user : role.getUsers()) {
             role.getUsers().remove(user);
+        }
+
+        for (Permission permission : role.getPermissions()) {
+            permission.getRoles().remove(role);
+            role.getPermissions().remove(permission);
         }
 
         this.roleRepository.deleteById(roleId);

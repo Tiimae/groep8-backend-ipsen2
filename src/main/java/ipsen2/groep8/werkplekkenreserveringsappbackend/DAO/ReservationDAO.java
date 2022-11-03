@@ -2,6 +2,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.ReservationRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.MeetingRoom;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,19 @@ public class ReservationDAO {
     }
 
     public void deleteReservationFromDatabase(String id) {
+        final Reservation reservation = this.reservationRepository.getById(id);
+
+        reservation.getUser().getReservations().remove(reservation);
+        reservation.setUser(null);
+
+        reservation.getWing().getReservations().remove(reservation);
+        reservation.setWing(null);
+
+        for (MeetingRoom meetingRoom : reservation.getMeetingRooms()) {
+            reservation.getMeetingRooms().remove(meetingRoom);
+            meetingRoom.getReservations().remove(reservation);
+        }
+
         this.reservationRepository.deleteById(id);
     }
 }

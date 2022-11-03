@@ -42,6 +42,11 @@ public class WingDAO {
     }
 
     public void deleteWingFromDatabase(String wingId) {
+        final Wing wing = this.wingRepository.getById(wingId);
+
+        wing.getBuilding().getWings().remove(wing);
+        wing.setBuilding(null);
+
         this.wingRepository.deleteById(wingId);
     }
 }

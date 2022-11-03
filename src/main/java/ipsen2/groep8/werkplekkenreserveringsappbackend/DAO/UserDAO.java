@@ -3,6 +3,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import org.springframework.context.annotation.Lazy;
@@ -45,6 +46,9 @@ public class UserDAO {
         for (Role role : user.getRoles()) {
             user.getRoles().remove(role);
         }
+
+        user.getDepartment().getUsers().remove(user);
+        user.setDepartment(null);
 
         this.userRepository.deleteById(userid);
     }

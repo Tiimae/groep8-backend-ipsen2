@@ -2,6 +2,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.PermissionRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.PermissionMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Permission;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +35,13 @@ public class PermissionDAO {
     }
 
     public void deletePermissionFromDatabase(String id) {
+        final Permission permission = this.permissionRepository.getById(id);
+
+        for (Role role : permission.getRoles()) {
+            role.getPermissions().remove(permission);
+            permission.getRoles().remove(role);
+        }
+
         this.permissionRepository.deleteById(id);
     }
 }

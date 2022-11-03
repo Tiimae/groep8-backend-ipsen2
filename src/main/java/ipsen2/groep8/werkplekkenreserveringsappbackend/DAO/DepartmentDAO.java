@@ -49,6 +49,11 @@ public class DepartmentDAO {
             user.setDepartment(null);
         }
 
+        for (Wing wing : department.getWings()) {
+            wing.getDepartments().remove(department);
+            department.getWings().remove(wing);
+        }
+
         this.departmentRepository.deleteById(departmentId);
     }
 }
