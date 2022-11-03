@@ -1,22 +1,29 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.WingDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.WingDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.WingMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequestMapping(value = "/api/wing")
 public class WingController {
-    private final WingDAO wingDAO;
 
-    public WingController(WingDAO wingDAO) {
+    private final WingDAO wingDAO;
+    private final WingMapper wingMapper;
+
+    public WingController(WingDAO wingDAO, WingMapper wingMapper) {
         this.wingDAO = wingDAO;
+        this.wingMapper = wingMapper;
     }
 
     @GetMapping(value = "/{id}")
@@ -41,16 +48,17 @@ public class WingController {
 
     @PostMapping(value = "", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postWing(@RequestBody Wing wing) {
-        this.wingDAO.saveWingToDatabase(wing);
+    public ApiResponse postWing(@RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
+
+        this.wingDAO.saveWingToDatabase(this.wingMapper.toWing(wingDTO));
 
         return new ApiResponse(HttpStatus.CREATED, "The wing has been posted!");
     }
 
-    @PutMapping(value = "", consumes = {"application/json"})
+    @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse updateWing(@RequestBody Wing wing) {
-        this.wingDAO.updateWingInDatabase(wing);
+    public ApiResponse updateWing(@PathVariable String id, @RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
+        this.wingDAO.updateWingInDatabase(id, this.wingMapper.toWing(wingDTO));
         return new ApiResponse(HttpStatus.ACCEPTED, "The wing has been updated!");
     }
 
@@ -60,37 +68,5 @@ public class WingController {
         this.wingDAO.deleteWingFromDatabase(id);
 
         return new ApiResponse(HttpStatus.ACCEPTED, "The wing has been deleted");
-    }
-
-    @RequestMapping(value = "/{wingId}/meeting-room/{meetingRoomId}/attach", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResponse attachMeetingRoomToWing(@PathVariable String wingId, @PathVariable String meetingRoomId) {
-        this.wingDAO.attachMeetingRoomToWingInDatabase(wingId, meetingRoomId);
-
-        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been attached to a meeting room");
-    }
-
-    @RequestMapping(value = "/{wingId}/meeting-room/{meetingRoomId}/detach", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResponse detachMeetingRoomToWing(@PathVariable String wingId, @PathVariable String meetingRoomId) {
-        this.wingDAO.detachMeetingRoomToWingInDatabase(wingId, meetingRoomId);
-
-        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been detached to a meeting room");
-    }
-
-    @RequestMapping(value = "/{wingId}/department/{departmentId}/attach", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResponse attachWingToDeparment(@PathVariable String departmentId, @PathVariable String wingId) {
-        this.wingDAO.attachWingToDepartmentInDatabase(wingId, departmentId);
-
-        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been attached to the department");
-    }
-
-    @RequestMapping(value = "/{wingId}/department/{departmentId}/detach", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResponse detachWingToDeparment(@PathVariable String wingId, @PathVariable String departmentId) {
-        this.wingDAO.detachWingFromDepartmentInDatabase(wingId, departmentId);
-
-        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been detached to the department");
     }
 }

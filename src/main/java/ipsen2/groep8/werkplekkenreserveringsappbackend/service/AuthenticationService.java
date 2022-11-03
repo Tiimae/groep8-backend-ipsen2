@@ -70,15 +70,20 @@ public class AuthenticationService {
     public boolean authenticate(char[] password, String token)
     {
         Matcher m = layout.matcher(token);
+
         if (!m.matches())
             throw new IllegalArgumentException("Invalid token format");
+
         int iterations = iterations(Integer.parseInt(m.group(1)));
         byte[] hash = Base64.getUrlDecoder().decode(m.group(2));
         byte[] salt = Arrays.copyOfRange(hash, 0, SIZE / 8);
         byte[] check = pbkdf2(password, salt, iterations);
+
         int zero = 0;
+
         for (int idx = 0; idx < check.length; ++idx)
             zero |= hash[salt.length + idx] ^ check[idx];
+
         return zero == 0;
     }
 

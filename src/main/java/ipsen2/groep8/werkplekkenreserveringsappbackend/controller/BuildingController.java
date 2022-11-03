@@ -1,6 +1,9 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.BuildingDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.BuildingDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.BuildingMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Building;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
@@ -8,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,9 +20,11 @@ import java.util.Optional;
 public class BuildingController {
 
     private final BuildingDAO buildingDAO;
+    private BuildingMapper buildingMapper;
 
-    public BuildingController(BuildingDAO buildingDAO) {
+    public BuildingController(BuildingDAO buildingDAO, BuildingMapper buildingMapper) {
         this.buildingDAO = buildingDAO;
+        this.buildingMapper = buildingMapper;
     }
 
     @RequestMapping(value = "/{buildingid}", method = RequestMethod.GET)
@@ -41,15 +47,15 @@ public class BuildingController {
 
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postBuilding(@RequestBody Building building) {
-        this.buildingDAO.saveBuildingToDatabase(building);
+    public ApiResponse postBuilding(@RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
+        this.buildingDAO.saveBuildingToDatabase(this.buildingMapper.toBuilding(buildingDTO));
         return new ApiResponse(HttpStatus.CREATED, "Building has been posted to the database");
     }
 
-    @PutMapping(value = "")
+    @PutMapping(value = "/{id}")
     @ResponseBody
-    public ApiResponse updateBuilding(@RequestBody Building building) {
-        this.buildingDAO.updateBuildingInDatabase(building);
+    public ApiResponse updateBuilding(@PathVariable String id, @RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
+        this.buildingDAO.updateBuildingInDatabase(id, this.buildingMapper.toBuilding(buildingDTO));
         return new ApiResponse(HttpStatus.ACCEPTED, "User has been updated");
     }
 
@@ -58,21 +64,5 @@ public class BuildingController {
     public ApiResponse deleteBuilding(@PathVariable String buildingid) {
         this.buildingDAO.deleteBuildingFromDatabase(buildingid);
         return new ApiResponse(HttpStatus.ACCEPTED, "Building has been deleted");
-    }
-
-    @RequestMapping(value = "/{buildingid}/wing/{wingid}/attach", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResponse attachBuildingFromWing(@PathVariable String buildingid, @PathVariable String wingid) {
-        this.buildingDAO.attachBuildingToWingInDatabase(buildingid, wingid);
-
-        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been added from the building");
-    }
-
-    @RequestMapping(value = "/{buildingid}/wing/{wingid}/detach", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResponse detachBuildingFromWing(@PathVariable String buildingid, @PathVariable String wingid) {
-        this.buildingDAO.detachBuildingToWingInDatabase(buildingid, wingid);
-
-        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been removed from the building");
     }
 }

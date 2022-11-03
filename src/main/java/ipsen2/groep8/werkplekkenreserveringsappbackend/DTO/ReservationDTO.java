@@ -21,10 +21,13 @@ public class ReservationDTO {
     // unix timestamp in seconds
     @Min(0)
     @NotNull(message = "starttime must exist")
-    private Integer starttime;
+    private long starttime;
     @Min(0)
     @NotNull(message = "endtime must exist")
-    private Integer endtime;
+    private long endtime;
+
+    @NotNull(message = "Type must exist")
+    private String type;
 
     private String[] meetingRoomIds;
     private String wingId;

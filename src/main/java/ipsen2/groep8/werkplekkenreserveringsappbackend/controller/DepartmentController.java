@@ -1,12 +1,15 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.DepartmentDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.DepartmentMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,9 +18,11 @@ import java.util.Optional;
 public class DepartmentController {
 
     private DepartmentDAO departmentDAO;
+    private DepartmentMapper departmentMapper;
 
-    public DepartmentController(DepartmentDAO departmentDAO) {
+    public DepartmentController(DepartmentDAO departmentDAO, DepartmentMapper departmentMapper) {
         this.departmentDAO = departmentDAO;
+        this.departmentMapper = departmentMapper;
     }
 
     @RequestMapping(value = "/{departmentid}", method = RequestMethod.GET)
@@ -42,16 +47,17 @@ public class DepartmentController {
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResponse postDepartment(@RequestBody Department department) {
+    public ApiResponse postDepartment(@RequestBody DepartmentDTO departmentDTO) {
+        Department department = this.departmentMapper.toDepartment(departmentDTO);
         this.departmentDAO.postDepartmentToDatabase(department);
-
         return new ApiResponse(HttpStatus.CREATED, "Department has been posted to the database!");
     }
 
-    @RequestMapping(value = "", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ResponseBody
-    public String updateDepartment(@RequestBody Department department) {
-        this.departmentDAO.updateDepartmentInDatabase(department);
+    public String updateDepartment(@PathVariable String id, @RequestBody @Valid DepartmentDTO departmentDTO) {
+        Department department = this.departmentMapper.toDepartment(departmentDTO);
+        this.departmentDAO.updateDepartmentInDatabase(id, department);
         return "Department has been updated to the database!";
     }
 
@@ -62,21 +68,21 @@ public class DepartmentController {
 
         return new ApiResponse(HttpStatus.ACCEPTED, "Department has been removed in the database!");
     }
-
-    @RequestMapping(value = "/{departmentId}/user/{userId}attach", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResponse addUserToDepartment(@PathVariable String departmentId, @PathVariable String userId) {
-        this.departmentDAO.addDepartmentToUserInDatabase(departmentId, userId);
-
-        return new ApiResponse(HttpStatus.ACCEPTED, "the department has been added to the user");
-    }
-
-    @RequestMapping(value = "/{departmentId}/user/{userId}/detach", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResponse detachUserToDepartment(@PathVariable String departmentId, @PathVariable String userId) {
-        this.departmentDAO.detachDepartmentToUserInDatabase(departmentId, userId);
-
-        return new ApiResponse(HttpStatus.ACCEPTED, "the department has been detached to the user");
-    }
+//
+//    @RequestMapping(value = "/{departmentId}/user/{userId}attach", method = RequestMethod.POST)
+//    @ResponseBody
+//    public ApiResponse addUserToDepartment(@PathVariable String departmentId, @PathVariable String userId) {
+//        this.departmentDAO.addDepartmentToUserInDatabase(departmentId, userId);
+//
+//        return new ApiResponse(HttpStatus.ACCEPTED, "the department has been added to the user");
+//    }
+//
+//    @RequestMapping(value = "/{departmentId}/user/{userId}/detach", method = RequestMethod.POST)
+//    @ResponseBody
+//    public ApiResponse detachUserToDepartment(@PathVariable String departmentId, @PathVariable String userId) {
+//        this.departmentDAO.detachDepartmentToUserInDatabase(departmentId, userId);
+//
+//        return new ApiResponse(HttpStatus.ACCEPTED, "the department has been detached to the user");
+//    }
 
 }

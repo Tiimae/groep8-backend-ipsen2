@@ -28,7 +28,7 @@ public class MeetingRoomDAO {
     }
 
     public void updateMeetingRoomInDatabase(MeetingRoom meetingRoom) {
-        this.meetingRoomRepository.save(meetingRoom);
+        this.meetingRoomRepository.saveAndFlush(meetingRoom);
     }
 
     public void deleteMeetingRoomFromDatabase(String meetingRoomId) {

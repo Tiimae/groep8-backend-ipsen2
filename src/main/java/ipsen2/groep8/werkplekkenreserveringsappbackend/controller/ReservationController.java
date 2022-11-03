@@ -4,6 +4,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.ReservationDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.ReservationDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import org.springframework.context.annotation.Lazy;
@@ -36,10 +37,11 @@ public class ReservationController {
         return new ResponseEntity<>(reservationEntry.get(), HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping(value = "")
     @ResponseBody
-    public List<Reservation> getReservations() {
-        return this.reservationDAO.getAllReservations();
+    public ApiResponse<List<Reservation>> getReservations() {
+        List<Reservation> allReservations = this.reservationDAO.getAllReservations();
+        return new ApiResponse(HttpStatus.ACCEPTED, allReservations);
     }
 
     @PostMapping(consumes = {"application/json"})
