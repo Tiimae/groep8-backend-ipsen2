@@ -29,9 +29,8 @@ public class PermissionDAO {
         this.permissionRepository.save(permission);
     }
 
-    public void updatePermissionInDatabase(String id, Permission permissionUpdate) {
-        Permission permission = this.permissionRepository.getById(id);
-        this.permissionRepository.saveAndFlush(permission);
+    public void updatePermissionInDatabase(Permission permissionUpdate) {
+        this.permissionRepository.saveAndFlush(permissionUpdate);
     }
 
     public void deletePermissionFromDatabase(String id) {

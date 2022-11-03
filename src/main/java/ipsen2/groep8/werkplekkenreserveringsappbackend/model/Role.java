@@ -65,4 +65,12 @@ public class Role {
     public void addUser(User user) {
         this.users.add(user);
     }
+
+    public Set<Permission> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<Permission> permissions) {
+        this.permissions = permissions;
+    }
 }

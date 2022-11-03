@@ -8,5 +8,7 @@ public class PermissionDTO {
 
     private String id;
     private String name;
+
+    private String[] roleIds;
 }
 

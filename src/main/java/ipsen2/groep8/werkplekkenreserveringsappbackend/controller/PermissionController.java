@@ -3,6 +3,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.PermissionDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.PermissionDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.PermissionMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Permission;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,11 @@ public class PermissionController {
 
     private final PermissionDAO permissionDAO;
 
-    public PermissionController(PermissionDAO permissionDAO) {
+    private PermissionMapper permissionMapper;
+
+    public PermissionController(PermissionDAO permissionDAO, PermissionMapper permissionMapper) {
         this.permissionDAO = permissionDAO;
+        this.permissionMapper = permissionMapper;
     }
 
     @RequestMapping(value = "/{permissionid}", method = RequestMethod.GET)
@@ -51,8 +55,9 @@ public class PermissionController {
     @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
     public ApiResponse updatePermission(@PathVariable String id, @RequestBody @Valid PermissionDTO permissionDTO) throws EntryNotFoundException {
-        Permission permission = this.permissionMapper.toPermission(permissionDTO);
-        this.permissionDAO.updatePermissionInDatabase(id, permission);
+        Permission updatedPermission = this.permissionMapper.toPermission(permissionDTO);
+        final Optional<Permission> permissionFromDatabase = this.permissionDAO.getPermissionFromDatabase(id);
+        this.permissionDAO.updatePermissionInDatabase(this.permissionMapper.mergePermission(permissionFromDatabase.get(), updatedPermission));
 
         return new ApiResponse(HttpStatus.ACCEPTED, "Permission has been updated");
     }
@@ -63,3 +68,4 @@ public class PermissionController {
         this.permissionDAO.deletePermissionFromDatabase(permissionid);
         return new ApiResponse(HttpStatus.ACCEPTED, "Permission has been deleted");
     }
+}
