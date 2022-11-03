@@ -47,8 +47,11 @@ public class UserDAO {
             user.getRoles().remove(role);
         }
 
-        user.getDepartment().getUsers().remove(user);
-        user.setDepartment(null);
+        if(user.getDepartment() != null){
+            user.getDepartment().getUsers().remove(user);
+            user.setDepartment(null);
+        }
+
 
         this.userRepository.deleteById(userid);
     }
