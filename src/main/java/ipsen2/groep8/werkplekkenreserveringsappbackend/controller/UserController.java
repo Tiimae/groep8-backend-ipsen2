@@ -75,4 +75,14 @@ public class UserController {
         this.userDAO.deleteUserFromDatabase(userid);
         return new ApiResponse(HttpStatus.ACCEPTED, "User has been deleted");
     }
+
+    @GetMapping(value = "/{userid}/reservations")
+    @ResponseBody
+    public ApiResponse<List<Reservation>> getUserReservations(@PathVariable String userid) throws EntryNotFoundException {
+        Optional<User> userEntry = this.userDAO.getUserFromDatabase(userid);
+        if (userEntry.isEmpty()) throw new EntryNotFoundException("The user has not been found!");
+        User presentUser = userEntry.get();
+        return new ApiResponse(HttpStatus.OK, presentUser.getReservations());
+    }
+
 }
