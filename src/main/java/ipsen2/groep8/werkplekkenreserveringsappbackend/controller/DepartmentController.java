@@ -50,7 +50,7 @@ public class DepartmentController {
     public ApiResponse postDepartment(@RequestBody DepartmentDTO departmentDTO) {
         Department department = this.departmentMapper.toDepartment(departmentDTO);
         this.departmentDAO.postDepartmentToDatabase(department);
-        return new ApiResponse(HttpStatus.CREATED, "Department has been posted to the database!");
+        return new ApiResponse(HttpStatus.CREATED, department);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
