@@ -16,8 +16,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.WeekFields;
+import java.util.*;
+
+import static java.time.temporal.ChronoUnit.MONTHS;
+import static java.time.temporal.ChronoUnit.WEEKS;
 
 @Controller
 @RequestMapping(value = "/api/user")
@@ -82,10 +87,30 @@ public class UserController {
 
     @GetMapping(value = "/{userid}/reservations")
     @ResponseBody
-    public ApiResponse<List<Reservation>> getUserReservations(@PathVariable String userid) throws EntryNotFoundException {
+    public ApiResponse<List<Reservation>> getUserReservations(@PathVariable String userid, @RequestParam(required = false) String filter) throws EntryNotFoundException {
         Optional<User> userEntry = this.userDAO.getUserFromDatabase(userid);
         if (userEntry.isEmpty()) throw new EntryNotFoundException("The user has not been found!");
         User presentUser = userEntry.get();
+        Set<Reservation> filteredReservations = new HashSet<>();
+
+        if(filter != null && filter.equals("week")){
+            for (Reservation reservation : presentUser.getReservations()) {
+                if(LocalDate.now().get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()) == reservation.getStartDate().get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear())){
+                    filteredReservations.add(reservation);
+                }
+            }
+            return new ApiResponse(HttpStatus.OK, filteredReservations);
+        }
+
+        if(filter != null && filter.equals("month")){
+            for (Reservation reservation : presentUser.getReservations()) {
+                if(LocalDate.now().getMonth() == reservation.getStartDate().getMonth()){
+                    filteredReservations.add(reservation);
+                }
+            }
+            return new ApiResponse(HttpStatus.OK, filteredReservations);
+        }
+
         return new ApiResponse(HttpStatus.OK, presentUser.getReservations());
     }
 
