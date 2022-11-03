@@ -1,13 +1,11 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -58,8 +56,12 @@ public class AuthenticationController {
 
         newUser = userRepo.save(newUser);
         String token = jwtUtil.generateToken(newUser.getEmail());
-        
-        return Collections.singletonMap("jwt-token", token);
+
+        Map<String, Object> res = new HashMap<>();
+        res.put("jwt-token", token);
+        res.put("user-id", newUser.getId());
+
+        return res;
     }
 
     @PostMapping(value = "/login",  consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -73,6 +75,10 @@ public class AuthenticationController {
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return Collections.singletonMap("jwt-token", token);
+        Map<String, Object> res = new HashMap<>();
+        res.put("jwt-token", token);
+        res.put("user-id", this.userRepo.findByEmail(user.getEmail()).get().getId());
+
+        return res;
     }
 }
