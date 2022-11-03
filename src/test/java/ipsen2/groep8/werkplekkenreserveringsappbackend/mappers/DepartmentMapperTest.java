@@ -34,7 +34,7 @@ public class DepartmentMapperTest {
     }
 
     @Test
-    public void should_returnauser_when_touserfunctionhasbeencalled() throws EntryNotFoundException {
+    public void should_returndepartment_when_todeparmentfunctionhasbeencalled() throws EntryNotFoundException {
 
         //Arrange
         final User user1 = new User("test1", "test1", "test1", new HashSet<>(), null, new HashSet<>());
