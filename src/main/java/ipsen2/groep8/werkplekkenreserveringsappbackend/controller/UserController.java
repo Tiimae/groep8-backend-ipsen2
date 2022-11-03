@@ -37,11 +37,15 @@ public class UserController {
     @ResponseBody
     public ApiResponse<User> getUser(@PathVariable String userid) {
         Optional<User> user = this.userDAO.getUserFromDatabase(userid);
+
         if (user.isEmpty()) {
              return new ApiResponse(HttpStatus.NOT_FOUND, "The user has not been found!");
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, user.get());
+        User safeUser = user.get();
+        safeUser.setPassword("");
+
+        return new ApiResponse(HttpStatus.ACCEPTED, safeUser);
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
