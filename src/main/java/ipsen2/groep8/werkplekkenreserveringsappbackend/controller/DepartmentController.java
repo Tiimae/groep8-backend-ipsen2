@@ -55,10 +55,10 @@ public class DepartmentController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ResponseBody
-    public String updateDepartment(@PathVariable String id, @RequestBody @Valid DepartmentDTO departmentDTO) {
+    public ApiResponse updateDepartment(@PathVariable String id, @RequestBody @Valid DepartmentDTO departmentDTO) {
         Department department = this.departmentMapper.toDepartment(departmentDTO);
         this.departmentDAO.updateDepartmentInDatabase(id, department);
-        return "Department has been updated to the database!";
+        return new ApiResponse(HttpStatus.ACCEPTED, "Department has been added");
     }
 
     @RequestMapping(value = "/{departmentId}", method = RequestMethod.DELETE)
