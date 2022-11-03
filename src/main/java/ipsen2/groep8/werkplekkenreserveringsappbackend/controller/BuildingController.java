@@ -48,15 +48,17 @@ public class BuildingController {
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
     public ApiResponse postBuilding(@RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
-        this.buildingDAO.saveBuildingToDatabase(this.buildingMapper.toBuilding(buildingDTO));
-        return new ApiResponse(HttpStatus.CREATED, "Building has been posted to the database");
+        final Building building = this.buildingMapper.toBuilding(buildingDTO);
+        this.buildingDAO.saveBuildingToDatabase(building);
+        return new ApiResponse(HttpStatus.CREATED, building);
     }
 
     @PutMapping(value = "/{id}")
     @ResponseBody
     public ApiResponse updateBuilding(@PathVariable String id, @RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
-        this.buildingDAO.updateBuildingInDatabase(id, this.buildingMapper.toBuilding(buildingDTO));
-        return new ApiResponse(HttpStatus.ACCEPTED, "User has been updated");
+        final Building building = this.buildingMapper.toBuilding(buildingDTO);
+        this.buildingDAO.updateBuildingInDatabase(id, building);
+        return new ApiResponse(HttpStatus.ACCEPTED, building);
     }
 
     @DeleteMapping(value = "/{buildingid}")
