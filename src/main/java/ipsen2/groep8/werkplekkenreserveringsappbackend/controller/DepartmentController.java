@@ -32,7 +32,7 @@ public class DepartmentController {
     private DepartmentMapper departmentMapper;
 
     /**
-     * This is the consturctor of the BuildingController. It set the BuildingDAO and the BuildingMapper
+     * This is the consturctor of the DepartmentController. It set the DepartmentDAO and the DepartmentMapper
      *
      * @param departmentDAO The DAO for department
      * @param departmentMapper The mapper for department
@@ -47,7 +47,7 @@ public class DepartmentController {
      * This function returns an ApiResponse with a status code and a specific department what will be returned from the departmentDAO
      *
      * @param departmentid The department id what we get from the url
-     * @return an ApiResponse with a statuscode and a building
+     * @return an ApiResponse with a statuscode and a department
      * @author Tim de Kok
      */
     @RequestMapping(value = "/{departmentid}", method = RequestMethod.GET)
@@ -98,7 +98,7 @@ public class DepartmentController {
      *
      * @param id          This is the department id that passed into the url
      * @param departmentDTO This is the data that was send in the api request
-     * @return an ApiResponse with a statuscode and the departmen what just got updated
+     * @return an ApiResponse with a statuscode and the department what just got updated
      * @author Tim de Kok
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {"application/json"})
