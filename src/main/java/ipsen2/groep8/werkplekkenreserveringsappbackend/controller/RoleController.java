@@ -36,8 +36,8 @@ public class RoleController {
     /**
      * This is the consturctor of the RoleController. It set the roleDAO and the roleMapper
      *
-     * @param roleMapper The DAO for role
-     * @param roleDAO    The mapper for role
+     * @param roleDAO The DAO for role
+     * @param roleMapper   The mapper for role
      * @author Tim de Kok
      */
     public RoleController(RoleDAO roleDAO, RoleMapper roleMapper) {
@@ -49,7 +49,7 @@ public class RoleController {
      * This function returns an ApiResponse with a status code and a specific role what will be returned from the roleDAO
      *
      * @param roleid The role id what we get from the url
-     * @return an ApiResponse with a statuscode and a meeting room
+     * @return an ApiResponse with a statuscode and a role
      * @author Tim de Kok
      */
     @RequestMapping(value = "/{roleid}", method = RequestMethod.GET)
