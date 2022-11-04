@@ -100,6 +100,7 @@ public class UserController {
      * @param userDTO This is the data that was send in the api request
      * @return an ApiResponse with a statuscode and the user what just got created
      * @author Tim de Kok
+     * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
@@ -118,6 +119,7 @@ public class UserController {
      * @param userDTO This is the data that was send in the api request
      * @return an ApiResponse with a statuscode and the user what just got updated
      * @author Tim de Kok
+     * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
