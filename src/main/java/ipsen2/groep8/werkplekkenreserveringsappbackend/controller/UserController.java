@@ -144,6 +144,13 @@ public class UserController {
         return new ApiResponse(HttpStatus.ACCEPTED, "User has been deleted");
     }
 
+    /**
+     * This function gets all the reservations from a user in the database and returns all the (filtered)reservations as a List
+     * @param userid The user id from where you want to grab the reservations from
+     * @param filter A filter(week or month) passed as parameters in url to filter the reservation results
+     * @return an ApiResponse with a statuscode and a list of (filtered)reservations belonging to the user
+     * @author Frederik Coster
+     */
     @GetMapping(value = "/{userid}/reservations")
     @ResponseBody
     public ApiResponse<List<Reservation>> getUserReservations(@PathVariable String userid, @RequestParam(required = false) String filter) throws EntryNotFoundException {
