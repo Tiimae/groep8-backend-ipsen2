@@ -81,8 +81,41 @@ public class AuthenticationControllerTest {
         Map response = new HashMap();
         User user = userMapper.toUser(payload);
         //act
+        when(this.userRepository.findByEmail(user.getEmail())).thenReturn(Optional.ofNullable(user));
+        try{
+            response = this.authController.login(payload);
+        }catch (AuthenticationException e) {
+            response = new HashMap();
+        }
+
+        boolean hasId = response.containsKey("user-id");
+        boolean hasToken = response.containsKey("jwt-token");
+
+        //Assert
+        assertEquals(true, hasId);
+        assertEquals(true, hasToken);
+
+    }
+
+    @Test
+    public void user_register_should_return_user_id_and_jwt_token() throws EntryNotFoundException {
+        //Arrange
+        UserDTO payload = new UserDTO();
+        payload.setName("Tim");
+        payload.setEmail("timblommesteijn@gmail.com");
+        payload.setPassword("java1234");
+
+        Map response = new HashMap();
+        User user = new User();
+        user.setEmail(payload.getEmail());
+        user.setName(payload.getName());
+        user.setPassword(payload.getPassword());
+
+        //act
+        when(this.passwordEncoder.encode(payload.getPassword())).thenReturn(payload.getPassword());
         when(this.userRepository.save(user)).thenReturn(user);
         response = this.authController.register(payload);
+
 
         boolean hasId = response.containsKey("user-id");
         boolean hasToken = response.containsKey("jwt-token");
