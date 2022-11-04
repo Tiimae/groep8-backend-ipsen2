@@ -81,7 +81,7 @@ public class MeetingRoomController {
      * This function creates an new meeting room in the database and return the specific meeting room back
      *
      * @param meetingRoomDTO This is the data that was send in the api request
-     * @return an ApiResponse with a statuscode and the department what just got created
+     * @return an ApiResponse with a statuscode and the meeting room what just got created
      * @author Tim de Kok
      * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
