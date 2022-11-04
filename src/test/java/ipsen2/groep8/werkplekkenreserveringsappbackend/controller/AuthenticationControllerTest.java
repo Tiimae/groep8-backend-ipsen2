@@ -53,23 +53,6 @@ public class AuthenticationControllerTest {
         this.authController = new AuthenticationController(userRepository, jwtUtil, authenticationManager, passwordEncoder, userMapper);
     }
 
-//    @Test
-//    public void should_return404StatusCode_when_userWithIdOneDoesNotExists() {
-//        //Arrange
-//        String userId = "1";
-//        ApiResponse expectedResult = new ApiResponse(HttpStatus.NOT_FOUND, "The user has not been found!");
-//
-//        when(this.userDAO.getUserFromDatabase(userId)).thenReturn(Optional.empty());
-//
-//        //Act
-//        ApiResponse actualResponse = this.userController.getUser(userId);
-//
-//        //Assert
-//        assertEquals(expectedResult.getCode(), actualResponse.getCode());
-//
-//        verify(this.userDAO, times(1)).getUserFromDatabase(userId);
-//    }
-
     @Test
     public void user_login_should_return_user_id_and_jwt_token() throws EntryNotFoundException {
         //Arrange
