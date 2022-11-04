@@ -79,9 +79,15 @@ public class AuthenticationControllerTest {
         payload.setPassword("java1234");
 
         Map response = new HashMap();
-        User user = userMapper.toUser(payload);
+        User user = new User();
+        user.setId("some-good-uuid");
+        user.setEmail(payload.getEmail());
+        user.setPassword(payload.getPassword());
         //act
-        when(this.userRepository.findByEmail(user.getEmail())).thenReturn(Optional.ofNullable(user));
+
+        when(this.userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(jwtUtil.generateToken(user.getEmail())).thenReturn("some-good-jwt");
+
         try{
             response = this.authController.login(payload);
         }catch (AuthenticationException e) {
@@ -111,16 +117,21 @@ public class AuthenticationControllerTest {
         user.setName(payload.getName());
         user.setPassword(payload.getPassword());
 
+        User newUser = user;
+        newUser.setId("some-good-uuid");
+
         //act
         when(this.passwordEncoder.encode(payload.getPassword())).thenReturn(payload.getPassword());
-        when(this.userRepository.save(user)).thenReturn(user);
+        when(userMapper.toUser(payload)).thenReturn(user);
+        when(this.userRepository.save(user)).thenReturn(newUser);
+        when(jwtUtil.generateToken(user.getEmail())).thenReturn("some-good-token");
         response = this.authController.register(payload);
 
 
         boolean hasId = response.containsKey("user-id");
         boolean hasToken = response.containsKey("jwt-token");
 
-        //Assert
+        //Assertuser
         assertEquals(true, hasId);
         assertEquals(true, hasToken);
 
