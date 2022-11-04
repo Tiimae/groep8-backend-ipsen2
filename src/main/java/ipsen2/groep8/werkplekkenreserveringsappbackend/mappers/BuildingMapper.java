@@ -64,7 +64,6 @@ public class BuildingMapper {
      * @param update The building data to create a new Building
      * @return an updated building
      * @author Tim de Kok
-     * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     public Building mergeBuilding(Building base, Building update) {
         base.setName(update.getName());
