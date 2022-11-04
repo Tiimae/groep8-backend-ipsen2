@@ -33,7 +33,7 @@ public class MeetingRoomController {
     private final MeetingRoomMapper meetingRoomMapper;
 
     /**
-     * This is the consturctor of the MeetingRoomController. It set the MeetingRoomDAO and the MeetingRoomMapper
+     * This is the constructor of the MeetingRoomController. It set the MeetingRoomDAO and the MeetingRoomMapper
      *
      * @param meetingRoomDAO The DAO for department
      * @param meetingRoomMapper The mapper for department

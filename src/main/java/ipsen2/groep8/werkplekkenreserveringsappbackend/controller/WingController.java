@@ -34,7 +34,7 @@ public class WingController {
     private final WingMapper wingMapper;
 
     /**
-     * This is the consturctor of the WingController. It set the WingDAO and the WingMapper
+     * This is the constructor of the WingController. It set the WingDAO and the WingMapper
      *
      * @param wingDAO    The DAO for wing
      * @param wingMapper The mapper for wing

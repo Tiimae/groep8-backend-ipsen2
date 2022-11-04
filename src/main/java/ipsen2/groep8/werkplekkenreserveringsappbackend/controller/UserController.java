@@ -49,7 +49,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     /**
-     * This is the consturctor of the UserController. It set the UserDAO and the UserMapper
+     * This is the constructor of the UserController. It set the UserDAO and the UserMapper
      *
      * @param userDAO    The DAO for user
      * @param userMapper The mapper for user

@@ -32,7 +32,7 @@ public class BuildingController {
     private BuildingMapper buildingMapper;
 
     /**
-     * This is the consturctor of the BuildingController. It set the BuildingDAO and the BuildingMapper
+     * This is the constructor of the BuildingController. It set the BuildingDAO and the BuildingMapper
      *
      * @param buildingDAO The DAO for building
      * @param buildingMapper The mapper for building

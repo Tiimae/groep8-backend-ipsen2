@@ -19,14 +19,36 @@ import java.util.stream.Collectors;
 @Component
 public class MeetingRoomMapper {
 
+    /**
+     * This is the variable for the WingDAO in the class
+     */
     private WingDAO wingDAO;
+
+    /**
+     * This is the variable for the ReservationDAO in the class
+     */
     private ReservationDAO reservationDAO;
 
+    /**
+     * This is the constructor of the MeetingRoomMapper. It set the WingDAO and ReservationDAO
+     *
+     * @param wingDAO The DAO for wing
+     * @param reservationDAO The DAO for reservation
+     * @author Tim de Kok
+     */
     public MeetingRoomMapper(WingDAO wingDAO, ReservationDAO reservationDAO) {
         this.wingDAO = wingDAO;
         this.reservationDAO = reservationDAO;
     }
 
+    /**
+     * This function will be used to create a new meeting room in the database
+     *
+     * @param meetingRoomDTO The meeting room data to create a new meeting room
+     * @return a new meeting room
+     * @author Tim de Kok
+     * @throws EntryNotFoundException because if entry has not been found the program will fail
+     */
     public MeetingRoom toMeetingRoom(MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
         Long amountPeople = meetingRoomDTO.getAmountPeople();
 
@@ -49,6 +71,15 @@ public class MeetingRoomMapper {
 
     }
 
+    /**
+     * This function returns an update meeting room, so we can save it in the database
+     *
+     * @param base The meeting room data that already exist in the database
+     * @param update The meeting room data to create a new meeting room
+     * @return an updated meeting room
+     * @author Tim de Kok
+     * @throws EntryNotFoundException because if entry has not been found the program will fail
+     */
     public MeetingRoom mergeMeetingRoom(MeetingRoom base, MeetingRoom update) {
         base.setAmountPeople(update.getAmountPeople());
         base.setWing(update.getWing());

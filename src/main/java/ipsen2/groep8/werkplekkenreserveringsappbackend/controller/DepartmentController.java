@@ -32,7 +32,7 @@ public class DepartmentController {
     private DepartmentMapper departmentMapper;
 
     /**
-     * This is the consturctor of the DepartmentController. It set the DepartmentDAO and the DepartmentMapper
+     * This is the constructor of the DepartmentController. It set the DepartmentDAO and the DepartmentMapper
      *
      * @param departmentDAO The DAO for department
      * @param departmentMapper The mapper for department

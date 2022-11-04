@@ -26,7 +26,7 @@ public class BuildingMapper {
     private WingDAO wingDAO;
 
     /**
-     * This is the consturctor of the BuildingMapper. It set the WingDAO
+     * This is the constructor of the BuildingMapper. It set the WingDAO
      *
      * @param wingDAO The DAO for wing
      * @author Tim de Kok
@@ -41,6 +41,7 @@ public class BuildingMapper {
      * @param buildingDTO The building data to create a new Building
      * @return a new Building
      * @author Tim de Kok
+     * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     public Building toBuilding(BuildingDTO buildingDTO) throws EntryNotFoundException {
         String name = buildingDTO.getName();
@@ -63,6 +64,7 @@ public class BuildingMapper {
      * @param update The building data to create a new Building
      * @return an updated building
      * @author Tim de Kok
+     * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     public Building mergeBuilding(Building base, Building update) {
         base.setName(update.getName());

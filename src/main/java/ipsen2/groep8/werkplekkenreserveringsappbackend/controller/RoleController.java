@@ -34,7 +34,7 @@ public class RoleController {
     private final RoleMapper roleMapper;
 
     /**
-     * This is the consturctor of the RoleController. It set the roleDAO and the roleMapper
+     * This is the constructor of the RoleController. It set the roleDAO and the roleMapper
      *
      * @param roleDAO The DAO for role
      * @param roleMapper   The mapper for role

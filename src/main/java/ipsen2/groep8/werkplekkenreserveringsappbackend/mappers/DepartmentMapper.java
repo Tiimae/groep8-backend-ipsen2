@@ -3,6 +3,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.mappers;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.WingDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
@@ -28,7 +29,7 @@ public class DepartmentMapper {
     private UserDAO userDAO;
 
     /**
-     * This is the consturctor of the DepartmentMapper. It set the WingDAO and the UserDAO
+     * This is the constructor of the DepartmentMapper. It set the WingDAO and the UserDAO
      *
      * @param wingDAO The DAO for wing
      * @param userDAO The DAO for user
@@ -45,6 +46,7 @@ public class DepartmentMapper {
      * @param departmentDTO The department data to create a new department
      * @return a new department
      * @author Tim de Kok
+     * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     public Department toDepartment(DepartmentDTO departmentDTO) {
         String name = departmentDTO.getName();
@@ -69,6 +71,7 @@ public class DepartmentMapper {
      * @param update The department data to create a new department
      * @return an updated department
      * @author Tim de Kok
+     * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     public Department updateDepartment(Department base, Department update) {
         base.setName(update.getName());
