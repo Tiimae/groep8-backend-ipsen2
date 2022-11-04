@@ -1,10 +1,12 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.WingDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.WingDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.WingMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -48,18 +50,17 @@ public class WingController {
 
     @PostMapping(value = "", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postWing(@RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
-
-        this.wingDAO.saveWingToDatabase(this.wingMapper.toWing(wingDTO));
-
-        return new ApiResponse(HttpStatus.CREATED, "The wing has been posted!");
+    public ApiResponse<Wing> postWing(@RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
+        Wing wing = this.wingMapper.toWing(wingDTO);
+        this.wingDAO.saveWingToDatabase(wing);
+        return new ApiResponse(HttpStatus.CREATED, wing);
     }
 
     @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
     public ApiResponse updateWing(@PathVariable String id, @RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
         this.wingDAO.updateWingInDatabase(id, this.wingMapper.toWing(wingDTO));
-        return new ApiResponse(HttpStatus.ACCEPTED, "The wing has been updated!");
+        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been updated!");
     }
 
     @DeleteMapping(value = "/{id}")

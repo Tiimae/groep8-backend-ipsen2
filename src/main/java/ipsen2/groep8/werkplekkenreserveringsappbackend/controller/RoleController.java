@@ -46,10 +46,10 @@ public class RoleController {
 
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postRole(@RequestBody @Valid RoleDTO roleDTO) {
+    public ApiResponse<Role> postRole(@RequestBody @Valid RoleDTO roleDTO) {
         Role role = this.roleMapper.toRole(roleDTO);
         this.roleDAO.saveRoleToDatabase(role);
-        return new ApiResponse(HttpStatus.CREATED, "The role has been posted!");
+        return new ApiResponse(HttpStatus.CREATED, role);
     }
 
     @PutMapping(value = "/{id}", consumes = {"application/json"})
@@ -58,14 +58,14 @@ public class RoleController {
         Role role = this.roleMapper.toRole(roleDTO);
         this.roleDAO.updateRoleToDatabase(id, role);
 
-        return new ApiResponse(HttpStatus.ACCEPTED, "The role has been updated!");
+        return new ApiResponse(HttpStatus.ACCEPTED, "Role has been updated!");
     }
 
     @RequestMapping(value = "/{roleid}", method = RequestMethod.DELETE)
     @ResponseBody
     public ApiResponse deleteRole(@PathVariable String roleid) {
         this.roleDAO.removeRoleToDatabase(roleid);
-        return new ApiResponse(HttpStatus.ACCEPTED, "The role has been posted!");
+        return new ApiResponse(HttpStatus.ACCEPTED, "Role has been deleted!");
     }
 
 }

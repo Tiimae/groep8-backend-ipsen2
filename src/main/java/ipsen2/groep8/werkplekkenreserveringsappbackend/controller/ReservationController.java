@@ -60,8 +60,9 @@ public class ReservationController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseBody
-    public void deleteReservation(@PathVariable String id) {
+    public ApiResponse deleteReservation(@PathVariable String id) {
         this.reservationDAO.deleteReservationFromDatabase(id);
+        return new ApiResponse(HttpStatus.ACCEPTED, "Reservation has been deleted");
     }
 
     @GetMapping(value = "/{id}/user")

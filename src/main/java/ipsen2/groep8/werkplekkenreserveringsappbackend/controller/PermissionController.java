@@ -46,10 +46,10 @@ public class PermissionController {
 
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postPermission(@RequestBody @Valid PermissionDTO permissionDTO) throws EntryNotFoundException {
+    public ApiResponse<Permission> postPermission(@RequestBody @Valid PermissionDTO permissionDTO) throws EntryNotFoundException {
         Permission permission = permissionMapper.toPermission(permissionDTO);
         this.permissionDAO.savePermissionToDatabase(permission);
-        return new ApiResponse(HttpStatus.CREATED, "Permission has been posted to the database!");
+        return new ApiResponse(HttpStatus.CREATED, permission);
     }
 
     @PutMapping(value = "/{id}", consumes = {"application/json"})

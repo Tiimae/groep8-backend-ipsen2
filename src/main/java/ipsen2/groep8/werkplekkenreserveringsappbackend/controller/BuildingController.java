@@ -53,7 +53,7 @@ public class BuildingController {
         return new ApiResponse(HttpStatus.CREATED, building);
     }
 
-    @PutMapping(value = "/{id}")
+    @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
     public ApiResponse updateBuilding(@PathVariable String id, @RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
         final Building building = this.buildingMapper.toBuilding(buildingDTO);
