@@ -46,7 +46,6 @@ public class DepartmentMapper {
      * @param departmentDTO The department data to create a new department
      * @return a new department
      * @author Tim de Kok
-     * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     public Department toDepartment(DepartmentDTO departmentDTO) {
         String name = departmentDTO.getName();
@@ -71,7 +70,6 @@ public class DepartmentMapper {
      * @param update The department data to create a new department
      * @return an updated department
      * @author Tim de Kok
-     * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     public Department updateDepartment(Department base, Department update) {
         base.setName(update.getName());

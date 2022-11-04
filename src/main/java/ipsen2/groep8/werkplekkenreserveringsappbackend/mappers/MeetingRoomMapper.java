@@ -78,7 +78,6 @@ public class MeetingRoomMapper {
      * @param update The meeting room data to create a new meeting room
      * @return an updated meeting room
      * @author Tim de Kok
-     * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     public MeetingRoom mergeMeetingRoom(MeetingRoom base, MeetingRoom update) {
         base.setAmountPeople(update.getAmountPeople());
