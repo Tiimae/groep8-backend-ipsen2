@@ -2,6 +2,10 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * @author Tim de Kok
+ * @version 1.0
+ */
 public class ApiResponse<Type> {
     private HttpStatus code;
     private Type payload;

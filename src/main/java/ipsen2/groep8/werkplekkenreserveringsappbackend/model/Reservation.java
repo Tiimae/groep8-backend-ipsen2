@@ -13,6 +13,10 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @author Tim de Kok, Wouter de Bruijn
+ * @version 1.0
+ */
 @Entity
 @Table(name = "reservation")
 @Getter

@@ -7,7 +7,10 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-
+/**
+ * @author Wouter de Bruijn
+ * @version 1.0
+ */
 @Getter
 @Setter
 public class ReservationDTO {

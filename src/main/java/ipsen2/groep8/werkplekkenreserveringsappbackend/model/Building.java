@@ -9,6 +9,10 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @author Tim de Kok
+ * @version 1.0
+ */
 @Entity
 @Table(name = "building")
 @Getter

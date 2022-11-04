@@ -12,6 +12,10 @@ import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @author Tim de Kok
+ * @version 1.0
+ */
 @Entity
 @Table(name = "role")
 @Getter
