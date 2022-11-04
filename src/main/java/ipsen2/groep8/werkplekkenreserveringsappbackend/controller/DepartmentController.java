@@ -45,20 +45,20 @@ public class DepartmentController {
         return new ApiResponse(HttpStatus.ACCEPTED, allDepartments);
     }
 
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postDepartment(@RequestBody DepartmentDTO departmentDTO) {
+    public ApiResponse<Department> postDepartment(@RequestBody DepartmentDTO departmentDTO) {
         Department department = this.departmentMapper.toDepartment(departmentDTO);
         this.departmentDAO.postDepartmentToDatabase(department);
         return new ApiResponse(HttpStatus.CREATED, department);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {"application/json"})
     @ResponseBody
     public ApiResponse updateDepartment(@PathVariable String id, @RequestBody @Valid DepartmentDTO departmentDTO) {
         Department department = this.departmentMapper.toDepartment(departmentDTO);
         this.departmentDAO.updateDepartmentInDatabase(id, department);
-        return new ApiResponse(HttpStatus.ACCEPTED, "Department has been added");
+        return new ApiResponse(HttpStatus.ACCEPTED, "Department has been updated");
     }
 
     @RequestMapping(value = "/{departmentId}", method = RequestMethod.DELETE)

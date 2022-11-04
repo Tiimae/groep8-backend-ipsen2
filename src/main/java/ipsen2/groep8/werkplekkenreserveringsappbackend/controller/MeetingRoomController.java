@@ -48,12 +48,12 @@ public class MeetingRoomController {
     @PostMapping(value = "", consumes = {"application/json"})
     @ResponseBody
     public ApiResponse postMeetingRoom(@RequestBody @Valid MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
-
+        MeetingRoom meetingRoom = this.meetingRoomMapper.toMeetingRoom(meetingRoomDTO);
         this.meetingRoomDAO.saveMeetingRoomToDatabase(this.meetingRoomMapper.toMeetingRoom(meetingRoomDTO));
-        return new ApiResponse(HttpStatus.CREATED, "MeetingRoom has been posted to the database");
+        return new ApiResponse(HttpStatus.CREATED, meetingRoom);
     }
 
-    @PutMapping(value = "/{id}", consumes = {"apllication/json"})
+    @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
     public ApiResponse updateUser(@PathVariable String id, @RequestBody @Valid MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
         final MeetingRoom meetingRoomUpdate = this.meetingRoomMapper.toMeetingRoom(meetingRoomDTO);
