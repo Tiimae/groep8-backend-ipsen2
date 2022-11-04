@@ -5,6 +5,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.ReservationDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import org.springframework.context.annotation.Lazy;
@@ -31,10 +32,14 @@ public class ReservationController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Reservation> getReservation(@PathVariable String id) throws EntryNotFoundException {
-        Optional<Reservation> reservationEntry = this.reservationDAO.getReservationFromDatabase(id);
-        if (reservationEntry.isEmpty()) throw new EntryNotFoundException("Reservation not found");
-        return new ResponseEntity<>(reservationEntry.get(), HttpStatus.OK);
+    public ApiResponse<Optional<Reservation>> getReservation(@PathVariable String reservationId) {
+        Optional<Reservation> reservation = this.reservationDAO.getReservationFromDatabase(reservationId);
+
+        if (reservation.isEmpty()){
+            return new ApiResponse(HttpStatus.NOT_FOUND, "Reservation not found!");
+        }
+
+        return new ApiResponse(HttpStatus.OK, reservation);
     }
 
     @GetMapping(value = "")
