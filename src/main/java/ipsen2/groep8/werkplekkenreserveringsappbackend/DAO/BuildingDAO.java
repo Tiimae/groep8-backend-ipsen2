@@ -31,7 +31,7 @@ public class BuildingDAO {
      * This is the constructor of the BuildingDAO. It set the buildingMapper and buildingRepository
      *
      * @param buildingMapper The Mapper for building
-     * @param buildingRepository The repository for wing
+     * @param buildingRepository The repository for building
      * @author Tim de Kok
      */
     public BuildingDAO(BuildingRepository buildingRepository, @Lazy BuildingMapper buildingMapper) {
