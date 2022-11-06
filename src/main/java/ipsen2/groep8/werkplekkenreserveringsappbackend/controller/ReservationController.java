@@ -1,7 +1,10 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.ReservationDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.ReservationRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.ReservationDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
@@ -17,6 +20,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.WeekFields;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +44,9 @@ public class ReservationController {
     }
 
     @GetMapping(value = "/{id}")
-    public ApiResponse<Optional<Reservation>> getReservation(@PathVariable String reservationId) {
-        Optional<Reservation> reservation = this.reservationDAO.getReservationFromDatabase(reservationId);
+    @ResponseBody
+    public ApiResponse<Optional<Reservation>> getReservation(@PathVariable String id) {
+        Optional<Reservation> reservation = this.reservationDAO.getReservationFromDatabase(id);
 
         if (reservation.isEmpty()){
             return new ApiResponse(HttpStatus.NOT_FOUND, "Reservation not found!");
@@ -47,10 +55,33 @@ public class ReservationController {
         return new ApiResponse(HttpStatus.OK, reservation);
     }
 
+
+
     @GetMapping(value = "")
     @ResponseBody
-    public ApiResponse<List<Reservation>> getReservations() {
+    public ApiResponse<List<Reservation>> getReservations(@RequestParam(required = false) String filter) {
         List<Reservation> allReservations = this.reservationDAO.getAllReservations();
+        Set<Reservation> filteredReservations = new HashSet<>();
+
+
+        if(filter != null && filter.equals("thismonth")){
+            for (Reservation reservation : allReservations) {
+                if(LocalDateTime.now().getMonth() == reservation.getStartDate().getMonth()){
+                    filteredReservations.add(reservation);
+                }
+            }
+            return new ApiResponse(HttpStatus.OK, filteredReservations);
+        }
+
+        if(filter != null && filter.equals("lastmonth")){
+            for (Reservation reservation : allReservations) {
+                if(LocalDateTime.now().minusMonths(1).getMonth() == reservation.getStartDate().getMonth()){
+                    filteredReservations.add(reservation);
+                }
+            }
+            return new ApiResponse(HttpStatus.OK, filteredReservations);
+        }
+
         return new ApiResponse(HttpStatus.ACCEPTED, allReservations);
     }
 
@@ -74,10 +105,19 @@ public class ReservationController {
     }
 
     @PutMapping(value ="/{id}", consumes = {"application/json"})
-    public ResponseEntity<Reservation> updateReservation(@PathVariable String id, @RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
+    @ResponseBody
+    public ApiResponse updateReservation(@PathVariable String id, @RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
         Reservation reservation = reservationMapper.toReservation(reservationDTO);
         this.reservationDAO.updateReservationInDatabase(id, reservation);
-        return new ResponseEntity<>(reservation, HttpStatus.ACCEPTED);
+        return new ApiResponse(HttpStatus.ACCEPTED, "Reservation has been updated");
+    }
+
+    @PatchMapping(value ="/{id}", consumes = {"application/json"})
+    @ResponseBody
+    public ApiResponse patchReservation(@PathVariable String id, @RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
+        Reservation reservation = reservationMapper.toReservation(reservationDTO);
+        this.reservationDAO.updateReservationInDatabase(id, reservation);
+        return new ApiResponse(HttpStatus.ACCEPTED, "Reservation has been updated");
     }
 
     @DeleteMapping(value = "/{id}")
