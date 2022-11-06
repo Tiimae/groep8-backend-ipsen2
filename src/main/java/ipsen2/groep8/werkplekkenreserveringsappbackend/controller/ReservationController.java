@@ -8,27 +8,32 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
-import org.springframework.context.annotation.Lazy;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping(value = "/api/reservation")
 @Validated
 public class ReservationController {
+    private final EmailService emailService;
     private final ReservationDAO reservationDAO;
     private final ReservationMapper reservationMapper;
 
-    public ReservationController(ReservationDAO reservationDAO, ReservationMapper reservationMapper) {
+    public ReservationController(ReservationDAO reservationDAO, ReservationMapper reservationMapper, EmailService emailService) {
         this.reservationDAO = reservationDAO;
         this.reservationMapper = reservationMapper;
+        this.emailService = emailService;
     }
 
     @GetMapping(value = "/{id}")
@@ -53,6 +58,18 @@ public class ReservationController {
     public ResponseEntity<Reservation> postReservation(@RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
         Reservation reservation = reservationMapper.toReservation(reservationDTO);
         this.reservationDAO.saveReservationToDatabase(reservation);
+
+        try {
+             List<String> meetingRooms = new ArrayList<>();
+             reservation.getMeetingRooms().stream().forEach(meetingRoom -> {
+                meetingRooms.add(meetingRoom.getId());
+            });
+
+            this.emailService.sendMessage(reservation.getUser().getEmail(), "reservation has been placed", "you made an reservation in wing " + reservation.getWing().getName() + " in meetingrooms: " + String.join(meetingRooms.stream().collect(Collectors.joining(","))));
+        } catch (MessagingException e) {
+            System.out.println(e.getMessage());
+        }
+
         return new ResponseEntity<>(reservation, HttpStatus.CREATED);
     }
 
