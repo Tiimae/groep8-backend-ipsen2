@@ -6,6 +6,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundE
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.mail.MessagingException;
 import javax.naming.AuthenticationException;
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -30,13 +31,15 @@ public class AuthenticationController {
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    final EmailService emailService;
 
-    public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper) {
+    public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService) {
         this.userRepo = userRepo;
         this.jwtUtil = jwtUtil;
         this.authManager = authManager;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
+        this.emailService = emailService;
     }
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -60,8 +63,17 @@ public class AuthenticationController {
         String token = jwtUtil.generateToken(newUser.getEmail());
 
         Map<String, Object> res = new HashMap<>();
+
         res.put("jwt-token", token);
         res.put("user-id", newUser.getId());
+
+        if (!token.isBlank()) {
+            try {
+                this.emailService.sendMessage(newUser.getEmail(), "your account has been registered", "your account for WerkPlekkenReserveringsApp has been registered");
+            } catch (MessagingException e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
         return res;
     }

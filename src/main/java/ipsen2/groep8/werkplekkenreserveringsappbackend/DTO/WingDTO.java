@@ -6,6 +6,10 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * @author Tim de Kok
+ * @version 1.0
+ */
 @Getter
 @Setter
 public class WingDTO {

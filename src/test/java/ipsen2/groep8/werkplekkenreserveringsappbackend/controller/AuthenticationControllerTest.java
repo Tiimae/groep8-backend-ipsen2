@@ -8,6 +8,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -41,6 +42,8 @@ public class AuthenticationControllerTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private JWTUtil jwtUtil;
+    @Mock
+    private EmailService emailService;
 
 
     private AuthenticationController authController;
@@ -50,7 +53,7 @@ public class AuthenticationControllerTest {
 
     @Before
     public void setup() {
-        this.authController = new AuthenticationController(userRepository, jwtUtil, authenticationManager, passwordEncoder, userMapper);
+        this.authController = new AuthenticationController(userRepository, jwtUtil, authenticationManager, passwordEncoder, userMapper, emailService);
     }
 
     @Test
