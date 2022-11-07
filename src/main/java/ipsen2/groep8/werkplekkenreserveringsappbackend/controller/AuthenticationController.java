@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.mail.MessagingException;
 import javax.naming.AuthenticationException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -69,7 +70,11 @@ public class AuthenticationController {
 
         if (!token.isBlank()) {
             try {
-                this.emailService.sendMessage(newUser.getEmail(), "your account has been registered", "your account for WerkPlekkenReserveringsApp has been registered");
+                this.emailService.sendMessage(
+                        newUser.getEmail(),
+                        "CGI account registrated",
+                        "<p>Hi "+ newUser.getName() +", your account for CGI has been created.</p>"
+                );
             } catch (MessagingException e) {
                 System.out.println(e.getMessage());
             }

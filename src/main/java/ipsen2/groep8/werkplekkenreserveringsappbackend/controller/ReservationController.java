@@ -22,6 +22,7 @@ import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.ArrayList;
@@ -96,7 +97,11 @@ public class ReservationController {
                 meetingRooms.add(meetingRoom.getId());
             });
 
-            this.emailService.sendMessage(reservation.getUser().getEmail(), "reservation has been placed", "you made an reservation in wing " + reservation.getWing().getName() + " in meetingrooms: " + String.join(meetingRooms.stream().collect(Collectors.joining(","))));
+            this.emailService.sendMessage(
+                reservation.getUser().getEmail(),
+                "Your CGI reservation",
+                "<p>Hi, we have received your reservation for a " + reservation.getType() + ", and confirm your booking.</p><p style=\"margin: 0;\">" + reservation.getStartDate().format(DateTimeFormatter.ofPattern("d MMMM y")) + "</p>" + reservation.getStartDate().toLocalTime() + " - " + reservation.getEndDate().toLocalTime()
+            );
         } catch (MessagingException e) {
             System.out.println(e.getMessage());
         }
