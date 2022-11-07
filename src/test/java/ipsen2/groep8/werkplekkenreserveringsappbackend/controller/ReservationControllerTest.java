@@ -7,6 +7,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.DepartmentMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,10 +28,11 @@ public class ReservationControllerTest {
 
     @Mock private ReservationDAO reservationDAO;
     @Mock private ReservationMapper reservationMapper;
+    @Mock private EmailService emailService;
 
     @Before
     public void setup() {
-        this.reservationController = new ReservationController(this.reservationDAO, this.reservationMapper);
+        this.reservationController = new ReservationController(this.reservationDAO, this.reservationMapper, this.emailService);
     }
 
     @Test

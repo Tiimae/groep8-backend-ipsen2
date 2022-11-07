@@ -33,6 +33,7 @@ public class Role {
 
     @ManyToMany(mappedBy = "roles", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("roles")
+    @JsonIgnore
     private Set<User> users = new HashSet<>();
 
     @ManyToMany
