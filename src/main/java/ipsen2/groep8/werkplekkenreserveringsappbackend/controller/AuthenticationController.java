@@ -4,9 +4,11 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserReposi
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,9 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.mail.MessagingException;
 import javax.naming.AuthenticationException;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +45,7 @@ public class AuthenticationController {
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> register(@RequestBody UserDTO user) throws EntryNotFoundException {
+    public ApiResponse register(@RequestBody UserDTO user) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
@@ -53,7 +53,7 @@ public class AuthenticationController {
             Map<String, Object> res = new HashMap<>();
             res.put("message", "user already exists, use the login route");
 
-            return res;
+            return new ApiResponse(HttpStatus.BAD_REQUEST, res);
         }
 
         String encodedPass = passwordEncoder.encode(user.getPassword());
@@ -75,17 +75,17 @@ public class AuthenticationController {
                         "CGI account registrated",
                         "<p>Hi "+ newUser.getName() +", your account for CGI has been created.</p>"
                 );
-            } catch (MessagingException e) {
+            } catch (Throwable e) {
                 System.out.println(e.getMessage());
             }
         }
 
-        return res;
+        return new ApiResponse(HttpStatus.ACCEPTED, res);
     }
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> login(@RequestBody UserDTO user) throws AuthenticationException {
+    public ApiResponse login(@RequestBody UserDTO user) throws AuthenticationException {
 
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
@@ -101,6 +101,6 @@ public class AuthenticationController {
             res.put("user-id", foundUser.get().getId());
         }
 
-        return res;
+        return new ApiResponse(HttpStatus.ACCEPTED, res);
     }
 }
