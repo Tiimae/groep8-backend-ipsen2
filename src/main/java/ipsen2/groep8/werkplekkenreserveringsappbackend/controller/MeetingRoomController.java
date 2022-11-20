@@ -4,7 +4,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.MeetingRoomDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.MeetingRoomDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.MeetingRoomMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.MeetingRoom;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -27,48 +27,48 @@ public class MeetingRoomController {
 
     @GetMapping(value = "/{meetingRoomId}")
     @ResponseBody
-    public ApiResponse<Optional<MeetingRoom>> getMeetingRoom(@PathVariable String meetingRoomId) {
+    public ApiResponseService<Optional<MeetingRoom>> getMeetingRoom(@PathVariable String meetingRoomId) {
         Optional<MeetingRoom> meetingRoom = this.meetingRoomDAO.getMeetingRoomFromDatabase(meetingRoomId);
 
         if (meetingRoom.isEmpty()) {
-            return new ApiResponse(HttpStatus.NOT_FOUND, "Meeting room has not been found");
+            return new ApiResponseService(HttpStatus.NOT_FOUND, "Meeting room has not been found");
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, meetingRoom);
+        return new ApiResponseService(HttpStatus.ACCEPTED, meetingRoom);
     }
 
     @GetMapping(value = "")
     @ResponseBody
-    public ApiResponse<List<MeetingRoom>> getMeetingRooms() {
+    public ApiResponseService<List<MeetingRoom>> getMeetingRooms() {
         List<MeetingRoom> allMeetingRooms = this.meetingRoomDAO.getAllMeetingRoomsFromDatabase();
 
-        return new ApiResponse(HttpStatus.ACCEPTED, allMeetingRooms);
+        return new ApiResponseService(HttpStatus.ACCEPTED, allMeetingRooms);
     }
 
     @PostMapping(value = "", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postMeetingRoom(@RequestBody @Valid MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
+    public ApiResponseService postMeetingRoom(@RequestBody @Valid MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
 
         this.meetingRoomDAO.saveMeetingRoomToDatabase(this.meetingRoomMapper.toMeetingRoom(meetingRoomDTO));
-        return new ApiResponse(HttpStatus.CREATED, "MeetingRoom has been posted to the database");
+        return new ApiResponseService(HttpStatus.CREATED, "MeetingRoom has been posted to the database");
     }
 
     @PutMapping(value = "/{id}", consumes = {"apllication/json"})
     @ResponseBody
-    public ApiResponse updateUser(@PathVariable String id, @RequestBody @Valid MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
+    public ApiResponseService updateUser(@PathVariable String id, @RequestBody @Valid MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
         final MeetingRoom meetingRoomUpdate = this.meetingRoomMapper.toMeetingRoom(meetingRoomDTO);
         MeetingRoom meetingRoom = this.meetingRoomDAO.getMeetingRoomFromDatabase(id).get();
 
         meetingRoom = this.meetingRoomMapper.mergeMeetingRoom(meetingRoom, meetingRoomUpdate);
 
         this.meetingRoomDAO.updateMeetingRoomInDatabase(meetingRoom);
-        return new ApiResponse(HttpStatus.ACCEPTED, "MeetingRoom has been updated");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "MeetingRoom has been updated");
     }
 
     @DeleteMapping(value = "/{meetingRoomId}")
     @ResponseBody
-    public ApiResponse deleteUser(@PathVariable String meetingRoomId) {
+    public ApiResponseService deleteUser(@PathVariable String meetingRoomId) {
         this.meetingRoomDAO.deleteMeetingRoomFromDatabase(meetingRoomId);
-        return new ApiResponse(HttpStatus.ACCEPTED, "MeetingRoom has been deleted");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "MeetingRoom has been deleted");
     }
 }

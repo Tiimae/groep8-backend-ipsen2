@@ -4,7 +4,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.DepartmentDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.DepartmentMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -27,30 +27,30 @@ public class DepartmentController {
 
     @RequestMapping(value = "/{departmentid}", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<Optional<Department>> getDeparment(@PathVariable String departmentid) {
+    public ApiResponseService<Optional<Department>> getDeparment(@PathVariable String departmentid) {
         final Optional<Department> department = this.departmentDAO.getDepartmentFromDatabase(departmentid);
 
         if (department.isEmpty()) {
-            return new ApiResponse(HttpStatus.NOT_FOUND, "Department not found!");
+            return new ApiResponseService(HttpStatus.NOT_FOUND, "Department not found!");
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, department);
+        return new ApiResponseService(HttpStatus.ACCEPTED, department);
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<List<Department>> getAllDepartments() {
+    public ApiResponseService<List<Department>> getAllDepartments() {
         List<Department> allDepartments = this.departmentDAO.getAllDepartmentsFromDatabase();
 
-        return new ApiResponse(HttpStatus.ACCEPTED, allDepartments);
+        return new ApiResponseService(HttpStatus.ACCEPTED, allDepartments);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResponse postDepartment(@RequestBody DepartmentDTO departmentDTO) {
+    public ApiResponseService postDepartment(@RequestBody DepartmentDTO departmentDTO) {
         Department department = this.departmentMapper.toDepartment(departmentDTO);
         this.departmentDAO.postDepartmentToDatabase(department);
-        return new ApiResponse(HttpStatus.CREATED, "Department has been posted to the database!");
+        return new ApiResponseService(HttpStatus.CREATED, "Department has been posted to the database!");
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
@@ -63,10 +63,10 @@ public class DepartmentController {
 
     @RequestMapping(value = "/{departmentId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ApiResponse removeDepartment(@PathVariable String departmentId) {
+    public ApiResponseService removeDepartment(@PathVariable String departmentId) {
         this.departmentDAO.removeDepartmentFromDatabase(departmentId);
 
-        return new ApiResponse(HttpStatus.ACCEPTED, "Department has been removed in the database!");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "Department has been removed in the database!");
     }
 //
 //    @RequestMapping(value = "/{departmentId}/user/{userId}attach", method = RequestMethod.POST)

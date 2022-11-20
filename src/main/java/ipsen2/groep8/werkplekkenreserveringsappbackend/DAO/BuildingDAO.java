@@ -17,11 +17,9 @@ import java.util.Optional;
 public class BuildingDAO {
 
     private BuildingRepository buildingRepository;
-    private BuildingMapper buildingMapper;
 
-    public BuildingDAO(BuildingRepository buildingRepository, @Lazy BuildingMapper buildingMapper) {
+    public BuildingDAO(BuildingRepository buildingRepository) {
         this.buildingRepository = buildingRepository;
-        this.buildingMapper = buildingMapper;
     }
 
     public Optional<Building> getBuildingFromDatabase(String buildingid) {
@@ -32,14 +30,12 @@ public class BuildingDAO {
         return this.buildingRepository.findAll();
     }
 
-    public void saveBuildingToDatabase(Building building) {
-        this.buildingRepository.save(building);
+    public Building saveBuildingToDatabase(Building building) {
+        return this.buildingRepository.save(building);
     }
 
-    public void updateBuildingInDatabase(String id, Building buildingUpdate) {
-        Building building = this.buildingRepository.getById(id);
-        building = this.buildingMapper.mergeBuilding(building, buildingUpdate);
-        this.buildingRepository.save(building);
+    public Building updateBuildingInDatabase(Building updatedBuilding) {
+        return this.buildingRepository.saveAndFlush(updatedBuilding);
     }
 
     public void deleteBuildingFromDatabase(String buildingid) {

@@ -1,11 +1,10 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.ReservationDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
@@ -35,58 +34,58 @@ public class UserController {
 
     @RequestMapping(value = "/{userid}", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<User> getUser(@PathVariable String userid) {
+    public ApiResponseService<User> getUser(@PathVariable String userid) {
         Optional<User> user = this.userDAO.getUserFromDatabase(userid);
 
         if (user.isEmpty()) {
-             return new ApiResponse(HttpStatus.NOT_FOUND, "The user has not been found!");
+             return new ApiResponseService(HttpStatus.NOT_FOUND, "The user has not been found!");
         }
 
         User safeUser = user.get();
         safeUser.setPassword("");
 
-        return new ApiResponse(HttpStatus.ACCEPTED, safeUser);
+        return new ApiResponseService(HttpStatus.ACCEPTED, safeUser);
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<List<User>> getUsers() {
-        return new ApiResponse(HttpStatus.ACCEPTED, this.userDAO.getAllUsersFromDatabase());
+    public ApiResponseService<List<User>> getUsers() {
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.userDAO.getAllUsersFromDatabase());
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse<User> postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
+    public ApiResponseService<User> postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
         User user = userMapper.toUser(userDTO);
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
         this.userDAO.saveUserToDatabase(user);
-        return new ApiResponse(HttpStatus.CREATED, user);
+        return new ApiResponseService(HttpStatus.CREATED, user);
     }
 
     @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse updateUser(@PathVariable String id, @RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
+    public ApiResponseService updateUser(@PathVariable String id, @RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
         User user = this.userMapper.toUser(userDTO);
         this.userDAO.updateUserInDatabase(id, user);
 
-        return new ApiResponse(HttpStatus.ACCEPTED, "User has been updated");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "User has been updated");
     }
 
     @DeleteMapping(value = "/{userid}")
     @ResponseBody
-    public ApiResponse deleteUser(@PathVariable String userid) {
+    public ApiResponseService deleteUser(@PathVariable String userid) {
         this.userDAO.deleteUserFromDatabase(userid);
-        return new ApiResponse(HttpStatus.ACCEPTED, "User has been deleted");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "User has been deleted");
     }
 
     @GetMapping(value = "/{userid}/reservations")
     @ResponseBody
-    public ApiResponse<List<Reservation>> getUserReservations(@PathVariable String userid) throws EntryNotFoundException {
+    public ApiResponseService<List<Reservation>> getUserReservations(@PathVariable String userid) throws EntryNotFoundException {
         Optional<User> userEntry = this.userDAO.getUserFromDatabase(userid);
         if (userEntry.isEmpty()) throw new EntryNotFoundException("The user has not been found!");
         User presentUser = userEntry.get();
-        return new ApiResponse(HttpStatus.OK, presentUser.getReservations());
+        return new ApiResponseService(HttpStatus.OK, presentUser.getReservations());
     }
 
 }

@@ -4,9 +4,8 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.BuildingDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.BuildingDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.BuildingMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Building;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -27,42 +26,54 @@ public class BuildingController {
         this.buildingMapper = buildingMapper;
     }
 
-    @RequestMapping(value = "/{buildingid}", method = RequestMethod.GET)
+    @GetMapping(value = "/{buildingid}")
     @ResponseBody
-    public ApiResponse<Optional<Building>> getBuilding(@PathVariable String buildingid) {
+    public ApiResponseService<Optional<Building>> getBuilding(@PathVariable String buildingid) {
         final Optional<Building> building = this.buildingDAO.getBuildingFromDatabase(buildingid);
         if (building.isEmpty()) {
-            return new ApiResponse(HttpStatus.NOT_FOUND, "Dit gebouw bestaat niet");
+            return new ApiResponseService<>(HttpStatus.NOT_FOUND, "This building doesn't exist");
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, building);
+        return new ApiResponseService<>(HttpStatus.FOUND, building);
     }
 
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @GetMapping(value = "")
     @ResponseBody
-    public ApiResponse<List<Building>> getBuildings() {
-        final List<Building> allBuildingsFromDatabase = this.buildingDAO.getAllBuildingsFromDatabase();
-        return new ApiResponse(HttpStatus.ACCEPTED, allBuildingsFromDatabase);
+    public ApiResponseService<List<Building>> getBuildings() {
+        return new ApiResponseService<>(HttpStatus.ACCEPTED, this.buildingDAO.getAllBuildingsFromDatabase());
     }
 
-    @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
+    @PostMapping(value = "", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postBuilding(@RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
-        this.buildingDAO.saveBuildingToDatabase(this.buildingMapper.toBuilding(buildingDTO));
-        return new ApiResponse(HttpStatus.CREATED, "Building has been posted to the database");
+    public ApiResponseService<Building> postBuilding(@RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
+        final Building building = this.buildingDAO.saveBuildingToDatabase(this.buildingMapper.toBuilding(buildingDTO));
+
+        if (building == null) {
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, "Building has not been added to the database.");
+        }
+
+        return new ApiResponseService<>(HttpStatus.CREATED, building);
     }
 
-    @PutMapping(value = "/{id}")
+    @PutMapping(value = "/{buildingId}")
     @ResponseBody
-    public ApiResponse updateBuilding(@PathVariable String id, @RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
-        this.buildingDAO.updateBuildingInDatabase(id, this.buildingMapper.toBuilding(buildingDTO));
-        return new ApiResponse(HttpStatus.ACCEPTED, "User has been updated");
+    public ApiResponseService<Building> updateBuilding(@PathVariable String buildingId, @RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
+        final Optional<Building> buildingFromDatabase = this.buildingDAO.getBuildingFromDatabase(buildingId);
+
+        if (buildingFromDatabase.isEmpty()) {
+            this.postBuilding(buildingDTO);
+        }
+
+        final Building updatedBuilding = this.buildingMapper.mergeBuilding(buildingFromDatabase.get(), this.buildingMapper.toBuilding(buildingDTO));
+        final Building building = this.buildingDAO.updateBuildingInDatabase(updatedBuilding);
+
+        return new ApiResponseService<>(HttpStatus.ACCEPTED, building);
     }
 
-    @DeleteMapping(value = "/{buildingid}")
+    @DeleteMapping(value = "/{buildingId}")
     @ResponseBody
-    public ApiResponse deleteBuilding(@PathVariable String buildingid) {
-        this.buildingDAO.deleteBuildingFromDatabase(buildingid);
-        return new ApiResponse(HttpStatus.ACCEPTED, "Building has been deleted");
+    public ApiResponseService deleteBuilding(@PathVariable String buildingId) {
+        this.buildingDAO.deleteBuildingFromDatabase(buildingId);
+        return new ApiResponseService<>(HttpStatus.ACCEPTED, "Building has been deleted");
     }
 }
