@@ -35,7 +35,7 @@ public class PermissionController {
             return new ApiResponseService(HttpStatus.NOT_FOUND, "The permission has not been found!");
         }
 
-        return new ApiResponseService(HttpStatus.ACCEPTED, permission.get());
+        return new ApiResponseService(HttpStatus.FOUND, permission.get());
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)

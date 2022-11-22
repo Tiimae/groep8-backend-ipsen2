@@ -2,8 +2,8 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.PermissionDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.PermissionMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Permission;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,12 +29,12 @@ public class PermissionControllerTest {
     public void should_return404StatusCode_when_permissionWithIdOneDoesNotExists() {
         //Arrange
         String permissionId = "1";
-        ApiResponse expectedResult = new ApiResponse(HttpStatus.NOT_FOUND, "Permission not found!");
+        ApiResponseService expectedResult = new ApiResponseService(HttpStatus.NOT_FOUND, "Permission not found!");
 
         when(this.permissionDAO.getPermissionFromDatabase(permissionId)).thenReturn(java.util.Optional.empty());
 
         //Act
-        ApiResponse actualResponse = this.permissionController.getPermission(permissionId);
+        ApiResponseService actualResponse = this.permissionController.getPermission(permissionId);
 
         //Assert
         org.junit.Assert.assertEquals(expectedResult.getCode(), actualResponse.getCode());
@@ -46,12 +46,12 @@ public class PermissionControllerTest {
     public void should_return200StatusCode_when_permissionWithIdOneExists() {
         //Arrange
         String permissionId = "1";
-        ApiResponse expectedResult = new ApiResponse(HttpStatus.OK, "Permission found!");
+        ApiResponseService expectedResult = new ApiResponseService(HttpStatus.OK, "Permission found!");
 
         when(this.permissionDAO.getPermissionFromDatabase(permissionId)).thenReturn(java.util.Optional.of(new Permission()));
 
         //Act
-        ApiResponse actualResponse = this.permissionController.getPermission(permissionId);
+        ApiResponseService actualResponse = this.permissionController.getPermission(permissionId);
 
         //Assert
         org.junit.Assert.assertEquals(expectedResult.getCode(), actualResponse.getCode());

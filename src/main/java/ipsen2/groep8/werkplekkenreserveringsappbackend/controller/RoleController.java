@@ -60,7 +60,7 @@ public class RoleController {
             return new ApiResponseService(HttpStatus.NOT_FOUND, "The role has not been found");
         }
 
-        return new ApiResponseService(HttpStatus.ACCEPTED, role.get());
+        return new ApiResponseService(HttpStatus.FOUND, role.get());
     }
 
     /**

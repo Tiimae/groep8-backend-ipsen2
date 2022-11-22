@@ -73,7 +73,7 @@ public class UserController {
         User safeUser = user.get();
         safeUser.setPassword("");
 
-        return new ApiResponseService(HttpStatus.ACCEPTED, safeUser);
+        return new ApiResponseService(HttpStatus.FOUND, safeUser);
     }
 
     /**

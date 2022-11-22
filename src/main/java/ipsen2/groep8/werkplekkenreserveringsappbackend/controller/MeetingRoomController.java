@@ -60,7 +60,7 @@ public class MeetingRoomController {
             return new ApiResponseService(HttpStatus.NOT_FOUND, "Meeting room has not been found");
         }
 
-        return new ApiResponseService(HttpStatus.ACCEPTED, meetingRoom);
+        return new ApiResponseService(HttpStatus.FOUND, meetingRoom);
     }
 
     /**

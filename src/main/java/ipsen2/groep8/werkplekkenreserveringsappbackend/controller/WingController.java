@@ -59,7 +59,7 @@ public class WingController {
             return new ApiResponseService(HttpStatus.NOT_FOUND, "The wing has not been found!");
         }
 
-        return new ApiResponseService(HttpStatus.ACCEPTED, wing);
+        return new ApiResponseService(HttpStatus.FOUND, wing);
     }
 
     /**

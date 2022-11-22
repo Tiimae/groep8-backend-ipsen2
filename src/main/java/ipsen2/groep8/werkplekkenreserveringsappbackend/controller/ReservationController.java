@@ -42,7 +42,7 @@ public class ReservationController {
             return new ApiResponseService(HttpStatus.NOT_FOUND, "Reservation not found!");
         }
 
-        return new ApiResponseService(HttpStatus.OK, reservation);
+        return new ApiResponseService(HttpStatus.FOUND, reservation);
     }
 
 
