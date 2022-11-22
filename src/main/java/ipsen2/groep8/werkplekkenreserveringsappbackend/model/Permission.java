@@ -1,6 +1,5 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;

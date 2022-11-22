@@ -2,7 +2,6 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.mappers;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.RoleDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.PermissionDTO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Permission;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import org.springframework.stereotype.Component;

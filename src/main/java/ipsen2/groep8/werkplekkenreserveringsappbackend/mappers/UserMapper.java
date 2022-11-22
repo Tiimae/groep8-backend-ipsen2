@@ -3,10 +3,12 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.mappers;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.DepartmentDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.ReservationDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.RoleDAO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.*;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

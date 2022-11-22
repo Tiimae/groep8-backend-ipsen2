@@ -1,12 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.DepartmentRepository;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.MeetingRoomRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.WingRepository;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.WingMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.MeetingRoom;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
 import org.springframework.context.annotation.Lazy;
@@ -14,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Component
 public class WingDAO {

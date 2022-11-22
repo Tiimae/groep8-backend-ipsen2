@@ -4,9 +4,8 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.BuildingDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.BuildingDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.BuildingMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Building;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -53,13 +52,13 @@ public class BuildingController {
      */
     @RequestMapping(value = "/{buildingid}", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<Optional<Building>> getBuilding(@PathVariable String buildingid) {
+    public ApiResponseService<Optional<Building>> getBuilding(@PathVariable String buildingid) {
         final Optional<Building> building = this.buildingDAO.getBuildingFromDatabase(buildingid);
         if (building.isEmpty()) {
-            return new ApiResponse(HttpStatus.NOT_FOUND, "Dit gebouw bestaat niet");
+            return new ApiResponseService(HttpStatus.NOT_FOUND, "Dit gebouw bestaat niet");
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, building);
+        return new ApiResponseService(HttpStatus.ACCEPTED, building);
     }
 
     /**
@@ -70,9 +69,9 @@ public class BuildingController {
      */
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<List<Building>> getBuildings() {
+    public ApiResponseService<List<Building>> getBuildings() {
         final List<Building> allBuildingsFromDatabase = this.buildingDAO.getAllBuildingsFromDatabase();
-        return new ApiResponse(HttpStatus.ACCEPTED, allBuildingsFromDatabase);
+        return new ApiResponseService(HttpStatus.ACCEPTED, allBuildingsFromDatabase);
     }
 
 
@@ -86,10 +85,10 @@ public class BuildingController {
      */
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postBuilding(@RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
+    public ApiResponseService postBuilding(@RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
         final Building building = this.buildingMapper.toBuilding(buildingDTO);
         this.buildingDAO.saveBuildingToDatabase(building);
-        return new ApiResponse(HttpStatus.CREATED, building);
+        return new ApiResponseService(HttpStatus.CREATED, building);
     }
 
     /**
@@ -103,10 +102,10 @@ public class BuildingController {
      */
     @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse updateBuilding(@PathVariable String id, @RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
+    public ApiResponseService updateBuilding(@PathVariable String id, @RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
         final Building building = this.buildingMapper.toBuilding(buildingDTO);
         this.buildingDAO.updateBuildingInDatabase(id, building);
-        return new ApiResponse(HttpStatus.ACCEPTED, building);
+        return new ApiResponseService(HttpStatus.ACCEPTED, building);
     }
 
     /**
@@ -118,8 +117,8 @@ public class BuildingController {
      */
     @DeleteMapping(value = "/{buildingid}")
     @ResponseBody
-    public ApiResponse deleteBuilding(@PathVariable String buildingid) {
+    public ApiResponseService deleteBuilding(@PathVariable String buildingid) {
         this.buildingDAO.deleteBuildingFromDatabase(buildingid);
-        return new ApiResponse(HttpStatus.ACCEPTED, "Building has been deleted");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "Building has been deleted");
     }
 }

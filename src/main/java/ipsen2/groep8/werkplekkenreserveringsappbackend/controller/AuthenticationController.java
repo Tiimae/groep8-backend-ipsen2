@@ -4,9 +4,9 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserReposi
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,7 +45,7 @@ public class AuthenticationController {
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ApiResponse register(@RequestBody UserDTO user) throws EntryNotFoundException {
+    public ApiResponseService register(@RequestBody UserDTO user) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
@@ -53,7 +53,7 @@ public class AuthenticationController {
             Map<String, Object> res = new HashMap<>();
             res.put("message", "user already exists, use the login route");
 
-            return new ApiResponse(HttpStatus.BAD_REQUEST, res);
+            return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
         }
 
         String encodedPass = passwordEncoder.encode(user.getPassword());
@@ -80,12 +80,12 @@ public class AuthenticationController {
             }
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, res);
+        return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ApiResponse login(@RequestBody UserDTO user) throws AuthenticationException {
+    public ApiResponseService login(@RequestBody UserDTO user) throws AuthenticationException {
 
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
@@ -101,6 +101,6 @@ public class AuthenticationController {
             res.put("user-id", foundUser.get().getId());
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, res);
+        return new ApiResponseService(HttpStatus.ACCEPTED, res);
     }
 }
