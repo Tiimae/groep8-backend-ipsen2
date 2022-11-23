@@ -2,15 +2,19 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.security;
 
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -27,10 +31,16 @@ public class MyUserDetailsService implements UserDetailsService {
 
         User user = userRes.get();
 
+        List<GrantedAuthority> listAuthorities = new ArrayList<GrantedAuthority>();
+
+        for (Role role : user.getRoles()) {
+            listAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 email,
                 user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                listAuthorities
         );
     }
 }
