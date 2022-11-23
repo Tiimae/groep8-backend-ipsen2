@@ -81,7 +81,7 @@ public class AuthenticationController {
                 this.emailService.sendMessage(
                         newUser.getEmail(),
                         "CGI account registrated",
-                        "<p>Hi "+ newUser.getName() +", your account for CGI has been created.</p>"
+                        "<p>Hi " + newUser.getName() + ", your account for CGI has been created.</p>"
                 );
             } catch (Throwable e) {
                 System.out.println(e.getMessage());
@@ -93,18 +93,22 @@ public class AuthenticationController {
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ApiResponse login(@RequestBody UserDTO user) throws AuthenticationException {
+    public ApiResponse login(@RequestBody UserDTO user) {
+        Map<String, Object> res = new HashMap<>();
 
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 
-        authManager.authenticate(authInputToken);
-        Map<String, Object> res = new HashMap<>();
+        try {
+            authManager.authenticate(authInputToken);
+        } catch (Throwable $throwable) {
+            return new ApiResponse(HttpStatus.UNAUTHORIZED, "Wrong combination");
+        }
 
 
         Optional<User> foundUser = this.userRepo.findByEmail(user.getEmail());
 
-        if(foundUser.isPresent()){
+        if (foundUser.isPresent()) {
 
             final ArrayList<String> roles = new ArrayList<>();
             for (Role role : foundUser.get().getRoles()) {
