@@ -28,10 +28,10 @@ public class RoleLoader implements ApplicationRunner {
         }
 
         if (all.isEmpty()) {
-            this.roleRepository.save(new Role("Admin", new HashSet<>(), new HashSet<>()));
-            this.roleRepository.save(new Role("Manager", new HashSet<>(), new HashSet<>()));
-            this.roleRepository.save(new Role("Secretary", new HashSet<>(), new HashSet<>()));
-            this.roleRepository.save(new Role("User", new HashSet<>(), new HashSet<>()));
+            this.roleRepository.save(new Role("Admin", new HashSet<>()));
+            this.roleRepository.save(new Role("Manager", new HashSet<>()));
+            this.roleRepository.save(new Role("Secretary", new HashSet<>()));
+            this.roleRepository.save(new Role("User", new HashSet<>()));
         }
 
     }
