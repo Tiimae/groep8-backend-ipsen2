@@ -5,6 +5,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.naming.AuthenticationException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -61,7 +63,13 @@ public class AuthenticationController {
         User newUser = userMapper.toUser(user);
 
         newUser = userRepo.save(newUser);
-        String token = jwtUtil.generateToken(newUser.getEmail());
+
+        final ArrayList<String> roles = new ArrayList<>();
+        for (Role role : newUser.getRoles()) {
+            roles.add(role.getName());
+        }
+
+        String token = jwtUtil.generateToken(newUser.getEmail(), roles);
 
         Map<String, Object> res = new HashMap<>();
 
@@ -93,10 +101,18 @@ public class AuthenticationController {
         authManager.authenticate(authInputToken);
         Map<String, Object> res = new HashMap<>();
 
-        String token = jwtUtil.generateToken(user.getEmail());
-        var foundUser = this.userRepo.findByEmail(user.getEmail());
+
+        Optional<User> foundUser = this.userRepo.findByEmail(user.getEmail());
 
         if(foundUser.isPresent()){
+
+            final ArrayList<String> roles = new ArrayList<>();
+            for (Role role : foundUser.get().getRoles()) {
+                roles.add(role.getName());
+            }
+
+            String token = jwtUtil.generateToken(user.getEmail(), roles);
+
             res.put("jwt-token", token);
             res.put("user-id", foundUser.get().getId());
         }
