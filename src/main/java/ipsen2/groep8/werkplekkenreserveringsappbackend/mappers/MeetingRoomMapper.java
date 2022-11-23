@@ -4,7 +4,6 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.ReservationDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.WingDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.MeetingRoomDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.MeetingRoom;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;

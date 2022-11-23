@@ -1,7 +1,6 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.BuildingRepository;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.BuildingMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Building;
 import org.springframework.context.annotation.Lazy;

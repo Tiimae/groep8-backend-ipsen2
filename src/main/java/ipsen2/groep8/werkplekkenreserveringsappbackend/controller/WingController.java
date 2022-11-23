@@ -1,13 +1,11 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.WingDAO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.WingDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.WingMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -54,14 +52,14 @@ public class WingController {
      */
     @GetMapping(value = "/{id}")
     @ResponseBody
-    public ApiResponse<Optional<Wing>> getWing(@PathVariable String id) {
+    public ApiResponseService<Optional<Wing>> getWing(@PathVariable String id) {
         Optional<Wing> wing = this.wingDAO.getWingFromDatabase(id);
 
         if (wing.isEmpty()) {
-            return new ApiResponse(HttpStatus.NOT_FOUND, "The wing has not been found!");
+            return new ApiResponseService(HttpStatus.NOT_FOUND, "The wing has not been found!");
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, wing);
+        return new ApiResponseService(HttpStatus.FOUND, wing);
     }
 
     /**
@@ -72,10 +70,10 @@ public class WingController {
      */
     @GetMapping(value = "")
     @ResponseBody
-    public ApiResponse<List<Wing>> getWings() {
+    public ApiResponseService<List<Wing>> getWings() {
         List<Wing> allWings = this.wingDAO.getAllWingsFromDatabase();
 
-        return new ApiResponse(HttpStatus.ACCEPTED, allWings);
+        return new ApiResponseService(HttpStatus.ACCEPTED, allWings);
     }
 
     /**
@@ -88,10 +86,10 @@ public class WingController {
      */
     @PostMapping(value = "", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse<Wing> postWing(@RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
+    public ApiResponseService<Wing> postWing(@RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
         Wing wing = this.wingMapper.toWing(wingDTO);
         this.wingDAO.saveWingToDatabase(wing);
-        return new ApiResponse(HttpStatus.CREATED, wing);
+        return new ApiResponseService(HttpStatus.CREATED, wing);
     }
 
     /**
@@ -105,9 +103,9 @@ public class WingController {
      */
     @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse updateWing(@PathVariable String id, @RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
+    public ApiResponseService updateWing(@PathVariable String id, @RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
         this.wingDAO.updateWingInDatabase(id, this.wingMapper.toWing(wingDTO));
-        return new ApiResponse(HttpStatus.ACCEPTED, "Wing has been updated!");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "Wing has been updated!");
     }
 
     /**
@@ -119,9 +117,9 @@ public class WingController {
      */
     @DeleteMapping(value = "/{id}")
     @ResponseBody
-    public ApiResponse deleteWing(@PathVariable String id) {
+    public ApiResponseService deleteWing(@PathVariable String id) {
         this.wingDAO.deleteWingFromDatabase(id);
 
-        return new ApiResponse(HttpStatus.ACCEPTED, "The wing has been deleted");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "The wing has been deleted");
     }
 }

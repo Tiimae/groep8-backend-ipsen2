@@ -1,15 +1,12 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.ReservationDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,12 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.WeekFields;
 import java.util.*;
-
-import static java.time.temporal.ChronoUnit.MONTHS;
-import static java.time.temporal.ChronoUnit.WEEKS;
 
 /**
  * @author Tim de Kok, Frederik Coster
@@ -74,17 +67,17 @@ public class UserController {
      */
     @RequestMapping(value = "/{userid}", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<User> getUser(@PathVariable String userid) {
+    public ApiResponseService<User> getUser(@PathVariable String userid) {
         Optional<User> user = this.userDAO.getUserFromDatabase(userid);
 
         if (user.isEmpty()) {
-            return new ApiResponse(HttpStatus.NOT_FOUND, "The user has not been found!");
+            return new ApiResponseService(HttpStatus.NOT_FOUND, "The user has not been found!");
         }
 
         User safeUser = user.get();
         safeUser.setPassword("");
 
-        return new ApiResponse(HttpStatus.ACCEPTED, safeUser);
+        return new ApiResponseService(HttpStatus.FOUND, safeUser);
     }
 
     /**
@@ -95,8 +88,8 @@ public class UserController {
      */
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<List<User>> getUsers() {
-        return new ApiResponse(HttpStatus.ACCEPTED, this.userDAO.getAllUsersFromDatabase());
+    public ApiResponseService<List<User>> getUsers() {
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.userDAO.getAllUsersFromDatabase());
     }
 
     /**
@@ -109,13 +102,13 @@ public class UserController {
      */
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse<User> postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
+    public ApiResponseService<User> postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
         User user = userMapper.toUser(userDTO);
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
         user.addRoles(this.roleRepository.findByName("User").get());
         this.userDAO.saveUserToDatabase(user);
-        return new ApiResponse(HttpStatus.CREATED, user);
+        return new ApiResponseService(HttpStatus.CREATED, user);
     }
 
     /**
@@ -129,11 +122,11 @@ public class UserController {
      */
     @PutMapping(value = "/{id}", consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse updateUser(@PathVariable String id, @RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
+    public ApiResponseService updateUser(@PathVariable String id, @RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
         User user = this.userMapper.toUser(userDTO);
         this.userDAO.updateUserInDatabase(id, user);
 
-        return new ApiResponse(HttpStatus.ACCEPTED, "User has been updated");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "User has been updated");
     }
 
     /**
@@ -145,9 +138,9 @@ public class UserController {
      */
     @DeleteMapping(value = "/{userid}")
     @ResponseBody
-    public ApiResponse deleteUser(@PathVariable String userid) {
+    public ApiResponseService deleteUser(@PathVariable String userid) {
         this.userDAO.deleteUserFromDatabase(userid);
-        return new ApiResponse(HttpStatus.ACCEPTED, "User has been deleted");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "User has been deleted");
     }
 
     /**
@@ -159,7 +152,7 @@ public class UserController {
      */
     @GetMapping(value = "/{userid}/reservations")
     @ResponseBody
-    public ApiResponse<List<Reservation>> getUserReservations(@PathVariable String userid, @RequestParam(required = false) String filter) throws EntryNotFoundException {
+    public ApiResponseService<List<Reservation>> getUserReservations(@PathVariable String userid, @RequestParam(required = false) String filter) throws EntryNotFoundException {
         Optional<User> userEntry = this.userDAO.getUserFromDatabase(userid);
         if (userEntry.isEmpty()) throw new EntryNotFoundException("The user has not been found!");
         User presentUser = userEntry.get();
@@ -171,7 +164,7 @@ public class UserController {
                     filteredReservations.add(reservation);
                 }
             }
-            return new ApiResponse(HttpStatus.OK, filteredReservations);
+            return new ApiResponseService(HttpStatus.OK, filteredReservations);
         }
 
         if (filter != null && filter.equals("month")) {
@@ -180,10 +173,10 @@ public class UserController {
                     filteredReservations.add(reservation);
                 }
             }
-            return new ApiResponse(HttpStatus.OK, filteredReservations);
+            return new ApiResponseService(HttpStatus.OK, filteredReservations);
         }
 
-        return new ApiResponse(HttpStatus.OK, presentUser.getReservations());
+        return new ApiResponseService(HttpStatus.OK, presentUser.getReservations());
     }
 
 }

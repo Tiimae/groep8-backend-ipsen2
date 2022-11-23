@@ -3,13 +3,11 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.mappers;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.WingDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;

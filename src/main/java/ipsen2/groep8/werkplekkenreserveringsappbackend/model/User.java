@@ -8,7 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
 
