@@ -2,12 +2,12 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.MeetingRoomDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.MeetingRoomDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.MeetingRoomMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.MeetingRoom;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -18,8 +18,10 @@ import java.util.Optional;
  * @author Tim de Kok
  * @version 1.0
  */
-@Controller
-@RequestMapping(value = "/api/meeting-room")
+@RestController
+@RequestMapping(
+
+)
 public class MeetingRoomController {
 
     /**
@@ -51,7 +53,7 @@ public class MeetingRoomController {
      * @return an ApiResponse with a statuscode and a meeting room
      * @author Tim de Kok
      */
-    @GetMapping(value = "/{meetingRoomId}")
+    @GetMapping(value = ApiConstant.getMeetingRoom)
     @ResponseBody
     public ApiResponseService<Optional<MeetingRoom>> getMeetingRoom(@PathVariable String meetingRoomId) {
         Optional<MeetingRoom> meetingRoom = this.meetingRoomDAO.getMeetingRoomFromDatabase(meetingRoomId);
@@ -69,7 +71,7 @@ public class MeetingRoomController {
      * @return an ApiResponse with a statuscode and a list of all meeting rooms
      * @author Tim de Kok
      */
-    @GetMapping(value = "")
+    @GetMapping(value = ApiConstant.getAllMeetingRooms)
     @ResponseBody
     public ApiResponseService<List<MeetingRoom>> getMeetingRooms() {
         List<MeetingRoom> allMeetingRooms = this.meetingRoomDAO.getAllMeetingRoomsFromDatabase();
@@ -85,7 +87,7 @@ public class MeetingRoomController {
      * @author Tim de Kok
      * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
-    @PostMapping(value = "", consumes = {"application/json"})
+    @PostMapping(value = ApiConstant.getAllMeetingRooms, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService postMeetingRoom(@RequestBody @Valid MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
         MeetingRoom meetingRoom = this.meetingRoomMapper.toMeetingRoom(meetingRoomDTO);
@@ -96,17 +98,17 @@ public class MeetingRoomController {
     /**
      * This function updates an meeting room and returns the meeting room what just got updated back
      *
-     * @param id          This is the meeting room id that passed into the url
+     * @param meetingRoomId          This is the meeting room id that passed into the url
      * @param meetingRoomDTO This is the data that was send in the api request
      * @return an ApiResponse with a statuscode and the meeting room what just got updated
      * @author Tim de Kok
      * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
-    @PutMapping(value = "/{id}", consumes = {"application/json"})
+    @PutMapping(value = ApiConstant.getMeetingRoom, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponseService updateUser(@PathVariable String id, @RequestBody @Valid MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
+    public ApiResponseService updateMeetingRoom(@PathVariable String meetingRoomId, @RequestBody @Valid MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
         final MeetingRoom meetingRoomUpdate = this.meetingRoomMapper.toMeetingRoom(meetingRoomDTO);
-        MeetingRoom meetingRoom = this.meetingRoomDAO.getMeetingRoomFromDatabase(id).get();
+        MeetingRoom meetingRoom = this.meetingRoomDAO.getMeetingRoomFromDatabase(meetingRoomId).get();
 
         meetingRoom = this.meetingRoomMapper.mergeMeetingRoom(meetingRoom, meetingRoomUpdate);
 
@@ -121,7 +123,7 @@ public class MeetingRoomController {
      * @return an ApiResponse with a statuscode and message
      * @author Tim de Kok
      */
-    @DeleteMapping(value = "/{meetingRoomId}")
+    @DeleteMapping(value = ApiConstant.getMeetingRoom)
     @ResponseBody
     public ApiResponseService deleteUser(@PathVariable String meetingRoomId) {
         this.meetingRoomDAO.deleteMeetingRoomFromDatabase(meetingRoomId);

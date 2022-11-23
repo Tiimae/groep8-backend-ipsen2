@@ -3,6 +3,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
@@ -15,11 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
 import java.util.ArrayList;
@@ -27,8 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@Controller
-@RequestMapping(value = "/api/auth")
+@RestController
+@RequestMapping(
+        headers = "Accept=application/json",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+)
 public class AuthenticationController {
     private final UserRepository userRepo;
     private final JWTUtil jwtUtil;
@@ -48,7 +49,7 @@ public class AuthenticationController {
         this.roleRepository = roleRepository;
     }
 
-    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = ApiConstant.register)
     @ResponseBody
     public ApiResponseService register(@RequestBody UserDTO user) throws EntryNotFoundException {
 
@@ -95,10 +96,10 @@ public class AuthenticationController {
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
-    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = ApiConstant.login)
     @ResponseBody
     public ApiResponseService login(@RequestBody UserDTO user) throws AuthenticationException {
-
+        final HashMap<String, String> res = new HashMap<>();
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 
@@ -119,6 +120,7 @@ public class AuthenticationController {
             }
 
             String token = jwtUtil.generateToken(user.getEmail(), roles);
+
 
             res.put("jwt-token", token);
             res.put("user-id", foundUser.get().getId());
