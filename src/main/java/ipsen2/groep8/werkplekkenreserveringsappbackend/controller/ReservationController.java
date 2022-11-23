@@ -2,6 +2,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.ReservationDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.ReservationDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
@@ -9,7 +10,6 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +19,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-@Controller
-@RequestMapping(value = "/api/reservation")
+@RestController
+@RequestMapping(
+
+)
 @Validated
 public class ReservationController {
     private final EmailService emailService;
@@ -33,10 +35,10 @@ public class ReservationController {
         this.emailService = emailService;
     }
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = ApiConstant.getReservation)
     @ResponseBody
-    public ApiResponseService<Optional<Reservation>> getReservation(@PathVariable String id) {
-        Optional<Reservation> reservation = this.reservationDAO.getReservationFromDatabase(id);
+    public ApiResponseService<Optional<Reservation>> getReservation(@PathVariable String reservationId) {
+        Optional<Reservation> reservation = this.reservationDAO.getReservationFromDatabase(reservationId);
 
         if (reservation.isEmpty()){
             return new ApiResponseService(HttpStatus.NOT_FOUND, "Reservation not found!");
@@ -47,7 +49,7 @@ public class ReservationController {
 
 
 
-    @GetMapping(value = "")
+    @GetMapping(value = ApiConstant.getAllReservations)
     @ResponseBody
     public ApiResponseService<List<Reservation>> getReservations(@RequestParam(required = false) String filter) {
         List<Reservation> allReservations = this.reservationDAO.getAllReservations();
@@ -75,7 +77,7 @@ public class ReservationController {
         return new ApiResponseService(HttpStatus.ACCEPTED, allReservations);
     }
 
-    @PostMapping(consumes = {"application/json"})
+    @PostMapping(value = ApiConstant.getAllReservations, consumes = {"application/json"})
     public ApiResponseService<Reservation> postReservation(@RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
         Reservation reservation = reservationMapper.toReservation(reservationDTO);
         this.reservationDAO.saveReservationToDatabase(reservation);
@@ -98,32 +100,32 @@ public class ReservationController {
         return new ApiResponseService<>(HttpStatus.CREATED, reservation);
     }
 
-    @PutMapping(value ="/{id}", consumes = {"application/json"})
+    @PutMapping(value =ApiConstant.getReservation, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponseService updateReservation(@PathVariable String id, @RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
+    public ApiResponseService updateReservation(@PathVariable String reservationId, @RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
         Reservation reservation = reservationMapper.toReservation(reservationDTO);
-        this.reservationDAO.updateReservationInDatabase(id, reservation);
+        this.reservationDAO.updateReservationInDatabase(reservationId, reservation);
         return new ApiResponseService(HttpStatus.ACCEPTED, "Reservation has been updated");
     }
 
-    @PatchMapping(value ="/{id}", consumes = {"application/json"})
+    @PatchMapping(value =ApiConstant.getReservation, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponseService patchReservation(@PathVariable String id, @RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
+    public ApiResponseService patchReservation(@PathVariable String reservationId, @RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
         Reservation reservation = reservationMapper.toReservation(reservationDTO);
-        this.reservationDAO.updateReservationInDatabase(id, reservation);
+        this.reservationDAO.updateReservationInDatabase(reservationId, reservation);
         return new ApiResponseService(HttpStatus.ACCEPTED, "Reservation has been updated");
     }
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping(value = ApiConstant.getReservation)
     @ResponseBody
-    public ApiResponseService deleteReservation(@PathVariable String id) {
-        this.reservationDAO.deleteReservationFromDatabase(id);
+    public ApiResponseService deleteReservation(@PathVariable String reservationId) {
+        this.reservationDAO.deleteReservationFromDatabase(reservationId);
         return new ApiResponseService(HttpStatus.ACCEPTED, "Reservation has been deleted");
     }
 
-    @GetMapping(value = "/{id}/user")
-    public ApiResponseService<User> getReservationUser(@PathVariable String id) throws EntryNotFoundException {
-        Optional<Reservation> reservationEntry = this.reservationDAO.getReservationFromDatabase(id);
+    @GetMapping(value = ApiConstant.getReservationUser)
+    public ApiResponseService<User> getReservationUser(@PathVariable String reservationId) throws EntryNotFoundException {
+        Optional<Reservation> reservationEntry = this.reservationDAO.getReservationFromDatabase(reservationId);
 
         if (reservationEntry.isEmpty()) throw new EntryNotFoundException("Reservation not found");
 

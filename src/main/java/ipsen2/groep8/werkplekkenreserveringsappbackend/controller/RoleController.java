@@ -3,11 +3,11 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.RoleDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.RoleDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.RoleMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -18,8 +18,10 @@ import java.util.Optional;
  * @author Tim de Kok
  * @version 1.0
  */
-@Controller
-@RequestMapping("/api/role")
+@RestController
+@RequestMapping(
+
+)
 public class RoleController {
 
     /**
@@ -47,14 +49,14 @@ public class RoleController {
     /**
      * This function returns an ApiResponse with a status code and a specific role what will be returned from the roleDAO
      *
-     * @param roleid The role id what we get from the url
+     * @param roleId The role id what we get from the url
      * @return an ApiResponse with a statuscode and a role
      * @author Tim de Kok
      */
-    @RequestMapping(value = "/{roleid}", method = RequestMethod.GET)
+    @GetMapping(value = ApiConstant.getRole)
     @ResponseBody
-    public ApiResponseService<Role> getRole(@PathVariable String roleid) {
-        Optional<Role> role = this.roleDAO.getRoleFromDatabase(roleid);
+    public ApiResponseService<Role> getRole(@PathVariable String roleId) {
+        Optional<Role> role = this.roleDAO.getRoleFromDatabase(roleId);
 
         if (role.isEmpty()) {
             return new ApiResponseService(HttpStatus.NOT_FOUND, "The role has not been found");
@@ -69,7 +71,7 @@ public class RoleController {
      * @return an ApiResponse with a statuscode and a list of all roles
      * @author Tim de Kok
      */
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @GetMapping(value = ApiConstant.getAllRoles)
     @ResponseBody
     public ApiResponseService<List<Role>> getRole() {
         return new ApiResponseService(HttpStatus.ACCEPTED, this.roleDAO.getAllRolesFromDatabase());
@@ -82,7 +84,7 @@ public class RoleController {
      * @return an ApiResponse with a statuscode and the role what just got created
      * @author Tim de Kok
      */
-    @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
+    @PostMapping(value = ApiConstant.getAllRoles, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService<Role> postRole(@RequestBody @Valid RoleDTO roleDTO) {
         Role role = this.roleMapper.toRole(roleDTO);
@@ -93,16 +95,16 @@ public class RoleController {
     /**
      * This function updates an role and returns the role what just got updated back
      *
-     * @param id      This is the role id that passed into the url
+     * @param roleId      This is the role id that passed into the url
      * @param roleDTO This is the data that was send in the api request
      * @return an ApiResponse with a statuscode and the role what just got updated
      * @author Tim de Kok
      */
-    @PutMapping(value = "/{id}", consumes = {"application/json"})
+    @PutMapping(value = ApiConstant.getRole, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponseService updateRole(@PathVariable String id, @RequestBody @Valid RoleDTO roleDTO) {
+    public ApiResponseService updateRole(@PathVariable String roleId, @RequestBody @Valid RoleDTO roleDTO) {
         Role role = this.roleMapper.toRole(roleDTO);
-        this.roleDAO.updateRoleToDatabase(id, role);
+        this.roleDAO.updateRoleToDatabase(roleId, role);
 
         return new ApiResponseService(HttpStatus.ACCEPTED, "Role has been updated!");
     }
@@ -110,14 +112,14 @@ public class RoleController {
     /**
      * This function removes an role from the database and send an Api response back
      *
-     * @param roleid The role id what we get from the url
+     * @param roleId The role id what we get from the url
      * @return an ApiResponse with a statuscode and message
      * @author Tim de Kok
      */
-    @RequestMapping(value = "/{roleid}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = ApiConstant.getRole)
     @ResponseBody
-    public ApiResponseService deleteRole(@PathVariable String roleid) {
-        this.roleDAO.removeRoleToDatabase(roleid);
+    public ApiResponseService deleteRole(@PathVariable String roleId) {
+        this.roleDAO.removeRoleToDatabase(roleId);
         return new ApiResponseService(HttpStatus.ACCEPTED, "Role has been deleted!");
     }
 

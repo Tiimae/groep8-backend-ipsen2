@@ -2,12 +2,12 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.WingDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.WingDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.WingMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -18,8 +18,10 @@ import java.util.Optional;
  * @author Tim de Kok
  * @version 1.0
  */
-@Controller
-@RequestMapping(value = "/api/wing")
+@RestController
+@RequestMapping(
+
+)
 public class WingController {
 
     /**
@@ -46,14 +48,14 @@ public class WingController {
     /**
      * This function returns an ApiResponse with a status code and a specific wing what will be returned from the wingDAO
      *
-     * @param id The wing id what we get from the url
+     * @param wingId The wing wingId what we get from the url
      * @return an ApiResponse with a statuscode and a wing
      * @author Tim de Kok
      */
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = ApiConstant.getWing)
     @ResponseBody
-    public ApiResponseService<Optional<Wing>> getWing(@PathVariable String id) {
-        Optional<Wing> wing = this.wingDAO.getWingFromDatabase(id);
+    public ApiResponseService<Optional<Wing>> getWing(@PathVariable String wingId) {
+        Optional<Wing> wing = this.wingDAO.getWingFromDatabase(wingId);
 
         if (wing.isEmpty()) {
             return new ApiResponseService(HttpStatus.NOT_FOUND, "The wing has not been found!");
@@ -68,7 +70,7 @@ public class WingController {
      * @return an ApiResponse with a statuscode and a list of all wings
      * @author Tim de Kok
      */
-    @GetMapping(value = "")
+    @GetMapping(value = ApiConstant.getAllWings)
     @ResponseBody
     public ApiResponseService<List<Wing>> getWings() {
         List<Wing> allWings = this.wingDAO.getAllWingsFromDatabase();
@@ -84,7 +86,7 @@ public class WingController {
      * @author Tim de Kok
      * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
-    @PostMapping(value = "", consumes = {"application/json"})
+    @PostMapping(value = ApiConstant.getAllWings, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService<Wing> postWing(@RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
         Wing wing = this.wingMapper.toWing(wingDTO);
@@ -95,30 +97,30 @@ public class WingController {
     /**
      * This function updates an wing and returns the wing what just got updated back
      *
-     * @param id      This is the wing id that passed into the url
+     * @param wingId      This is the wing wingId that passed into the url
      * @param wingDTO This is the data that was send in the api request
      * @return an ApiResponse with a statuscode and the wing what just got updated
      * @author Tim de Kok
      * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
-    @PutMapping(value = "/{id}", consumes = {"application/json"})
+    @PutMapping(value = ApiConstant.getWing, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponseService updateWing(@PathVariable String id, @RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
-        this.wingDAO.updateWingInDatabase(id, this.wingMapper.toWing(wingDTO));
+    public ApiResponseService updateWing(@PathVariable String wingId, @RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
+        this.wingDAO.updateWingInDatabase(wingId, this.wingMapper.toWing(wingDTO));
         return new ApiResponseService(HttpStatus.ACCEPTED, "Wing has been updated!");
     }
 
     /**
      * This function removes an wing from the database and send an Api response back
      *
-     * @param id The wing id what we get from the url
+     * @param wingId The wing wingId what we get from the url
      * @return an ApiResponse with a statuscode and message
      * @author Tim de Kok
      */
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping(value = ApiConstant.getWing)
     @ResponseBody
-    public ApiResponseService deleteWing(@PathVariable String id) {
-        this.wingDAO.deleteWingFromDatabase(id);
+    public ApiResponseService deleteWing(@PathVariable String wingId) {
+        this.wingDAO.deleteWingFromDatabase(wingId);
 
         return new ApiResponseService(HttpStatus.ACCEPTED, "The wing has been deleted");
     }
