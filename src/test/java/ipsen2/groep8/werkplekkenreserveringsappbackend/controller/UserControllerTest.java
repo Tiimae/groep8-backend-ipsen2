@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import org.junit.Before;
@@ -26,9 +27,12 @@ public class UserControllerTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private RoleRepository roleRepository;
+
     @Before
     public void setup() {
-        this.userController = new UserController(this.userDAO, this.userMapper);
+        this.userController = new UserController(this.userDAO, this.userMapper, this.roleRepository);
     }
 
     @Test

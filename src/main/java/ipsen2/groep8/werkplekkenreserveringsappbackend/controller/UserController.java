@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.ReservationDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
@@ -48,6 +49,9 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+
+    private RoleRepository roleRepository;
+
     /**
      * This is the constructor of the UserController. It set the UserDAO and the UserMapper
      *
@@ -55,9 +59,10 @@ public class UserController {
      * @param userMapper The mapper for user
      * @author Tim de Kok
      */
-    public UserController(UserDAO userDAO, UserMapper userMapper) {
+    public UserController(UserDAO userDAO, UserMapper userMapper, RoleRepository roleRepository) {
         this.userDAO = userDAO;
         this.userMapper = userMapper;
+        this.roleRepository = roleRepository;
     }
 
     /**
@@ -108,6 +113,7 @@ public class UserController {
         User user = userMapper.toUser(userDTO);
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
+        user.addRoles(this.roleRepository.findByName("User").get());
         this.userDAO.saveUserToDatabase(user);
         return new ApiResponse(HttpStatus.CREATED, user);
     }
