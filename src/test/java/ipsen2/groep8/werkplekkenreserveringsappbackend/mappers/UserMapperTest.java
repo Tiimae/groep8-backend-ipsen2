@@ -51,9 +51,9 @@ public class UserMapperTest {
         reservations.add(reservation2);
         reservations.add(reservation3);
 
-        Role role1 = new Role("role1", new HashSet<>(), new HashSet<>());
-        Role role2 = new Role("role2",  new HashSet<>(), new HashSet<>());
-        Role role3 = new Role("role3",  new HashSet<>(), new HashSet<>());
+        Role role1 = new Role("role1", new HashSet<>());
+        Role role2 = new Role("role2",  new HashSet<>());
+        Role role3 = new Role("role3",  new HashSet<>());
         Set<Role> roles = new HashSet<>();
 
         role1.setId("1");

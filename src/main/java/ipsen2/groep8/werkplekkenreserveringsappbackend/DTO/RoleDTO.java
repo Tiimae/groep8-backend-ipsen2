@@ -17,6 +17,5 @@ public class RoleDTO {
     private String roleName;
 
     private String[] userIds;
-    private String[] permissionIds;
 
 }

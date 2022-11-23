@@ -2,8 +2,6 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.mappers;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.RoleDTO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Permission;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import org.springframework.stereotype.Component;
@@ -48,9 +46,7 @@ public class RoleMapper {
                     .collect(Collectors.toSet());
         }
 
-        Set<Permission> permissions = new HashSet<>();
-
-        return new Role(roleName, users, permissions);
+        return new Role(roleName, users);
     }
 
     /**
@@ -64,7 +60,6 @@ public class RoleMapper {
     public Role mergeRole (Role base, Role update) {
         base.setName(update.getName());
         base.setUsers(update.getUsers());
-        base.setPermissions(update.getPermissions());
 
         return base;
     }

@@ -1,5 +1,6 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
@@ -35,14 +36,16 @@ public class AuthenticationController {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     final EmailService emailService;
+    private RoleRepository roleRepository;
 
-    public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService) {
+    public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository) {
         this.userRepo = userRepo;
         this.jwtUtil = jwtUtil;
         this.authManager = authManager;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.emailService = emailService;
+        this.roleRepository = roleRepository;
     }
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -61,6 +64,7 @@ public class AuthenticationController {
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
         User newUser = userMapper.toUser(user);
+        newUser.addRoles(this.roleRepository.findByName("User").get());
 
         newUser = userRepo.save(newUser);
 
