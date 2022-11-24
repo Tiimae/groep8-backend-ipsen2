@@ -13,13 +13,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 public class MyUserDetailsService implements UserDetailsService {
-    @Autowired private UserRepository userRepo;
+    private UserRepository userRepo;
+
+    public MyUserDetailsService(UserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
