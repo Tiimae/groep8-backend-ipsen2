@@ -8,6 +8,8 @@ public class ApiConstant {
     public static final String register = apiPrefix + "auth/register";
     public static final String login = apiPrefix + "auth/login";
     public static final String secret = apiPrefix + "auth/secret";
+    public static final String toCookie = apiPrefix + "/to-cookie";
+
 
     // Building routes
     public static final String getBuilding = apiPrefix + "building/{buildingId}";

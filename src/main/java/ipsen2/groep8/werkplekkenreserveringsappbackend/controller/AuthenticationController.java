@@ -12,6 +12,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EncryptionService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,6 +46,8 @@ public class AuthenticationController {
     final EmailService emailService;
     private RoleRepository roleRepository;
 
+    @Value("${jwt_secret}")
+    private String jwtSecret;
     public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository) {
         this.userRepo = userRepo;
         this.jwtUtil = jwtUtil;
@@ -55,7 +58,7 @@ public class AuthenticationController {
         this.roleRepository = roleRepository;
     }
 
-    @GetMapping(value = "/api/to-cookie", consumes = MediaType.ALL_VALUE)
+    @GetMapping(value = ApiConstant.toCookie, consumes = MediaType.ALL_VALUE)
     public ModelAndView redirectWithUsingForwardPrefix(ModelMap model, HttpServletRequest request, HttpServletResponse response) {
 
         model.addAttribute("attribute", "forwardWithForwardPrefix");
@@ -80,6 +83,9 @@ public class AuthenticationController {
         if(secret == null || secret.isBlank() || secret.isEmpty()){
             return new ApiResponseService(HttpStatus.FORBIDDEN, "You are not authenticated");
         }
+
+        secret = new EncryptionService().decrypt(secret, jwtSecret);
+
         return new ApiResponseService(HttpStatus.ACCEPTED, secret);
     }
 
@@ -172,6 +178,7 @@ public class AuthenticationController {
 
     private Cookie createCookie(){
         String secret = this.createSecret();
+        secret = new EncryptionService().encrypt(secret, jwtSecret);
         Cookie cookie = new Cookie("secret", secret);
 
         cookie.setHttpOnly(true);
