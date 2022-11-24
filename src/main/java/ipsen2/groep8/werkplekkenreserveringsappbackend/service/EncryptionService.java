@@ -1,15 +1,26 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.service;
 
+import javax.crypto.*;
+
 import java.math.BigInteger;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-// Java program to calculate MD5 hash value
-public class MD5 {
-    public static String getMd5(String input)
-    {
-        try {
 
+// Java program to calculate MD5 hash value
+public class EncryptionService {
+    private SecretKey key;
+    private final int KEY_SIZE = 128;
+    private final int DATA_LENGTH = 128;
+    private Cipher encryptionCipher;
+
+    public EncryptionService() {
+
+    }
+
+    public static String getMd5(String input) {
+        try {
             // Static getInstance method is called with hashing MD5
             MessageDigest md = MessageDigest.getInstance("MD5");
 

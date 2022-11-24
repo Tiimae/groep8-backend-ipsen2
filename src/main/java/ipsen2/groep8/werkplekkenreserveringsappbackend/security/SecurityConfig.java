@@ -34,7 +34,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeHttpRequests()
                 .antMatchers("/api/building/**").hasRole("User")
-//                .antMatchers("/api/auth/cookie").hasRole("User")
                 .antMatchers("/api/wing/**").hasRole("User")
                 .antMatchers("/api/meetingroom/**").hasRole("User")
                 .antMatchers("/api/role/**").hasRole("User")
@@ -49,7 +48,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 )
                 .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .enableSessionUrlRewriting(true);
 
         http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
     }

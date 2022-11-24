@@ -11,18 +11,22 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.service.MD5;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EncryptionService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.naming.AuthenticationException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
@@ -51,10 +55,29 @@ public class AuthenticationController {
         this.roleRepository = roleRepository;
     }
 
+    @GetMapping(value = "/api/to-cookie", consumes = MediaType.ALL_VALUE)
+    public ModelAndView redirectWithUsingForwardPrefix(ModelMap model, HttpServletRequest request, HttpServletResponse response) {
+
+        model.addAttribute("attribute", "forwardWithForwardPrefix");
+        response.addCookie(createCookie());
+        return new ModelAndView("redirect:" + request.getHeader(HttpHeaders.REFERER) + "login", model);
+    }
+
     @GetMapping(value = ApiConstant.secret, consumes = MediaType.ALL_VALUE)
     @ResponseBody()
-    public ApiResponseService secret(@CookieValue(name = "secret") String secret){
-        if(secret == null || secret.isEmpty() || secret.isEmpty()){
+//    @CrossOrigin(maxAge = 360/0, )
+    public ApiResponseService secret(HttpServletRequest request){
+        String secret = null;
+
+        if(request.getCookies() != null){
+            secret =  Arrays.stream(request.getCookies())
+                    .filter(c -> c.getName().equals("secret"))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElse(null);
+        }
+
+        if(secret == null || secret.isBlank() || secret.isEmpty()){
             return new ApiResponseService(HttpStatus.FORBIDDEN, "You are not authenticated");
         }
         return new ApiResponseService(HttpStatus.ACCEPTED, secret);
@@ -62,7 +85,7 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
-    public ApiResponseService register(@RequestBody UserDTO user, HttpServletResponse response) throws EntryNotFoundException {
+    public ApiResponseService register(@RequestBody UserDTO user) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
@@ -90,7 +113,7 @@ public class AuthenticationController {
 
         Map<String, Object> res = new HashMap<>();
 
-        res.put("", token);
+        res.put("jwt-token", token);
         res.put("user-id", newUser.getId());
 
         if (!token.isBlank()) {
@@ -104,18 +127,12 @@ public class AuthenticationController {
                 System.out.println(e.getMessage());
             }
         }
-
-        Cookie cookie = this.createCookie();
-
-        response.addCookie(cookie);
-        response.setStatus(200);
-
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
     @PostMapping(value = ApiConstant.login)
     @ResponseBody
-    public ApiResponseService login(@RequestBody UserDTO user, HttpServletResponse response) throws AuthenticationException {
+    public ApiResponseService login(@RequestBody UserDTO user) throws AuthenticationException, IOException {
         final HashMap<String, String> res = new HashMap<>();
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
@@ -141,10 +158,7 @@ public class AuthenticationController {
 
             res.put("jwt-token", token);
             res.put("user-id", foundUser.get().getId());
-
-            Cookie cookie = this.createCookie();
-            response.addCookie(cookie);
-            response.setStatus(200);
+            res.put("destination", "/to-cookie");
         }
 
 
@@ -153,16 +167,19 @@ public class AuthenticationController {
 
     public String createSecret(){
         String randomSecret = Date.from(Instant.now()).toString() + String.valueOf((new Random()).nextInt());
-        return MD5.getMd5(randomSecret);
+        return EncryptionService.getMd5(randomSecret);
     }
 
     private Cookie createCookie(){
-        Cookie cookie = new Cookie("secret", this.createSecret());
+        String secret = this.createSecret();
+        Cookie cookie = new Cookie("secret", secret);
+
         cookie.setHttpOnly(true);
         cookie.setPath(ApiConstant.secret);
         //expires in 7 days
         cookie.setMaxAge(7 * 24 * 60 * 60);
-
+//        cookie.set
+        cookie.setDomain("localhost");
         return cookie;
     }
 }
