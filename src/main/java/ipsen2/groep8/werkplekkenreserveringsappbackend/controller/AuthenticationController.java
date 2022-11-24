@@ -11,6 +11,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.MD5;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,10 +20,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.time.Instant;
+import java.util.*;
 
 @RestController
 @RequestMapping(
@@ -49,9 +51,18 @@ public class AuthenticationController {
         this.roleRepository = roleRepository;
     }
 
+    @GetMapping(value = ApiConstant.secret, consumes = MediaType.ALL_VALUE)
+    @ResponseBody()
+    public ApiResponseService secret(@CookieValue(name = "secret") String secret){
+        if(secret == null || secret.isEmpty() || secret.isEmpty()){
+            return new ApiResponseService(HttpStatus.FORBIDDEN, "You are not authenticated");
+        }
+        return new ApiResponseService(HttpStatus.ACCEPTED, secret);
+    }
+
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
-    public ApiResponseService register(@RequestBody UserDTO user) throws EntryNotFoundException {
+    public ApiResponseService register(@RequestBody UserDTO user, HttpServletResponse response) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
@@ -61,6 +72,7 @@ public class AuthenticationController {
 
             return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
         }
+
 
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
@@ -78,7 +90,7 @@ public class AuthenticationController {
 
         Map<String, Object> res = new HashMap<>();
 
-        res.put("jwt-token", token);
+        res.put("", token);
         res.put("user-id", newUser.getId());
 
         if (!token.isBlank()) {
@@ -93,12 +105,17 @@ public class AuthenticationController {
             }
         }
 
+        Cookie cookie = this.createCookie();
+
+        response.addCookie(cookie);
+        response.setStatus(200);
+
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
     @PostMapping(value = ApiConstant.login)
     @ResponseBody
-    public ApiResponseService login(@RequestBody UserDTO user) throws AuthenticationException {
+    public ApiResponseService login(@RequestBody UserDTO user, HttpServletResponse response) throws AuthenticationException {
         final HashMap<String, String> res = new HashMap<>();
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
@@ -124,8 +141,28 @@ public class AuthenticationController {
 
             res.put("jwt-token", token);
             res.put("user-id", foundUser.get().getId());
+
+            Cookie cookie = this.createCookie();
+            response.addCookie(cookie);
+            response.setStatus(200);
         }
 
+
         return new ApiResponseService(HttpStatus.ACCEPTED, res);
+    }
+
+    public String createSecret(){
+        String randomSecret = Date.from(Instant.now()).toString() + String.valueOf((new Random()).nextInt());
+        return MD5.getMd5(randomSecret);
+    }
+
+    private Cookie createCookie(){
+        Cookie cookie = new Cookie("secret", this.createSecret());
+        cookie.setHttpOnly(true);
+        cookie.setPath(ApiConstant.secret);
+        //expires in 7 days
+        cookie.setMaxAge(7 * 24 * 60 * 60);
+
+        return cookie;
     }
 }

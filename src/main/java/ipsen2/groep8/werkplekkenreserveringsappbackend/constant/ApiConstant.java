@@ -7,6 +7,7 @@ public class ApiConstant {
     //auth routes
     public static final String register = apiPrefix + "auth/register";
     public static final String login = apiPrefix + "auth/login";
+    public static final String secret = apiPrefix + "auth/secret";
 
     // Building routes
     public static final String getBuilding = apiPrefix + "building/{buildingId}";

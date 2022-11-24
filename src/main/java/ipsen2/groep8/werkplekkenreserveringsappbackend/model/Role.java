@@ -30,7 +30,7 @@ public class Role {
     @NotNull
     private String name;
 
-    @ManyToMany(mappedBy = "roles", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "roles", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnoreProperties("roles")
     @JsonIgnore
     private Set<User> users = new HashSet<>();
