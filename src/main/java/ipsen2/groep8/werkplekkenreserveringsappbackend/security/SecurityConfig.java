@@ -19,33 +19,37 @@ import javax.servlet.http.HttpServletResponse;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired private UserRepository userRepo;
-    @Autowired private JWTFilter filter;
-    @Autowired private MyUserDetailsService uds;
+    @Autowired
+    private UserRepository userRepo;
+    @Autowired
+    private JWTFilter filter;
+    @Autowired
+    private MyUserDetailsService uds;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-        .httpBasic().disable()
-        .cors()
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers("/api/building/**").hasRole("USER")
-        .antMatchers("/api/wing/**").hasRole("USER")
-        .antMatchers("/api/meetingroom/**").hasRole("USER")
-        .antMatchers("/api/role/**").hasRole("USER")
-        .antMatchers("/api/user/**").hasRole("USER")
-        .antMatchers("/api/auth/**").permitAll()
-        .and()
-        .userDetailsService(uds)
-        .exceptionHandling()
-        .authenticationEntryPoint(
-                (request, response, authException) ->
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
-        )
-        .and()
-        .sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .httpBasic().disable()
+                .cors()
+                .and()
+                .authorizeHttpRequests()
+                .antMatchers("/api/building/**").hasRole("User")
+                .antMatchers("/api/wing/**").hasRole("User")
+                .antMatchers("/api/meetingroom/**").hasRole("User")
+                .antMatchers("/api/role/**").hasRole("User")
+                .antMatchers("/api/user/**").hasRole("User")
+                .antMatchers("/api/auth/**").permitAll()
+                .and()
+                .userDetailsService(uds)
+                .exceptionHandling()
+                .authenticationEntryPoint(
+                        (request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                )
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .enableSessionUrlRewriting(true);
 
         http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
     }

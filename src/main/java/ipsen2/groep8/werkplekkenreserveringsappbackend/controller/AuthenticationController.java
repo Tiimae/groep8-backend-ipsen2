@@ -11,18 +11,25 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EncryptionService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.naming.AuthenticationException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.*;
 
 @RestController
 @RequestMapping(
@@ -39,6 +46,8 @@ public class AuthenticationController {
     final EmailService emailService;
     private RoleRepository roleRepository;
 
+    @Value("${jwt_secret}")
+    private String jwtSecret;
     public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository) {
         this.userRepo = userRepo;
         this.jwtUtil = jwtUtil;
@@ -47,6 +56,37 @@ public class AuthenticationController {
         this.userMapper = userMapper;
         this.emailService = emailService;
         this.roleRepository = roleRepository;
+    }
+
+    @GetMapping(value = ApiConstant.toCookie, consumes = MediaType.ALL_VALUE)
+    public ModelAndView redirectWithUsingForwardPrefix(ModelMap model, HttpServletRequest request, HttpServletResponse response) {
+
+        model.addAttribute("attribute", "forwardWithForwardPrefix");
+        response.addCookie(createCookie());
+        return new ModelAndView("redirect:" + request.getHeader(HttpHeaders.REFERER) + "login", model);
+    }
+
+    @GetMapping(value = ApiConstant.secret, consumes = MediaType.ALL_VALUE)
+    @ResponseBody()
+//    @CrossOrigin(maxAge = 360/0, )
+    public ApiResponseService secret(HttpServletRequest request){
+        String secret = null;
+
+        if(request.getCookies() != null){
+            secret =  Arrays.stream(request.getCookies())
+                    .filter(c -> c.getName().equals("secret"))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElse(null);
+        }
+
+        if(secret == null || secret.isBlank() || secret.isEmpty()){
+            return new ApiResponseService(HttpStatus.FORBIDDEN, "You are not authenticated");
+        }
+
+        secret = new EncryptionService().decrypt(secret, jwtSecret);
+
+        return new ApiResponseService(HttpStatus.ACCEPTED, secret);
     }
 
     @PostMapping(value = ApiConstant.register)
@@ -61,6 +101,7 @@ public class AuthenticationController {
 
             return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
         }
+
 
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
@@ -92,13 +133,12 @@ public class AuthenticationController {
                 System.out.println(e.getMessage());
             }
         }
-
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
     @PostMapping(value = ApiConstant.login)
     @ResponseBody
-    public ApiResponseService login(@RequestBody UserDTO user) throws AuthenticationException {
+    public ApiResponseService login(@RequestBody UserDTO user) throws AuthenticationException, IOException {
         final HashMap<String, String> res = new HashMap<>();
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
@@ -124,8 +164,29 @@ public class AuthenticationController {
 
             res.put("jwt-token", token);
             res.put("user-id", foundUser.get().getId());
+            res.put("destination", "/to-cookie");
         }
 
+
         return new ApiResponseService(HttpStatus.ACCEPTED, res);
+    }
+
+    public String createSecret(){
+        String randomSecret = Date.from(Instant.now()).toString() + String.valueOf((new Random()).nextInt());
+        return EncryptionService.getMd5(randomSecret);
+    }
+
+    private Cookie createCookie(){
+        String secret = this.createSecret();
+        secret = new EncryptionService().encrypt(secret, jwtSecret);
+        Cookie cookie = new Cookie("secret", secret);
+
+        cookie.setHttpOnly(true);
+        cookie.setPath(ApiConstant.secret);
+        //expires in 7 days
+        cookie.setMaxAge(7 * 24 * 60 * 60);
+//        cookie.set
+        cookie.setDomain("localhost");
+        return cookie;
     }
 }
