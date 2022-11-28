@@ -6,6 +6,7 @@ public class ApiConstant {
 
     //auth routes
     public static final String register = apiPrefix + "auth/register";
+    public static final String verifyEmail = apiPrefix + "auth/verify/{token}";
     public static final String login = apiPrefix + "auth/login";
     public static final String secret = apiPrefix + "auth/secret";
     public static final String toCookie = apiPrefix + "/to-cookie";

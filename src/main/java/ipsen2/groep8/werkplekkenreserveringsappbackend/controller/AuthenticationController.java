@@ -6,9 +6,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.VerifyToken;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.*;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
@@ -23,6 +21,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -34,7 +33,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.WeekFields;
 import java.util.*;
 
 @RestController
@@ -152,6 +153,22 @@ public class AuthenticationController {
          */
 
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
+    }
+
+    @GetMapping(value = ApiConstant.verifyEmail, consumes = MediaType.ALL_VALUE)
+    @ResponseBody
+    public ApiResponseService verifyToken(@PathVariable String token) {
+        Map<String, Object> res = new HashMap<>();
+
+        try {
+            verifyTokenService.confirmToken(token);
+            res.put("message", "Successfully confirmed your email");
+            return new ApiResponseService<>(HttpStatus.OK, res);
+        } catch (Exception e) {
+            res.put("message", e.getMessage());
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
     }
 
     @PostMapping(value = ApiConstant.login)
