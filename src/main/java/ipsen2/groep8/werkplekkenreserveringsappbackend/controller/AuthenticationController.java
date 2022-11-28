@@ -134,6 +134,16 @@ public class AuthenticationController {
         Map<String, Object> res = new HashMap<>();
         res.put("verify-token", token);
 
+        try {
+            this.emailService.sendMessage(
+                    newUser.getEmail(),
+                    "CGI account verify email",
+                    "<p>Hi " + newUser.getName() + ", here is your code to verify your email:"+token+"</p>"
+            );
+        } catch (Throwable e) {
+            System.out.println(e.getMessage());
+        }
+
         /*
         String token = jwtUtil.generateToken(newUser.getEmail(), roles);
         Map<String, Object> res = new HashMap<>();
