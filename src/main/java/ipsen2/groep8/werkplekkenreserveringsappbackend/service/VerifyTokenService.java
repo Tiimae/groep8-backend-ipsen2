@@ -13,6 +13,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class VerifyTokenService {
     private final VerifyTokenRepository verifyTokenRepository;
+    private final UserService userService;
 
     public void saveVerifyToken(VerifyToken token){
         verifyTokenRepository.save(token);
@@ -27,7 +28,7 @@ public class VerifyTokenService {
     }
 
     @Transactional
-    public String confirmToken(String token) {
+    public void confirmToken(String token) {
         VerifyToken verifyToken = this.getToken(token).orElseThrow(() -> new IllegalStateException("token not found"));
 
         if (verifyToken.getConfirmedAt() != null) {
@@ -41,8 +42,7 @@ public class VerifyTokenService {
         }
 
         this.setConfirmedAt(token);
-        //appUserService.enableAppUser(confirmationToken.getAppUser().getEmail());
-        return "confirmed";
+        userService.verifyUser(verifyToken.getUser().getId());
     }
 
 }
