@@ -27,6 +27,7 @@ import javax.naming.AuthenticationException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
@@ -91,7 +92,7 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
-    public ApiResponseService register(@RequestBody UserDTO user) throws EntryNotFoundException {
+    public ApiResponseService register(@Valid @RequestBody UserDTO user) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
