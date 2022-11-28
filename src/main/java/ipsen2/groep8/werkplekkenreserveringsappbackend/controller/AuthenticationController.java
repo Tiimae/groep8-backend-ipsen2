@@ -8,10 +8,13 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundE
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.VerifyToken;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EncryptionService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.VerifyTokenService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -30,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -47,9 +52,12 @@ public class AuthenticationController {
     final EmailService emailService;
     private RoleRepository roleRepository;
 
+    private final VerifyTokenService verifyTokenService;
+
+
     @Value("${jwt_secret}")
     private String jwtSecret;
-    public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository) {
+    public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository, VerifyTokenService verifyTokenService) {
         this.userRepo = userRepo;
         this.jwtUtil = jwtUtil;
         this.authManager = authManager;
@@ -57,6 +65,7 @@ public class AuthenticationController {
         this.userMapper = userMapper;
         this.emailService = emailService;
         this.roleRepository = roleRepository;
+        this.verifyTokenService = verifyTokenService;
     }
 
     @GetMapping(value = ApiConstant.toCookie, consumes = MediaType.ALL_VALUE)
@@ -116,13 +125,19 @@ public class AuthenticationController {
             roles.add(role.getName());
         }
 
-        String token = jwtUtil.generateToken(newUser.getEmail(), roles);
+        String token = UUID.randomUUID().toString();
+        VerifyToken verifyToken = new VerifyToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), newUser);
+
+        verifyTokenService.saveVerifyToken(verifyToken);
 
         Map<String, Object> res = new HashMap<>();
+        res.put("verify-token", token);
 
+        /*
+        String token = jwtUtil.generateToken(newUser.getEmail(), roles);
+        Map<String, Object> res = new HashMap<>();
         res.put("jwt-token", token);
         res.put("user-id", newUser.getId());
-
         if (!token.isBlank()) {
             try {
                 this.emailService.sendMessage(
@@ -134,6 +149,8 @@ public class AuthenticationController {
                 System.out.println(e.getMessage());
             }
         }
+         */
+
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
