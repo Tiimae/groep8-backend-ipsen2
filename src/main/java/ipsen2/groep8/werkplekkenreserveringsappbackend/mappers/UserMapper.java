@@ -62,6 +62,11 @@ public class UserMapper {
         String email = userDTO.getEmail();
         String password = userDTO.getPassword();
 
+        Boolean verified = false;
+        if(userDTO.getVerified() != null){
+            verified = userDTO.getVerified();
+        }
+
         Department department = null;
         if (userDTO.getDepartmentId() != null) {
             final Optional<Department> departmentEntry = departmentDAO.getDepartmentFromDatabase(userDTO.getDepartmentId());
@@ -86,7 +91,7 @@ public class UserMapper {
                     .collect(Collectors.toSet());
         }
 
-        return new User(name, email, password, roles, department, reservations);
+        return new User(name, email, password, verified, roles, department, reservations);
     }
 
     /**
@@ -101,6 +106,7 @@ public class UserMapper {
         base.setName(update.getName());
         base.setEmail(update.getEmail());
         base.setPassword(update.getPassword());
+        base.setVerified(update.getVerified());
         base.setDepartment(update.getDepartment());
         base.setRoles(update.getRoles());
         base.setReservations(update.getReservations());

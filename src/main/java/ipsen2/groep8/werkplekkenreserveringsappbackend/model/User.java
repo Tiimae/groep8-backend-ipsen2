@@ -36,6 +36,9 @@ public class User {
     @NotNull
     private String password;
 
+    @NotNull
+    private Boolean verified;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -54,10 +57,11 @@ public class User {
 
     public User() { }
 
-    public User(String name, String email, String password, Set<Role> roles, Department department, Set<Reservation> reservations) {
+    public User(String name, String email, String password, Boolean verified, Set<Role> roles, Department department, Set<Reservation> reservations) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.verified = verified;
         this.department = department;
 
         for (Role role : roles) {
