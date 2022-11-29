@@ -29,10 +29,10 @@ public class VerifyTokenService {
 
     @Transactional
     public void confirmToken(String token) {
-        VerifyToken verifyToken = this.getToken(token).orElseThrow(() -> new IllegalStateException("token not found"));
+        VerifyToken verifyToken = this.getToken(token).orElseThrow(() -> new IllegalStateException("This token is invalid"));
 
         if (verifyToken.getConfirmedAt() != null) {
-            throw new IllegalStateException("Email has already been confirmed");
+            throw new IllegalStateException("This token is invalid");
         }
 
         LocalDateTime expiresAt = verifyToken.getExpiresAt();

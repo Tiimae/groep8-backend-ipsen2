@@ -1,5 +1,6 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
@@ -126,48 +127,61 @@ public class AuthenticationController {
             roles.add(role.getName());
         }
 
-        String token = UUID.randomUUID().toString();
-        VerifyToken verifyToken = new VerifyToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), newUser);
+        // Send email with new verify-token
+        this.sendVerifyToken(newUser.getId());
 
-        verifyTokenService.saveVerifyToken(verifyToken);
-
+        // response
         Map<String, Object> res = new HashMap<>();
-        res.put("verify-token", token);
-
-        try {
-            this.emailService.sendMessage(
-                    newUser.getEmail(),
-                    "CGI account verify email",
-                    "<p>Hi " + newUser.getName() + ", here is your code to verify your email:"+token+"</p>"
-            );
-        } catch (Throwable e) {
-            System.out.println(e.getMessage());
-        }
-
-        /*
-        String token = jwtUtil.generateToken(newUser.getEmail(), roles);
-        Map<String, Object> res = new HashMap<>();
-        res.put("jwt-token", token);
-        res.put("user-id", newUser.getId());
-        if (!token.isBlank()) {
-            try {
-                this.emailService.sendMessage(
-                        newUser.getEmail(),
-                        "CGI account registrated",
-                        "<p>Hi " + newUser.getName() + ", your account for CGI has been created.</p>"
-                );
-            } catch (Throwable e) {
-                System.out.println(e.getMessage());
-            }
-        }
-         */
+        res.put("message", "Successfully created your account");
 
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
-    @GetMapping(value = ApiConstant.verifyEmail, consumes = MediaType.ALL_VALUE)
+    @GetMapping(value = ApiConstant.sendVerifyToken, consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public ApiResponseService verifyToken(@PathVariable String token) {
+    public ApiResponseService sendVerifyToken(@PathVariable String userId) {
+
+        Map<String, Object> res = new HashMap<>();
+
+        Optional<User> foundUser = userRepo.findById(userId);
+        if (foundUser.isPresent()) {
+            User user = foundUser.orElse(null);
+
+            if(foundUser.get().getVerified()){
+                res.put("message", "This user is already verified, cant send a verify token");
+                return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
+            }
+
+            // Create and save Token in DB
+            String token = UUID.randomUUID().toString();
+            VerifyToken verifyToken = new VerifyToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+            verifyTokenService.saveVerifyToken(verifyToken);
+
+            // Send verification mail
+            try {
+                this.emailService.sendMessage(
+                        foundUser.get().getEmail(),
+                        "CGI account verify email",
+                        "<p>Hi " + foundUser.get().getName() + ", here is your code to verify your email:"+token+"</p>"
+                );
+            } catch (Throwable e) {
+                System.out.println(e.getMessage());
+            }
+
+            // Response
+            res.put("message", "Successfully sent a verify token");
+            return new ApiResponseService(HttpStatus.ACCEPTED, res);
+
+        }
+
+        res.put("message", "The user you are trying to verify was not found");
+        return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
+
+    }
+
+    @GetMapping(value = ApiConstant.confirmVerifyToken, consumes = MediaType.ALL_VALUE)
+    @ResponseBody
+    public ApiResponseService confirmVerifyToken(@PathVariable String token) {
         Map<String, Object> res = new HashMap<>();
 
         try {
@@ -209,6 +223,7 @@ public class AuthenticationController {
 
             res.put("jwt-token", token);
             res.put("user-id", foundUser.get().getId());
+            res.put("verified", foundUser.get().getVerified().toString());
             res.put("destination", "/to-cookie");
         }
 
