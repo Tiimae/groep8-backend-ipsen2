@@ -22,6 +22,8 @@ public class UserDTO {
     @NotNull(message = "There must be a password")
     private String password;
 
+    private Boolean verified;
+
     private String departmentId;
     private String[] roleIds;
     private String[] reservationIds;

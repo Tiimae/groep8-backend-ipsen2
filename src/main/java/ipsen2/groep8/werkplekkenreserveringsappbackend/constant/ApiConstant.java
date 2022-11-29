@@ -10,6 +10,9 @@ public class ApiConstant {
     public static final String secret = apiPrefix + "auth/secret";
     public static final String toCookie = apiPrefix + "/to-cookie";
 
+    public static final String confirmVerifyToken = apiPrefix + "auth/verify-email/{token}";
+    public static final String sendVerifyToken = apiPrefix + "auth/send-verify-email/{userId}";
+
 
     // Building routes
     public static final String getBuilding = apiPrefix + "building/{buildingId}";

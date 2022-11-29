@@ -9,6 +9,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.security.JWTUtil;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.VerifyTokenService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,8 @@ public class AuthenticationControllerTest {
     private JWTUtil jwtUtil;
     @Mock
     private EmailService emailService;
+    @Mock
+    private VerifyTokenService verifyTokenService;
 
 
     private AuthenticationController authController;
@@ -49,7 +52,7 @@ public class AuthenticationControllerTest {
 
     @Before
     public void setup() {
-        this.authController = new AuthenticationController(userRepository, jwtUtil, authenticationManager, passwordEncoder, userMapper, emailService, roleRepository);
+        this.authController = new AuthenticationController(userRepository, jwtUtil, authenticationManager, passwordEncoder, userMapper, emailService, roleRepository, verifyTokenService);
     }
 
     @Test
