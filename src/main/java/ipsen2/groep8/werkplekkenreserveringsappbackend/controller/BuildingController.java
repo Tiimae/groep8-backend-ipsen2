@@ -2,13 +2,12 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.BuildingDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.BuildingDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.BuildingMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Building;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.service.AuthenticationService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,8 +18,8 @@ import java.util.Optional;
  * @author Tim de Kok
  * @version 1.0
  */
-@Controller
-@RequestMapping(value = "/api/building")
+@RestController
+@RequestMapping()
 public class BuildingController {
     /**
      * This is the variable for the BuildingDAO in the class
@@ -47,19 +46,19 @@ public class BuildingController {
     /**
      * This function returns an ApiResponse with a status code and a specific building what will be returned from the BuildingDAO
      *
-     * @param buildingid The building id what we get from the url
+     * @param buildingId The building id what we get from the url
      * @return an ApiResponse with a statuscode and a building
      * @author Tim de Kok
      */
-    @RequestMapping(value = "/{buildingid}", method = RequestMethod.GET)
+    @GetMapping(value = ApiConstant.getBuilding)
     @ResponseBody
-    public ApiResponse<Optional<Building>> getBuilding(@PathVariable String buildingid) {
-        final Optional<Building> building = this.buildingDAO.getBuildingFromDatabase(buildingid);
+    public ApiResponseService<Optional<Building>> getBuilding(@PathVariable String buildingId) {
+        final Optional<Building> building = this.buildingDAO.getBuildingFromDatabase(buildingId);
         if (building.isEmpty()) {
-            return new ApiResponse(HttpStatus.NOT_FOUND, "Dit gebouw bestaat niet");
+            return new ApiResponseService(HttpStatus.NOT_FOUND, "Dit gebouw bestaat niet");
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, building);
+        return new ApiResponseService(HttpStatus.ACCEPTED, building);
     }
 
     /**
@@ -68,11 +67,11 @@ public class BuildingController {
      * @return an ApiResponse with a statuscode and a list of all buildings
      * @author Tim de Kok
      */
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @GetMapping(value = ApiConstant.getAllBuildings)
     @ResponseBody
-    public ApiResponse<List<Building>> getBuildings() {
+    public ApiResponseService<List<Building>> getBuildings() {
         final List<Building> allBuildingsFromDatabase = this.buildingDAO.getAllBuildingsFromDatabase();
-        return new ApiResponse(HttpStatus.ACCEPTED, allBuildingsFromDatabase);
+        return new ApiResponseService(HttpStatus.ACCEPTED, allBuildingsFromDatabase);
     }
 
 
@@ -84,42 +83,42 @@ public class BuildingController {
      * @author Tim de Kok
      * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
-    @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
+    @PostMapping(value = ApiConstant.getAllBuildings, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse postBuilding(@RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
+    public ApiResponseService postBuilding(@RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
         final Building building = this.buildingMapper.toBuilding(buildingDTO);
         this.buildingDAO.saveBuildingToDatabase(building);
-        return new ApiResponse(HttpStatus.CREATED, building);
+        return new ApiResponseService(HttpStatus.CREATED, building);
     }
 
     /**
      * This function updates an building and returns the building what just got updated back
      *
-     * @param id          This is the building id that passed into the url
+     * @param buildingId          This is the building id that passed into the url
      * @param buildingDTO This is the data that was send in the api request
      * @return an ApiResponse with a statuscode and  the building what just got updated
      * @author Tim de Kok
      * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
-    @PutMapping(value = "/{id}", consumes = {"application/json"})
+    @PutMapping(value = ApiConstant.getBuilding, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse updateBuilding(@PathVariable String id, @RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
+    public ApiResponseService updateBuilding(@PathVariable String buildingId, @RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
         final Building building = this.buildingMapper.toBuilding(buildingDTO);
-        this.buildingDAO.updateBuildingInDatabase(id, building);
-        return new ApiResponse(HttpStatus.ACCEPTED, building);
+        this.buildingDAO.updateBuildingInDatabase(buildingId, building);
+        return new ApiResponseService(HttpStatus.ACCEPTED, building);
     }
 
     /**
      * This function removes an building from the database and send an Api response back
      *
-     * @param buildingid The building id what we get from the url
+     * @param buildingId The building id what we get from the url
      * @return an ApiResponse with a statuscode and message
      * @author Tim de Kok
      */
-    @DeleteMapping(value = "/{buildingid}")
+    @DeleteMapping(value = ApiConstant.getBuilding)
     @ResponseBody
-    public ApiResponse deleteBuilding(@PathVariable String buildingid) {
-        this.buildingDAO.deleteBuildingFromDatabase(buildingid);
-        return new ApiResponse(HttpStatus.ACCEPTED, "Building has been deleted");
+    public ApiResponseService deleteBuilding(@PathVariable String buildingId) {
+        this.buildingDAO.deleteBuildingFromDatabase(buildingId);
+        return new ApiResponseService(HttpStatus.ACCEPTED, "Building has been deleted");
     }
 }

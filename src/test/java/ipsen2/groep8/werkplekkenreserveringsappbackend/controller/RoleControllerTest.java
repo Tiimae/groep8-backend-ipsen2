@@ -1,10 +1,8 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.RoleDAO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.RoleMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,12 +32,12 @@ public class RoleControllerTest {
     public void should_return404StatusCode_when_roleWithIdOneDoesNotExists() {
         //Arrange
         String roleId = "1";
-        ApiResponse expectedResult = new ApiResponse(HttpStatus.NOT_FOUND, "The role has not been found");
+        ApiResponseService expectedResult = new ApiResponseService(HttpStatus.NOT_FOUND, "The role has not been found");
 
         when(this.roleDAO.getRoleFromDatabase(roleId)).thenReturn(Optional.empty());
 
         //Act
-        ApiResponse actualResponse = this.roleController.getRole(roleId);
+        ApiResponseService actualResponse = this.roleController.getRole(roleId);
 
         //Assert
         assertEquals(expectedResult.getCode(), actualResponse.getCode());

@@ -2,7 +2,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.DepartmentDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.DepartmentMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,12 +32,12 @@ public class DepartmentControllerTest {
     public void should_return404StatusCode_when_depratmentWithIdOneDoesNotExists() {
         //Arrange
         String departmentId = "1";
-        ApiResponse expectedResult = new ApiResponse(HttpStatus.NOT_FOUND, "Department not found!");
+        ApiResponseService expectedResult = new ApiResponseService(HttpStatus.NOT_FOUND, "Department not found!");
 
         when(this.departmentDAO.getDepartmentFromDatabase(departmentId)).thenReturn(Optional.empty());
 
         //Act
-        ApiResponse actualResponse = this.departmentController.getDeparment(departmentId);
+        ApiResponseService actualResponse = this.departmentController.getDeparment(departmentId);
 
         //Assert
         assertEquals(expectedResult.getCode(), actualResponse.getCode());

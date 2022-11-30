@@ -8,7 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,7 +36,10 @@ public class User {
     @NotNull
     private String password;
 
-    @ManyToMany
+    @NotNull
+    private Boolean verified;
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -55,10 +57,11 @@ public class User {
 
     public User() { }
 
-    public User(String name, String email, String password, Set<Role> roles, Department department, Set<Reservation> reservations) {
+    public User(String name, String email, String password, Boolean verified, Set<Role> roles, Department department, Set<Reservation> reservations) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.verified = verified;
         this.department = department;
 
         for (Role role : roles) {

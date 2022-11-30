@@ -2,7 +2,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.WingDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.WingMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,12 +32,12 @@ public class WingControllerTest {
     public void should_return404StatusCode_when_wingWithIdOneDoesNotExists() {
         //Arrange
         String wingId = "1";
-        ApiResponse expectedResult = new ApiResponse(HttpStatus.NOT_FOUND, "The wing has not been found!");
+        ApiResponseService expectedResult = new ApiResponseService(HttpStatus.NOT_FOUND, "The wing has not been found!");
 
         when(this.wingDAO.getWingFromDatabase(wingId)).thenReturn(Optional.empty());
 
         //Act
-        ApiResponse actualResponse = this.wingController.getWing(wingId);
+        ApiResponseService actualResponse = this.wingController.getWing(wingId);
 
         //Assert
         assertEquals(expectedResult.getCode(), actualResponse.getCode());

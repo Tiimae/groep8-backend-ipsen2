@@ -7,7 +7,6 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.ReservationDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.WingDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.*;
-import lombok.extern.java.Log;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

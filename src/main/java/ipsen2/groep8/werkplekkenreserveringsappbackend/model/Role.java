@@ -1,6 +1,5 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
@@ -31,30 +30,18 @@ public class Role {
     @NotNull
     private String name;
 
-    @ManyToMany(mappedBy = "roles", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "roles", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnoreProperties("roles")
     @JsonIgnore
     private Set<User> users = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "roles_permissions",
-            joinColumns = @JoinColumn(name = "permissionid", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "roleid", referencedColumnName = "id")
-    )
-    private Set<Permission> permissions = new HashSet<>();
-
     public Role() { }
 
-    public Role(String name, Set<User> users, Set<Permission> permissions) {
+    public Role(String name, Set<User> users) {
         this.name = name;
 
         for (User user : users) {
             this.addUser(user);
-        }
-
-        for (Permission permission : permissions) {
-            this.addPermission(permission);
         }
     }
 
@@ -70,27 +57,5 @@ public class Role {
             this.users.remove(user);
             user.getRoles().remove(this);
         }
-    }
-
-    public void addPermission(Permission permission) {
-        if (permission != null) {
-            this.permissions.add(permission);
-            permission.getRoles().add(this);
-        }
-    }
-
-    public void removePermission(Permission permission) {
-        if (permission != null) {
-            this.permissions.remove(permission);
-            permission.getRoles().remove(this);
-        }
-    }
-
-    public Set<Permission> getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(Set<Permission> permissions) {
-        this.permissions = permissions;
     }
 }

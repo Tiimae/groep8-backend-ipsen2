@@ -2,12 +2,11 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.DepartmentDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.DepartmentMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -18,8 +17,10 @@ import java.util.Optional;
  * @author Tim de Kok
  * @version 1.0
  */
-@Controller
-@RequestMapping(value = "/api/department")
+@RestController
+@RequestMapping(
+
+)
 public class DepartmentController {
 
     /**
@@ -46,20 +47,20 @@ public class DepartmentController {
     /**
      * This function returns an ApiResponse with a status code and a specific department what will be returned from the departmentDAO
      *
-     * @param departmentid The department id what we get from the url
+     * @param departmentId The department id what we get from the url
      * @return an ApiResponse with a statuscode and a department
      * @author Tim de Kok
      */
-    @RequestMapping(value = "/{departmentid}", method = RequestMethod.GET)
+    @RequestMapping(value = ApiConstant.getDepartment, method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<Optional<Department>> getDeparment(@PathVariable String departmentid) {
-        final Optional<Department> department = this.departmentDAO.getDepartmentFromDatabase(departmentid);
+    public ApiResponseService<Optional<Department>> getDeparment(@PathVariable String departmentId) {
+        final Optional<Department> department = this.departmentDAO.getDepartmentFromDatabase(departmentId);
 
         if (department.isEmpty()) {
-            return new ApiResponse(HttpStatus.NOT_FOUND, "Department not found!");
+            return new ApiResponseService(HttpStatus.NOT_FOUND, "Department not found!");
         }
 
-        return new ApiResponse(HttpStatus.ACCEPTED, department);
+        return new ApiResponseService(HttpStatus.FOUND, department);
     }
 
 
@@ -69,12 +70,12 @@ public class DepartmentController {
      * @return an ApiResponse with a statuscode and a list of all departments
      * @author Tim de Kok
      */
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @RequestMapping(value = ApiConstant.getAllDepartments, method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponse<List<Department>> getAllDepartments() {
+    public ApiResponseService<List<Department>> getAllDepartments() {
         List<Department> allDepartments = this.departmentDAO.getAllDepartmentsFromDatabase();
 
-        return new ApiResponse(HttpStatus.ACCEPTED, allDepartments);
+        return new ApiResponseService(HttpStatus.ACCEPTED, allDepartments);
     }
 
     /**
@@ -84,29 +85,29 @@ public class DepartmentController {
      * @return an ApiResponse with a statuscode and the department what just got created
      * @author Tim de Kok
      */
-    @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"application/json"})
+    @PostMapping(value = ApiConstant.getAllDepartments, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse<Department> postDepartment(@RequestBody DepartmentDTO departmentDTO) {
+    public ApiResponseService<Department> postDepartment(@RequestBody DepartmentDTO departmentDTO) {
         Department department = this.departmentMapper.toDepartment(departmentDTO);
         this.departmentDAO.postDepartmentToDatabase(department);
-        return new ApiResponse(HttpStatus.CREATED, department);
+        return new ApiResponseService(HttpStatus.CREATED, department);
     }
 
 
     /**
      * This function updates an department and returns the department what just got updated back
      *
-     * @param id          This is the department id that passed into the url
+     * @param departmentId          This is the department id that passed into the url
      * @param departmentDTO This is the data that was send in the api request
      * @return an ApiResponse with a statuscode and the department what just got updated
      * @author Tim de Kok
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {"application/json"})
+    @PutMapping(value = ApiConstant.getDepartment, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponse updateDepartment(@PathVariable String id, @RequestBody @Valid DepartmentDTO departmentDTO) {
+    public ApiResponseService updateDepartment(@PathVariable String departmentId, @RequestBody @Valid DepartmentDTO departmentDTO) {
         Department department = this.departmentMapper.toDepartment(departmentDTO);
-        this.departmentDAO.updateDepartmentInDatabase(id, department);
-        return new ApiResponse(HttpStatus.ACCEPTED, "Department has been updated");
+        this.departmentDAO.updateDepartmentInDatabase(departmentId, department);
+        return new ApiResponseService(HttpStatus.ACCEPTED, "Department has been updated");
     }
 
 
@@ -117,11 +118,11 @@ public class DepartmentController {
      * @return an ApiResponse with a statuscode and message
      * @author Tim de Kok
      */
-    @RequestMapping(value = "/{departmentId}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = ApiConstant.getDepartment)
     @ResponseBody
-    public ApiResponse removeDepartment(@PathVariable String departmentId) {
+    public ApiResponseService removeDepartment(@PathVariable String departmentId) {
         this.departmentDAO.removeDepartmentFromDatabase(departmentId);
 
-        return new ApiResponse(HttpStatus.ACCEPTED, "Department has been removed in the database!");
+        return new ApiResponseService(HttpStatus.ACCEPTED, "Department has been removed in the database!");
     }
 }

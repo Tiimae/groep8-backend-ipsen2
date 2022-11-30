@@ -1,10 +1,8 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.MeetingRoomDAO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.ReservationDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.MeetingRoomMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.model.ApiResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,12 +32,12 @@ public class MeetingRoomControllerTest {
     public void should_return404StatusCode_when_meetingRoomWithIdOneDoesNotExists() {
         //Arrange
         String meetingRoomId = "1";
-        ApiResponse expectedResult = new ApiResponse(HttpStatus.NOT_FOUND, "Meeting room has not been found");
+        ApiResponseService expectedResult = new ApiResponseService(HttpStatus.NOT_FOUND, "Meeting room has not been found");
 
         when(this.meetingRoomDAO.getMeetingRoomFromDatabase(meetingRoomId)).thenReturn(Optional.empty());
 
         //Act
-        ApiResponse actualResponse = this.meetingRoomController.getMeetingRoom(meetingRoomId);
+        ApiResponseService actualResponse = this.meetingRoomController.getMeetingRoom(meetingRoomId);
 
         //Assert
         assertEquals(expectedResult.getCode(), actualResponse.getCode());
