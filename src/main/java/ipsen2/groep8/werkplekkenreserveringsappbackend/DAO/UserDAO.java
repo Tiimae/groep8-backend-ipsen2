@@ -105,8 +105,10 @@ public class UserDAO {
             this.verifyTokenRepository.delete(verifyTokenByUser.get());
         }
 
-        for (Role role : finalUser.getRoles()) {
-            finalUser.getRoles().remove(role);
+        System.out.println(finalUser.getRoles());
+
+        if (!finalUser.getRoles().isEmpty()) {
+            finalUser.getRoles().clear();
         }
 
         if(finalUser.getDepartment() != null){
