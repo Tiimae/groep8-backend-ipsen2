@@ -1,5 +1,6 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
@@ -12,6 +13,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseServic
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EncryptionService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.VerifyTokenService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -32,7 +36,9 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.WeekFields;
 import java.util.*;
 
 @RestController
@@ -52,7 +58,8 @@ public class AuthenticationController {
 
     private final VerifyTokenService verifyTokenService;
 
-
+    @Value("${shared_secret}")
+    private String sharedSecret;
     @Value("${jwt_secret}")
     private String jwtSecret;
     public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository, VerifyTokenService verifyTokenService) {
@@ -99,7 +106,7 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
-    public ApiResponseService<Map<String, Object>> register(@Valid @RequestBody UserDTO user) throws EntryNotFoundException {
+    public ApiResponseService register(@Valid @RequestBody UserDTO user, @RequestParam boolean encrypted ) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
@@ -110,8 +117,11 @@ public class AuthenticationController {
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-
-        String encodedPass = passwordEncoder.encode(user.getPassword());
+        String encodedPass = passwordEncoder.encode(
+                encrypted
+                        ? EncryptionService.decryptAes(user.getPassword(), sharedSecret)
+                        : user.getPassword()
+        );
         user.setPassword(encodedPass);
         User newUser = userMapper.toUser(user);
         newUser.addRoles(this.roleRepository.findByName("User").get());
@@ -218,8 +228,13 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.login)
     @ResponseBody
-    public ApiResponseService<HashMap<String, String>> login(@RequestBody UserDTO user) throws AuthenticationException, IOException {
+    public ApiResponseService login(@RequestBody UserDTO user, @RequestParam boolean encrypted) throws AuthenticationException, IOException {
         final HashMap<String, String> res = new HashMap<>();
+
+        if(encrypted){
+            user.setPassword(EncryptionService.decryptAes(user.getPassword(), sharedSecret));
+        }
+
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 
