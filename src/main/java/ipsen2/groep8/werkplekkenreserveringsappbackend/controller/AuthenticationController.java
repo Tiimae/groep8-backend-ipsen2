@@ -56,7 +56,8 @@ public class AuthenticationController {
 
     private final VerifyTokenService verifyTokenService;
 
-
+    @Value("${shared_secret}")
+    private String sharedSecret;
     @Value("${jwt_secret}")
     private String jwtSecret;
     public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository, VerifyTokenService verifyTokenService) {
@@ -103,7 +104,7 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
-    public ApiResponseService register(@Valid @RequestBody UserDTO user) throws EntryNotFoundException {
+    public ApiResponseService register(@Valid @RequestBody UserDTO user, @RequestParam boolean encrypted ) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
@@ -114,8 +115,11 @@ public class AuthenticationController {
             return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
         }
 
-
-        String encodedPass = passwordEncoder.encode(user.getPassword());
+        String encodedPass = passwordEncoder.encode(
+                encrypted
+                        ? EncryptionService.decryptAes(user.getPassword(), sharedSecret)
+                        : user.getPassword()
+        );
         user.setPassword(encodedPass);
         User newUser = userMapper.toUser(user);
         newUser.addRoles(this.roleRepository.findByName("User").get());
@@ -197,8 +201,13 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.login)
     @ResponseBody
-    public ApiResponseService login(@RequestBody UserDTO user) throws AuthenticationException, IOException {
+    public ApiResponseService login(@RequestBody UserDTO user, @RequestParam boolean encrypted) throws AuthenticationException, IOException {
         final HashMap<String, String> res = new HashMap<>();
+
+        if(encrypted){
+            user.setPassword(EncryptionService.decryptAes(user.getPassword(), sharedSecret));
+        }
+
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 
