@@ -158,15 +158,15 @@ public class AuthenticationController {
             verifyTokenService.saveVerifyToken(verifyToken);
 
             // Send verification mail
-            try {
-                this.emailService.sendMessage(
-                        foundUser.get().getEmail(),
-                        "CGI account verify email",
-                        "<p>Hi " + foundUser.get().getName() + ", here is your code to verify your email:"+token+"</p>"
-                );
-            } catch (Throwable e) {
-                System.out.println(e.getMessage());
-            }
+//            try {
+//                this.emailService.sendMessage(
+//                        foundUser.get().getEmail(),
+//                        "CGI account verify email",
+//                        "<p>Hi " + foundUser.get().getName() + ", here is your code to verify your email:"+token+"</p>"
+//                );
+//            } catch (Throwable e) {
+//                System.out.println(e.getMessage());
+//            }
 
             // Response
             res.put("message", "Successfully sent a verify token");

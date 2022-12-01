@@ -21,4 +21,6 @@ public interface VerifyTokenRepository extends JpaRepository<VerifyToken, String
     @Query("UPDATE VerifyToken c SET c.confirmedAt = ?2 WHERE c.token = ?1")
     int updateConfirmedAt(String token, LocalDateTime confirmedAt);
 
+    Optional<VerifyToken> getVerifyTokenByUser(User user);
+
 }

@@ -1,9 +1,11 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.VerifyTokenRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.VerifyToken;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,8 @@ public class UserDAO {
      */
     private UserMapper userMapper;
 
+    private VerifyTokenRepository verifyTokenRepository;
+
     /**
      * This is the constructor of the UserDAO. It set the userMapper and userRepository
      *
@@ -30,9 +34,10 @@ public class UserDAO {
      * @param userRepository The repository for user
      * @author Tim de Kok
      */
-    public UserDAO(UserRepository userRepository, @Lazy UserMapper userMapper) {
+    public UserDAO(UserRepository userRepository, @Lazy UserMapper userMapper, VerifyTokenRepository verifyTokenRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.verifyTokenRepository = verifyTokenRepository;
     }
 
     /**
@@ -86,17 +91,30 @@ public class UserDAO {
      * @author Tim de Kok
      */
     public void deleteUserFromDatabase(String userid) {
-        final User user = this.userRepository.findById(userid).get();
-        for (Role role : user.getRoles()) {
-            user.getRoles().remove(role);
+        final Optional<User> user = this.userRepository.findById(userid);
+
+        if (user.isEmpty()) {
+            return;
         }
 
-        if(user.getDepartment() != null){
-            user.getDepartment().getUsers().remove(user);
-            user.setDepartment(null);
+        User finalUser = user.get();
+
+        final Optional<VerifyToken> verifyTokenByUser = this.verifyTokenRepository.getVerifyTokenByUser(finalUser);
+
+        if (!verifyTokenByUser.isEmpty()) {
+            this.verifyTokenRepository.delete(verifyTokenByUser.get());
+        }
+
+        for (Role role : finalUser.getRoles()) {
+            finalUser.getRoles().remove(role);
+        }
+
+        if(finalUser.getDepartment() != null){
+            finalUser.getDepartment().getUsers().remove(finalUser);
+            finalUser.setDepartment(null);
         }
 
 
-        this.userRepository.deleteById(userid);
+        this.userRepository.delete(finalUser);
     }
 }

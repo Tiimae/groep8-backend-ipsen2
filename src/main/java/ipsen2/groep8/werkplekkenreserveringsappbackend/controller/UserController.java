@@ -92,7 +92,13 @@ public class UserController {
     @GetMapping(value = ApiConstant.getAllUsers)
     @ResponseBody
     public ApiResponseService<List<User>> getUsers() {
-        return new ApiResponseService(HttpStatus.ACCEPTED, this.userDAO.getAllUsersFromDatabase());
+        final List<User> allUsersFromDatabase = this.userDAO.getAllUsersFromDatabase();
+
+        for (User user : allUsersFromDatabase) {
+            user.setPassword("");
+        }
+
+        return new ApiResponseService(HttpStatus.ACCEPTED, allUsersFromDatabase);
     }
 
     /**
@@ -141,6 +147,7 @@ public class UserController {
      */
     @DeleteMapping(value = ApiConstant.getUser)
     @ResponseBody
+    @CrossOrigin
     public ApiResponseService deleteUser(@PathVariable String userId) {
         this.userDAO.deleteUserFromDatabase(userId);
         return new ApiResponseService(HttpStatus.ACCEPTED, "User has been deleted");
