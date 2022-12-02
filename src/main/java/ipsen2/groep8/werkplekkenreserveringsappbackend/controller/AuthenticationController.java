@@ -164,7 +164,7 @@ public class AuthenticationController {
             }
 
             // Response
-            res.put("message", "Successfully sent a verify token");
+            res.put("message", "Successfully sent a verify token to " + foundUser.get().getEmail());
             return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
 
         }
