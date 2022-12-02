@@ -105,7 +105,7 @@ public class AuthenticationController {
         if (foundUser.isPresent()) {
 
             Map<String, Object> res = new HashMap<>();
-            res.put("message", "user already exists, use the login route");
+            res.put("message", "User with this email already exists, change your email to continue");
 
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
@@ -200,7 +200,7 @@ public class AuthenticationController {
         if(bearerUserId.equals(tokenUserId)){
             try {
                 verifyTokenService.confirmToken(token);
-                res.put("message", "Successfully confirmed your email");
+                res.put("message", "Successfully confirmed your email. Redirecting you...");
                 return new ApiResponseService<>(HttpStatus.OK, res);
             } catch (Exception e) {
                 res.put("message", e.getMessage());
