@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -179,14 +180,39 @@ public class AuthenticationController {
     public ApiResponseService<Map<String, Object>> confirmVerifyToken(@PathVariable String token) {
         Map<String, Object> res = new HashMap<>();
 
-        try {
-            verifyTokenService.confirmToken(token);
-            res.put("message", "Successfully confirmed your email");
-            return new ApiResponseService<>(HttpStatus.OK, res);
-        } catch (Exception e) {
-            res.put("message", e.getMessage());
+        Optional<User> bearerUser = this.profile(SecurityContextHolder.getContext().getAuthentication()).getPayload();
+        Optional<VerifyToken> verifyToken = this.verifyTokenService.getToken(token);
+
+
+        if(!bearerUser.isPresent()){
+            res.put("message", "Something went wrong, please try again in a moment");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
+
+        if(!verifyToken.isPresent()){
+            res.put("message", "This token is invalid");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        String bearerUserId = bearerUser.get().getId();
+        String tokenUserId = verifyToken.get().getUser().getId();
+
+        if(bearerUserId.equals(tokenUserId)){
+            try {
+                verifyTokenService.confirmToken(token);
+                res.put("message", "Successfully confirmed your email");
+                return new ApiResponseService<>(HttpStatus.OK, res);
+            } catch (Exception e) {
+                res.put("message", e.getMessage());
+                return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+            }
+        }
+
+        else {
+            res.put("message", "This token is invalid");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
 
     }
 
