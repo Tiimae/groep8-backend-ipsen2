@@ -257,7 +257,6 @@ public class AuthenticationController {
     public ApiResponseService<Optional<User>> profile(Principal securityPrincipal) {
 
         Optional<User> foundUser =  this.userRepo.findByEmail(securityPrincipal.getName());
-        foundUser.ifPresent(user -> user.setPassword(""));
 
         return new ApiResponseService<>(
                 HttpStatus.ACCEPTED,
