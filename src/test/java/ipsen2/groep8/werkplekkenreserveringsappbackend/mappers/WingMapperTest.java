@@ -52,8 +52,8 @@ public class WingMapperTest {
         departments.add(department1);
         departments.add(department2);
 
-        final MeetingRoom meetingRoom1 = new MeetingRoom(null, new Wing(), new HashSet<>());
-        final MeetingRoom meetingRoom2 = new MeetingRoom(null, new Wing(), new HashSet<>());
+        final MeetingRoom meetingRoom1 = new MeetingRoom(null,null, new Wing(), new HashSet<>());
+        final MeetingRoom meetingRoom2 = new MeetingRoom(null, null, new Wing(), new HashSet<>());
         final Set<MeetingRoom> meetingRooms = new HashSet<>();
 
         meetingRoom1.setId("1");

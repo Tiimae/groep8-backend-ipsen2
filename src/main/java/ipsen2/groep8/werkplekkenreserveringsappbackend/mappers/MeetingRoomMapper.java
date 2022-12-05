@@ -49,6 +49,7 @@ public class MeetingRoomMapper {
      * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     public MeetingRoom toMeetingRoom(MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
+        String name = meetingRoomDTO.getName();
         Long amountPeople = meetingRoomDTO.getAmountPeople();
 
         Wing wing = null;
@@ -66,7 +67,7 @@ public class MeetingRoomMapper {
                 .map(id -> this.reservationDAO.getReservationFromDatabase(id).orElse(null))
                 .collect(Collectors.toSet());
 
-        return new MeetingRoom(amountPeople, wing, reservations);
+        return new MeetingRoom(name, amountPeople, wing, reservations);
 
     }
 
