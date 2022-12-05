@@ -35,6 +35,7 @@ public class Wing {
             joinColumns = @JoinColumn(name = "wing_id"),
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
+    @JsonIgnoreProperties("wings")
     private Set<Department> departments = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

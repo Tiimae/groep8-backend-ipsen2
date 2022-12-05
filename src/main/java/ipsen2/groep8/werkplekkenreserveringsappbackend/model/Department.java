@@ -34,7 +34,6 @@ public class Department {
     private Set<User> users = new HashSet<>();
 
     @ManyToMany(mappedBy = "departments")
-    @JsonIgnoreProperties("departments")
     private Set<Wing> wings = new HashSet<>();
 
     public Department() { }
