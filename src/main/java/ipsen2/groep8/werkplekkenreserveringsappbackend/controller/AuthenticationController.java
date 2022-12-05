@@ -124,7 +124,7 @@ public class AuthenticationController {
         }
 
         // Send email with new verify-token
-        this.sendVerifyToken(newUser.getId());
+        this.sendVerifyToken();
 
         // response
         Map<String, Object> res = new HashMap<>();
@@ -135,44 +135,41 @@ public class AuthenticationController {
 
     @GetMapping(value = ApiConstant.sendVerifyToken, consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public ApiResponseService<Map<String, Object>> sendVerifyToken(@PathVariable String userId) {
-
+    public ApiResponseService<Map<String, Object>> sendVerifyToken() {
         Map<String, Object> res = new HashMap<>();
 
-        Optional<User> foundUser = userRepo.findById(userId);
-        if (foundUser.isPresent()) {
-            User user = foundUser.orElse(null);
+        Optional<User> bearerUser = this.profile(SecurityContextHolder.getContext().getAuthentication()).getPayload();
 
-            if(foundUser.get().getVerified()){
-                res.put("message", "This user is already verified, cant send a verify token");
-                return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
-            }
-
-            // Create and save Token in DB
-            String token = UUID.randomUUID().toString();
-            VerifyToken verifyToken = new VerifyToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
-            verifyTokenService.saveVerifyToken(verifyToken);
-
-            // Send verification mail
-            try {
-                this.emailService.sendMessage(
-                        foundUser.get().getEmail(),
-                        "CGI account verify email",
-                        "<p>Hi " + foundUser.get().getName() + ", here is your code to verify your email:"+token+"</p>"
-                );
-            } catch (Throwable e) {
-                System.out.println(e.getMessage());
-            }
-
-            // Response
-            res.put("message", "Successfully sent a verify token to " + foundUser.get().getEmail());
-            return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
-
+        if(!bearerUser.isPresent()){
+            res.put("message", "The user you are trying to verify was not found");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-        res.put("message", "The user you are trying to verify was not found");
-        return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        if(bearerUser.get().getVerified()){
+            res.put("message", "This user is already verified, cant send a verify token");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
 
+        User user = bearerUser.get();
+
+        // Create and save Token in DB
+        String token = UUID.randomUUID().toString();
+        VerifyToken verifyToken = new VerifyToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+        verifyTokenService.saveVerifyToken(verifyToken);
+
+        // Send verification mail
+        try {
+            this.emailService.sendMessage(
+                    user.getEmail(),
+                    "CGI account verify email",
+                    "<p>Hi " + user.getName() + ", here is your code to verify your email:"+token+"</p>"
+            );
+        } catch (Throwable e) {
+            System.out.println(e.getMessage());
+        }
+
+        res.put("message", "Successfully sent a verify token to " + user.getEmail());
+        return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
     @GetMapping(value = ApiConstant.confirmVerifyToken, consumes = MediaType.ALL_VALUE)
