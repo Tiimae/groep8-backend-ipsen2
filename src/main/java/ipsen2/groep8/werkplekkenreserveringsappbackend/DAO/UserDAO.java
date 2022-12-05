@@ -2,6 +2,8 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.VerifyTokenRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
@@ -75,13 +77,22 @@ public class UserDAO {
      * Update a existing user in the database
      *
      * @param id The id of the user what needs to be update
-     * @param userUpdate The updated version of the user
+     * @param userDTO The updated version of the user
      * @author Tim de Kok
      */
-    public void updateUserInDatabase(String id, User userUpdate) {
-        User user = this.userRepository.getById(id);
-        this.userMapper.mergeUser(user, userUpdate);
-        this.userRepository.saveAndFlush(user);
+    public User updateUserInDatabase(String id, UserDTO userDTO) throws EntryNotFoundException {
+
+        final Optional<User> byId = this.userRepository.findById(id);
+
+        if (byId.isEmpty()) {
+            return null;
+        }
+
+        userDTO.setPassword(byId.get().getPassword());
+        final User user = this.userMapper.toUser(userDTO);
+        user.setId(id);
+
+        return this.userRepository.saveAndFlush(user);
     }
 
     /**
@@ -104,8 +115,6 @@ public class UserDAO {
         if (!verifyTokenByUser.isEmpty()) {
             this.verifyTokenRepository.delete(verifyTokenByUser.get());
         }
-
-        System.out.println(finalUser.getRoles());
 
         if (!finalUser.getRoles().isEmpty()) {
             finalUser.getRoles().clear();

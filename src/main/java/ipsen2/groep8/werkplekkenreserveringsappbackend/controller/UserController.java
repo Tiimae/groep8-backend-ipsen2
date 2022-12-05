@@ -149,11 +149,9 @@ public class UserController {
      */
     @PutMapping(value = ApiConstant.getUser, consumes = {"application/json"})
     @ResponseBody
+    @CrossOrigin
     public ApiResponseService updateUser(@PathVariable String userId, @RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
-        User user = this.userMapper.toUser(userDTO);
-        this.userDAO.updateUserInDatabase(userId, user);
-
-        return new ApiResponseService(HttpStatus.ACCEPTED, "User has been updated");
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.userDAO.updateUserInDatabase(userId, userDTO));
     }
 
     /**
