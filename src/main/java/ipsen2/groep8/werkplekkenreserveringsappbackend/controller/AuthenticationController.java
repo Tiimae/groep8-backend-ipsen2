@@ -1,6 +1,5 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
@@ -13,16 +12,14 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseServic
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EncryptionService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.VerifyTokenService;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -33,10 +30,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.security.Principal;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.WeekFields;
 import java.util.*;
 
 @RestController
@@ -103,15 +99,15 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
-    public ApiResponseService register(@Valid @RequestBody UserDTO user) throws EntryNotFoundException {
+    public ApiResponseService<Map<String, Object>> register(@Valid @RequestBody UserDTO user) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
 
             Map<String, Object> res = new HashMap<>();
-            res.put("message", "user already exists, use the login route");
+            res.put("message", "User with this email already exists, change your email to continue");
 
-            return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
 
@@ -139,7 +135,7 @@ public class AuthenticationController {
 
     @GetMapping(value = ApiConstant.sendVerifyToken, consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public ApiResponseService sendVerifyToken(@PathVariable String userId) {
+    public ApiResponseService<Map<String, Object>> sendVerifyToken(@PathVariable String userId) {
 
         Map<String, Object> res = new HashMap<>();
 
@@ -149,7 +145,7 @@ public class AuthenticationController {
 
             if(foundUser.get().getVerified()){
                 res.put("message", "This user is already verified, cant send a verify token");
-                return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
+                return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
             }
 
             // Create and save Token in DB
@@ -169,35 +165,60 @@ public class AuthenticationController {
 //            }
 
             // Response
-            res.put("message", "Successfully sent a verify token");
-            return new ApiResponseService(HttpStatus.ACCEPTED, res);
+            res.put("message", "Successfully sent a verify token to " + foundUser.get().getEmail());
+            return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
 
         }
 
         res.put("message", "The user you are trying to verify was not found");
-        return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
+        return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
 
     }
 
     @GetMapping(value = ApiConstant.confirmVerifyToken, consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public ApiResponseService confirmVerifyToken(@PathVariable String token) {
+    public ApiResponseService<Map<String, Object>> confirmVerifyToken(@PathVariable String token) {
         Map<String, Object> res = new HashMap<>();
 
-        try {
-            verifyTokenService.confirmToken(token);
-            res.put("message", "Successfully confirmed your email");
-            return new ApiResponseService<>(HttpStatus.OK, res);
-        } catch (Exception e) {
-            res.put("message", e.getMessage());
+        Optional<User> bearerUser = this.profile(SecurityContextHolder.getContext().getAuthentication()).getPayload();
+        Optional<VerifyToken> verifyToken = this.verifyTokenService.getToken(token);
+
+
+        if(!bearerUser.isPresent()){
+            res.put("message", "Something went wrong, please try again in a moment");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
+
+        if(!verifyToken.isPresent()){
+            res.put("message", "This token is invalid");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        String bearerUserId = bearerUser.get().getId();
+        String tokenUserId = verifyToken.get().getUser().getId();
+
+        if(bearerUserId.equals(tokenUserId)){
+            try {
+                verifyTokenService.confirmToken(token);
+                res.put("message", "Successfully confirmed your email. Redirecting you...");
+                return new ApiResponseService<>(HttpStatus.OK, res);
+            } catch (Exception e) {
+                res.put("message", e.getMessage());
+                return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+            }
+        }
+
+        else {
+            res.put("message", "This token is invalid");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
 
     }
 
     @PostMapping(value = ApiConstant.login)
     @ResponseBody
-    public ApiResponseService login(@RequestBody UserDTO user) throws AuthenticationException, IOException {
+    public ApiResponseService<HashMap<String, String>> login(@RequestBody UserDTO user) throws AuthenticationException, IOException {
         final HashMap<String, String> res = new HashMap<>();
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
@@ -205,7 +226,7 @@ public class AuthenticationController {
         try {
             authManager.authenticate(authInputToken);
         } catch (Throwable $throwable) {
-            return new ApiResponseService(HttpStatus.UNAUTHORIZED, "Wrong combination");
+            return new ApiResponseService<HashMap<String, String>>(HttpStatus.UNAUTHORIZED, "Wrong combination");
         }
 
 
@@ -228,7 +249,19 @@ public class AuthenticationController {
         }
 
 
-        return new ApiResponseService(HttpStatus.ACCEPTED, res);
+        return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
+    }
+
+    @GetMapping(value = ApiConstant.profile, consumes = MediaType.ALL_VALUE)
+    @ResponseBody
+    public ApiResponseService<Optional<User>> profile(Principal securityPrincipal) {
+
+        Optional<User> foundUser =  this.userRepo.findByEmail(securityPrincipal.getName());
+
+        return new ApiResponseService<>(
+                HttpStatus.ACCEPTED,
+                foundUser
+        );
     }
 
     public String createSecret(){
