@@ -69,8 +69,8 @@ public class WingDAO {
      * @param wing The wing what needs to be safed in the database
      * @author Tim de Kok
      */
-    public void saveWingToDatabase(Wing wing) {
-        this.wingRepository.save(wing);
+    public Wing saveWingToDatabase(Wing wing) {
+        return this.wingRepository.save(wing);
     }
 
     /**

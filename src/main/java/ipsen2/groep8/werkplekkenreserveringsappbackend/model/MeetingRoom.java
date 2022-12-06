@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -24,9 +25,11 @@ public class MeetingRoom {
     @Column(name = "id", columnDefinition = "VARCHAR(255)")
     private String id;
 
+    private String name;
     private Long amountPeople;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Nullable
     @JsonBackReference
     private Wing wing;
 
@@ -40,7 +43,8 @@ public class MeetingRoom {
 
     public MeetingRoom() { }
 
-    public MeetingRoom(Long amountPeople, Wing wing, Set<Reservation> reservations) {
+    public MeetingRoom(String name, Long amountPeople, Wing wing, Set<Reservation> reservations) {
+        this.name = name;
         this.amountPeople = amountPeople;
         this.wing = wing;
 
