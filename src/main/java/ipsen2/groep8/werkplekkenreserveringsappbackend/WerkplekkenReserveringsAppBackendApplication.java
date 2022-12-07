@@ -18,7 +18,7 @@ public class WerkplekkenReserveringsAppBackendApplication {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("http://localhost:4200", "http://localhost:8080").allowCredentials(true);
+                registry.addMapping("/**").allowedOrigins("http://localhost:4200", "http://localhost:8080").allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE").allowCredentials(true);
             }
         };
     }
