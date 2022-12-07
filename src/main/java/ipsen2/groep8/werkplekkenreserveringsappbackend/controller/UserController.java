@@ -11,6 +11,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.PasswordGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,6 +50,8 @@ public class UserController {
 
 
     private RoleRepository roleRepository;
+
+    private PasswordGeneratorService passwordGeneratorService = new PasswordGeneratorService();
 
     /**
      * This is the constructor of the UserController. It set the UserDAO and the UserMapper
@@ -114,7 +117,7 @@ public class UserController {
     @ResponseBody
     public ApiResponseService<User> postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
         User user = userMapper.toUser(userDTO);
-        user.setPassword("Testing");
+        user.setPassword(this.passwordGeneratorService.generate(10));
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
 
