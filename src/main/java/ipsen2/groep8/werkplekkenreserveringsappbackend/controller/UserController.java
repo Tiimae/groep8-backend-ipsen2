@@ -1,7 +1,6 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.DepartmentRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
@@ -11,6 +10,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.PasswordGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,7 +51,9 @@ public class UserController {
 
     private RoleRepository roleRepository;
 
-    private PasswordGeneratorService passwordGeneratorService = new PasswordGeneratorService();
+    private PasswordGeneratorService passwordGeneratorService;
+
+    private EmailService emailService;
 
     /**
      * This is the constructor of the UserController. It set the UserDAO and the UserMapper
@@ -60,10 +62,12 @@ public class UserController {
      * @param userMapper The mapper for user
      * @author Tim de Kok
      */
-    public UserController(UserDAO userDAO, UserMapper userMapper, RoleRepository roleRepository) {
+    public UserController(UserDAO userDAO, UserMapper userMapper, RoleRepository roleRepository, PasswordGeneratorService passwordGeneratorService, EmailService emailService) {
         this.userDAO = userDAO;
         this.userMapper = userMapper;
         this.roleRepository = roleRepository;
+        this.passwordGeneratorService = passwordGeneratorService;
+        this.emailService = emailService;
     }
 
     /**
@@ -110,14 +114,25 @@ public class UserController {
      *
      * @param userDTO This is the data that was send in the api request
      * @return an ApiResponse with a statuscode and the user what just got created
-     * @author Tim de Kok
      * @throws EntryNotFoundException because if entry has not been found the program will fail
+     * @author Tim de Kok
      */
     @PostMapping(value = ApiConstant.getAllUsers, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService<User> postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
         User user = userMapper.toUser(userDTO);
         user.setPassword(this.passwordGeneratorService.generate(10));
+
+        try {
+            this.emailService.sendMessage(
+                    user.getEmail(),
+                    "CGI account password",
+                    "<p>Hi " + user.getName() + ", here is your password what you van use once:" + user.getPassword() + "</p>"
+            );
+        } catch (Throwable e) {
+            System.out.println(e.getMessage());
+        }
+
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
 
@@ -143,15 +158,14 @@ public class UserController {
     /**
      * This function updates an user and returns the user what just got updated back
      *
-     * @param userId      This is the user id that passed into the url
+     * @param userId  This is the user id that passed into the url
      * @param userDTO This is the data that was send in the api request
      * @return an ApiResponse with a statuscode and the user what just got updated
-     * @author Tim de Kok
      * @throws EntryNotFoundException because if entry has not been found the program will fail
+     * @author Tim de Kok
      */
     @PutMapping(value = ApiConstant.getUser, consumes = {"application/json"})
     @ResponseBody
-    @CrossOrigin
     public ApiResponseService updateUser(@PathVariable String userId, @RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
         return new ApiResponseService(HttpStatus.ACCEPTED, this.userDAO.updateUserInDatabase(userId, userDTO));
     }
@@ -165,7 +179,6 @@ public class UserController {
      */
     @DeleteMapping(value = ApiConstant.getUser)
     @ResponseBody
-    @CrossOrigin
     public ApiResponseService deleteUser(@PathVariable String userId) {
         this.userDAO.deleteUserFromDatabase(userId);
         return new ApiResponseService(HttpStatus.ACCEPTED, "User has been deleted");
@@ -173,6 +186,7 @@ public class UserController {
 
     /**
      * This function gets all the reservations from a user in the database and returns all the (filtered)reservations as a List
+     *
      * @param userId The user id from where you want to grab the reservations from
      * @param filter A filter(week or month) passed as parameters in url to filter the reservation results
      * @return an ApiResponse with a statuscode and a list of (filtered)reservations belonging to the user

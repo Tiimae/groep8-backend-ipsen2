@@ -1,5 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.service;
 
+import org.springframework.stereotype.Component;
+
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+@Component
 public class PasswordGeneratorService {
 
     private final String lowercase = "abcdefghijklmnopqrstuvwxyz";
