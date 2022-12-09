@@ -89,8 +89,7 @@ public class UserDAO {
         }
 
         userDTO.setPassword(byId.get().getPassword());
-        final User user = this.userMapper.toUser(userDTO);
-        user.setId(id);
+        final User user = this.userMapper.mergeUser(byId.get(), userDTO);
 
         return this.userRepository.saveAndFlush(user);
     }

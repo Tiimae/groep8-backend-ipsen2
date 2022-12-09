@@ -102,14 +102,43 @@ public class UserMapper {
      * @return an updated user
      * @author Tim de Kok
      */
-    public User mergeUser(User base, User update) {
+    public User mergeUser(User base, UserDTO update) throws EntryNotFoundException {
         base.setName(update.getName());
         base.setEmail(update.getEmail());
         base.setPassword(update.getPassword());
         base.setVerified(update.getVerified());
-        base.setDepartment(update.getDepartment());
-        base.setRoles(update.getRoles());
-        base.setReservations(update.getReservations());
+
+        Department department = null;
+        if (update.getDepartmentId() != null) {
+            final Optional<Department> departmentEntry = departmentDAO.getDepartmentFromDatabase(update.getDepartmentId());
+            if (departmentEntry.isEmpty()) {
+                throw new EntryNotFoundException("department not found.");
+            }
+
+            department = departmentEntry.get();
+        }
+
+        Set<Role> roles = new HashSet<>();
+        if (update.getRoleIds() != null) {
+            roles = Arrays.stream(update.getRoleIds())
+                    .map(id -> this.roleDAO.getRoleFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        Set<Reservation> reservations = new HashSet<>();
+        if (update.getReservationIds() != null) {
+            reservations = Arrays.stream(update.getReservationIds())
+                    .map(id -> this.reservationDAO.getReservationFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        base.setDepartment(null);
+        base.getRoles().clear();
+        base.getReservations().clear();
+
+        base.setDepartment(department);
+        base.setRoles(roles);
+        base.setReservations(reservations);
 
         return base;
     }
