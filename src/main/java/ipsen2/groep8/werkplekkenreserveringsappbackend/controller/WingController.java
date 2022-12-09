@@ -105,10 +105,8 @@ public class WingController {
      */
     @PutMapping(value = ApiConstant.getWing, consumes = {"application/json"})
     @ResponseBody
-    @CrossOrigin
     public ApiResponseService updateWing(@PathVariable String wingId, @RequestBody @Valid WingDTO wingDTO) throws EntryNotFoundException {
-        this.wingDAO.updateWingInDatabase(wingId, this.wingMapper.toWing(wingDTO));
-        return new ApiResponseService(HttpStatus.ACCEPTED, "Wing has been updated!");
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.wingDAO.updateWingInDatabase(wingId, wingDTO));
     }
 
     /**
@@ -120,7 +118,6 @@ public class WingController {
      */
     @DeleteMapping(value = ApiConstant.getWing)
     @ResponseBody
-    @CrossOrigin
     public ApiResponseService deleteWing(@PathVariable String wingId) {
         this.wingDAO.deleteWingFromDatabase(wingId);
 
