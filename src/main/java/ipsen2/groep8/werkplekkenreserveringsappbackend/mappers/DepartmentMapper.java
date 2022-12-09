@@ -47,16 +47,8 @@ public class DepartmentMapper {
      */
     public Department toDepartment(DepartmentDTO departmentDTO) {
         String name = departmentDTO.getName();
-
-        Set<User> users = new HashSet<>();
-        users = Arrays.stream(departmentDTO.getUserIds())
-                .map(id -> this.userDAO.getUserFromDatabase(id).orElse(null))
-                .collect(Collectors.toSet());
-
-        Set<Wing> wings = new HashSet<>();
-        wings = Arrays.stream(departmentDTO.getWingIds())
-                .map(id -> this.wingDAO.getWingFromDatabase(id).orElse(null))
-                .collect(Collectors.toSet());
+        Set<User> users = this.getAllUsers(departmentDTO.getUserIds());
+        Set<Wing> wings = this.getAllwings(departmentDTO.getWingIds());
 
         return new Department(name, users, wings);
     }
@@ -69,11 +61,37 @@ public class DepartmentMapper {
      * @return an updated department
      * @author Tim de Kok
      */
-    public Department updateDepartment(Department base, Department update) {
+    public Department updateDepartment(Department base, DepartmentDTO update) {
         base.setName(update.getName());
-        base.setUsers(update.getUsers());
-        base.setWings(update.getWings());
+
+        base.getWings().clear();
+        base.getUsers().clear();
+
+        base.setUsers(this.getAllUsers(update.getUserIds()));
+        base.setWings(this.getAllwings(update.getWingIds()));
 
         return base;
+    }
+
+    public Set<User> getAllUsers(String[] userIds) {
+        Set<User> users = new HashSet<>();
+        if (userIds != null) {
+            users = Arrays.stream(userIds)
+                    .map(id -> this.userDAO.getUserFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        return users;
+    }
+
+    public Set<Wing> getAllwings(String[] wingIds) {
+        Set<Wing> wings = new HashSet<>();
+        if (wingIds != null) {
+            wings = Arrays.stream(wingIds)
+                    .map(id -> this.wingDAO.getWingFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        return wings;
     }
 }
