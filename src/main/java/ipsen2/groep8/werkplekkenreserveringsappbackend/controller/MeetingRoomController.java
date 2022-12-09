@@ -107,13 +107,7 @@ public class MeetingRoomController {
     @PutMapping(value = ApiConstant.getMeetingRoom, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService updateMeetingRoom(@PathVariable String meetingRoomId, @RequestBody @Valid MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
-        final MeetingRoom meetingRoomUpdate = this.meetingRoomMapper.toMeetingRoom(meetingRoomDTO);
-        MeetingRoom meetingRoom = this.meetingRoomDAO.getMeetingRoomFromDatabase(meetingRoomId).get();
-
-        meetingRoom = this.meetingRoomMapper.mergeMeetingRoom(meetingRoom, meetingRoomUpdate);
-
-        this.meetingRoomDAO.updateMeetingRoomInDatabase(meetingRoom);
-        return new ApiResponseService(HttpStatus.ACCEPTED, "MeetingRoom has been updated");
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.meetingRoomDAO.updateMeetingRoomInDatabase(meetingRoomId, meetingRoomDTO));
     }
 
     /**

@@ -39,12 +39,7 @@ public class RoleMapper {
     public Role toRole(RoleDTO roleDTO) {
         String roleName = roleDTO.getRoleName();
 
-        Set<User> users = new HashSet<>();
-        if (roleDTO.getUserIds() != null) {
-            users = Arrays.stream(roleDTO.getUserIds())
-                    .map(id -> this.userDAO.getUserFromDatabase(id).orElse(null))
-                    .collect(Collectors.toSet());
-        }
+        Set<User> users = this.getAllUsers(roleDTO.getUserIds());
 
         return new Role(roleName, users);
     }
@@ -57,10 +52,23 @@ public class RoleMapper {
      * @return an updated role
      * @author Tim de Kok
      */
-    public Role mergeRole (Role base, Role update) {
-        base.setName(update.getName());
-        base.setUsers(update.getUsers());
+    public Role mergeRole (Role base, RoleDTO update) {
+        base.setName(update.getRoleName());
+        base.getUsers().clear();
+
+        base.setUsers(this.getAllUsers(update.getUserIds()));
 
         return base;
+    }
+
+    public Set<User> getAllUsers(String[] userIds) {
+        Set<User> users = new HashSet<>();
+        if (userIds != null) {
+            users = Arrays.stream(userIds)
+                    .map(id -> this.userDAO.getUserFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        return users;
     }
 }

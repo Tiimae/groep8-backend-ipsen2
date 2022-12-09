@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.BuildingRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.BuildingDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.BuildingMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Building;
 import org.springframework.context.annotation.Lazy;
@@ -76,10 +77,10 @@ public class BuildingDAO {
      * @param buildingUpdate The updated version of the building
      * @author Tim de Kok
      */
-    public void updateBuildingInDatabase(String id, Building buildingUpdate) {
+    public Building updateBuildingInDatabase(String id, BuildingDTO buildingUpdate) {
         Building building = this.buildingRepository.getById(id);
         building = this.buildingMapper.mergeBuilding(building, buildingUpdate);
-        this.buildingRepository.save(building);
+        return this.buildingRepository.save(building);
     }
 
     /**
