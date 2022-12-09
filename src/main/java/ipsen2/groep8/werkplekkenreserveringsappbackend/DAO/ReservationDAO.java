@@ -1,6 +1,8 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.ReservationRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.ReservationDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.MeetingRoom;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
@@ -32,12 +34,10 @@ public class ReservationDAO {
         this.reservationRepository.save(reservation);
     }
 
-    public Reservation updateReservationInDatabase(String id, Reservation updateReservation) {
+    public Reservation updateReservationInDatabase(String id, ReservationDTO updateReservation) throws EntryNotFoundException {
         Reservation reservation = this.reservationRepository.getById(id);
         mapper.mergeReservations(reservation, updateReservation);
-        reservationRepository.saveAndFlush(reservation);
-
-        return reservation;
+        return this.reservationRepository.saveAndFlush(reservation);
     }
 
     public void deleteReservationFromDatabase(String id) {
