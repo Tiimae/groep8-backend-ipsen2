@@ -38,8 +38,8 @@ public class UserMapper {
     /**
      * This is the constructor of the UserMapper. It set the DepartmentDAO, RoleDAO and ReservationDAO
      *
-     * @param departmentDAO The DAO for department
-     * @param roleDAO The DAO for role
+     * @param departmentDAO  The DAO for department
+     * @param roleDAO        The DAO for role
      * @param reservationDAO The DAO for reservation
      * @author Tim de Kok
      */
@@ -54,8 +54,8 @@ public class UserMapper {
      *
      * @param userDTO The user data to create a new user
      * @return a new user
-     * @author Tim de Kok
      * @throws EntryNotFoundException because if entry has not been found the program will fail
+     * @author Tim de Kok
      */
     public User toUser(UserDTO userDTO) throws EntryNotFoundException {
         String name = userDTO.getName();
@@ -63,33 +63,13 @@ public class UserMapper {
         String password = userDTO.getPassword();
 
         Boolean verified = false;
-        if(userDTO.getVerified() != null){
+        if (userDTO.getVerified() != null) {
             verified = userDTO.getVerified();
         }
 
-        Department department = null;
-        if (userDTO.getDepartmentId() != null) {
-            final Optional<Department> departmentEntry = departmentDAO.getDepartmentFromDatabase(userDTO.getDepartmentId());
-            if (departmentEntry.isEmpty()) {
-                throw new EntryNotFoundException("User not found.");
-            }
-
-            department = departmentEntry.get();
-        }
-
-        Set<Role> roles = new HashSet<>();
-        if (userDTO.getRoleIds() != null) {
-            roles = Arrays.stream(userDTO.getRoleIds())
-                    .map(id -> this.roleDAO.getRoleFromDatabase(id).orElse(null))
-                    .collect(Collectors.toSet());
-        }
-
-        Set<Reservation> reservations = new HashSet<>();
-        if (userDTO.getReservationIds() != null) {
-            reservations = Arrays.stream(userDTO.getReservationIds())
-                    .map(id -> this.reservationDAO.getReservationFromDatabase(id).orElse(null))
-                    .collect(Collectors.toSet());
-        }
+        Department department = this.getDepartment(userDTO.getDepartmentId());
+        Set<Role> roles = this.getAllRoles(userDTO.getRoleIds());
+        Set<Reservation> reservations = this.getAllReservations(userDTO.getReservationIds());
 
         return new User(name, email, password, verified, roles, department, reservations);
     }
@@ -97,20 +77,59 @@ public class UserMapper {
     /**
      * This function returns an update user, so we can save it in the database
      *
-     * @param base The user data that already exist in the database
+     * @param base   The user data that already exist in the database
      * @param update The user data to create a new user
      * @return an updated user
      * @author Tim de Kok
      */
-    public User mergeUser(User base, User update) {
+    public User mergeUser(User base, UserDTO update) throws EntryNotFoundException {
         base.setName(update.getName());
         base.setEmail(update.getEmail());
         base.setPassword(update.getPassword());
         base.setVerified(update.getVerified());
-        base.setDepartment(update.getDepartment());
-        base.setRoles(update.getRoles());
-        base.setReservations(update.getReservations());
+
+        base.getRoles().clear();
+
+        base.setDepartment(this.getDepartment(update.getDepartmentId()));
+        base.setRoles(this.getAllRoles(update.getRoleIds()));
 
         return base;
+    }
+
+    public Set<Role> getAllRoles(String[] roleIds) {
+        Set<Role> roles = new HashSet<>();
+        if (roleIds != null) {
+            roles = Arrays.stream(roleIds)
+                    .map(id -> this.roleDAO.getRoleFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        return roles;
+    }
+
+    public Set<Reservation> getAllReservations(String[] reservationIds) {
+        Set<Reservation> reservations = new HashSet<>();
+        if (reservationIds != null) {
+            reservations = Arrays.stream(reservationIds)
+                    .map(id -> this.reservationDAO.getReservationFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        return reservations;
+    }
+
+    public Department getDepartment(String departmentId) throws EntryNotFoundException {
+        Department department = null;
+
+        if (departmentId != null) {
+            final Optional<Department> departmentEntry = departmentDAO.getDepartmentFromDatabase(departmentId);
+            if (departmentEntry.isEmpty()) {
+                throw new EntryNotFoundException("User not found.");
+            }
+
+            department = departmentEntry.get();
+        }
+
+        return department;
     }
 }

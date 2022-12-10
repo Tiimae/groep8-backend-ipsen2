@@ -1,12 +1,14 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.DepartmentRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +93,13 @@ public class UserController {
     @GetMapping(value = ApiConstant.getAllUsers)
     @ResponseBody
     public ApiResponseService<List<User>> getUsers() {
-        return new ApiResponseService(HttpStatus.ACCEPTED, this.userDAO.getAllUsersFromDatabase());
+        final List<User> allUsersFromDatabase = this.userDAO.getAllUsersFromDatabase();
+
+        for (User user : allUsersFromDatabase) {
+            user.setPassword("");
+        }
+
+        return new ApiResponseService(HttpStatus.ACCEPTED, allUsersFromDatabase);
     }
 
     /**
@@ -106,10 +114,26 @@ public class UserController {
     @ResponseBody
     public ApiResponseService<User> postUser(@RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
         User user = userMapper.toUser(userDTO);
+        user.setPassword("Testing");
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
-        user.addRoles(this.roleRepository.findByName("User").get());
+
+        final Role role = this.roleRepository.findByName("User").get();
+        boolean hasRole = false;
+
+        for (Role currentRole : user.getRoles()) {
+            if (currentRole.getName().equals(role.getName())) {
+                hasRole = true;
+                break;
+            }
+        }
+
+        if (!hasRole) {
+            user.addRoles(role);
+        }
+
         this.userDAO.saveUserToDatabase(user);
+        user.setPassword("");
         return new ApiResponseService(HttpStatus.CREATED, user);
     }
 
@@ -125,10 +149,7 @@ public class UserController {
     @PutMapping(value = ApiConstant.getUser, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService updateUser(@PathVariable String userId, @RequestBody @Valid UserDTO userDTO) throws EntryNotFoundException {
-        User user = this.userMapper.toUser(userDTO);
-        this.userDAO.updateUserInDatabase(userId, user);
-
-        return new ApiResponseService(HttpStatus.ACCEPTED, "User has been updated");
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.userDAO.updateUserInDatabase(userId, userDTO));
     }
 
     /**

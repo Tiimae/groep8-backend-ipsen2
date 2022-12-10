@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.DepartmentRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;

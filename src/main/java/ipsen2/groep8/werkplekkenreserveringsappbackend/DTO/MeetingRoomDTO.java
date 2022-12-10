@@ -12,6 +12,10 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 public class MeetingRoomDTO {
+
+    @NotNull(message = "Must be a name")
+    private String name;
+
     @NotNull(message = "Must be an amount of people")
     private Long amountPeople;
 

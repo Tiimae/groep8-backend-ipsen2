@@ -1,5 +1,8 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +30,7 @@ public class Department {
     private String name;
 
     @OneToMany(mappedBy = "department", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonBackReference
     private Set<User> users = new HashSet<>();
 
     @ManyToMany(mappedBy = "departments")

@@ -105,9 +105,7 @@ public class DepartmentController {
     @PutMapping(value = ApiConstant.getDepartment, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService updateDepartment(@PathVariable String departmentId, @RequestBody @Valid DepartmentDTO departmentDTO) {
-        Department department = this.departmentMapper.toDepartment(departmentDTO);
-        this.departmentDAO.updateDepartmentInDatabase(departmentId, department);
-        return new ApiResponseService(HttpStatus.ACCEPTED, "Department has been updated");
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.departmentDAO.updateDepartmentInDatabase(departmentId, departmentDTO));
     }
 
 

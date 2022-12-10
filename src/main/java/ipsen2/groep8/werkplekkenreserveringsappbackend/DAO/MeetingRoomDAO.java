@@ -1,7 +1,11 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.MeetingRoomRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.MeetingRoomDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.MeetingRoomMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.MeetingRoom;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,14 +18,17 @@ public class MeetingRoomDAO {
      */
     private MeetingRoomRepository meetingRoomRepository;
 
+    private MeetingRoomMapper meetingRoomMapper;
+
     /**
      * This is the constructor of the MeetingRoomDAO. It set the meetingRoomRepository
      *
      * @param meetingRoomRepository The repository for meeting room
      * @author Tim de Kok
      */
-    public MeetingRoomDAO(MeetingRoomRepository meetingRoomRepository) {
+    public MeetingRoomDAO(MeetingRoomRepository meetingRoomRepository, MeetingRoomMapper meetingRoomMapper) {
         this.meetingRoomRepository = meetingRoomRepository;
+        this.meetingRoomMapper = meetingRoomMapper;
     }
 
     /**
@@ -58,11 +65,20 @@ public class MeetingRoomDAO {
     /**
      * Update a existing meeting room in the database
      *
-     * @param meetingRoom The updated version of the meeting room
+     * @param id  Id of the meeting room that needs to be updated
+     * @param meetingRoomdto The updated version of the meeting room
      * @author Tim de Kok
      */
-    public void updateMeetingRoomInDatabase(MeetingRoom meetingRoom) {
-        this.meetingRoomRepository.saveAndFlush(meetingRoom);
+    public MeetingRoom updateMeetingRoomInDatabase(String id, MeetingRoomDTO meetingRoomdto) throws EntryNotFoundException {
+        final Optional<MeetingRoom> byId = this.meetingRoomRepository.findById(id);
+
+        if (byId.isEmpty()) {
+            return null;
+        }
+
+        final MeetingRoom meetingRoom = this.meetingRoomMapper.mergeMeetingRoom(byId.get(), meetingRoomdto);
+
+        return this.meetingRoomRepository.saveAndFlush(meetingRoom);
     }
 
     /**

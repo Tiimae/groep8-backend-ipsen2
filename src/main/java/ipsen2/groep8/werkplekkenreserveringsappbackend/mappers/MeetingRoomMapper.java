@@ -49,24 +49,12 @@ public class MeetingRoomMapper {
      * @throws EntryNotFoundException because if entry has not been found the program will fail
      */
     public MeetingRoom toMeetingRoom(MeetingRoomDTO meetingRoomDTO) throws EntryNotFoundException {
+        String name = meetingRoomDTO.getName();
         Long amountPeople = meetingRoomDTO.getAmountPeople();
+        Wing wing = this.getWing(meetingRoomDTO.getWingId());
+        Set<Reservation> reservations = this.getAllReservations(meetingRoomDTO.getReservationIds());
 
-        Wing wing = null;
-        if (meetingRoomDTO.getWingId() != null) {
-            final Optional<Wing> wingOptional = this.wingDAO.getWingFromDatabase(meetingRoomDTO.getWingId());
-            if (wingOptional.isEmpty()) {
-                throw new EntryNotFoundException("Wing not found.");
-            }
-
-            wing = wingOptional.get();
-        }
-
-        Set<Reservation> reservations = new HashSet<>();
-        reservations = Arrays.stream(meetingRoomDTO.getReservationIds())
-                .map(id -> this.reservationDAO.getReservationFromDatabase(id).orElse(null))
-                .collect(Collectors.toSet());
-
-        return new MeetingRoom(amountPeople, wing, reservations);
+        return new MeetingRoom(name, amountPeople, wing, reservations);
 
     }
 
@@ -78,12 +66,37 @@ public class MeetingRoomMapper {
      * @return an updated meeting room
      * @author Tim de Kok
      */
-    public MeetingRoom mergeMeetingRoom(MeetingRoom base, MeetingRoom update) {
+    public MeetingRoom mergeMeetingRoom(MeetingRoom base, MeetingRoomDTO update) throws EntryNotFoundException {
+        base.setName(update.getName());
         base.setAmountPeople(update.getAmountPeople());
-        base.setWing(update.getWing());
-        base.setReservations(update.getReservations());
+        base.setWing(this.getWing(update.getWingId()));
 
         return base;
     }
 
+    public Set<Reservation> getAllReservations(String[] reservationIds) {
+        Set<Reservation> reservations = new HashSet<>();
+        if (reservationIds != null) {
+            reservations = Arrays.stream(reservationIds)
+                    .map(id -> this.reservationDAO.getReservationFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        return reservations;
+    }
+
+    public Wing getWing(String wingId) throws EntryNotFoundException {
+        Wing wing = null;
+
+        if (wingId != null) {
+            final Optional<Wing> wingOptional = this.wingDAO.getWingFromDatabase(wingId);
+            if (wingOptional.isEmpty()) {
+                throw new EntryNotFoundException("Wing not found.");
+            }
+
+            wing = wingOptional.get();
+        }
+
+        return wing;
+    }
 }

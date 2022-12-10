@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.DepartmentRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.DepartmentMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
@@ -73,10 +74,10 @@ public class DepartmentDAO {
      * @param departmentUpdate The updated version of the department
      * @author Tim de Kok
      */
-    public void updateDepartmentInDatabase(String id, Department departmentUpdate) {
+    public Department updateDepartmentInDatabase(String id, DepartmentDTO departmentUpdate) {
         Department department = this.departmentRepository.getById(id);
         department = this.departmentMapper.updateDepartment(department, departmentUpdate);
-        this.departmentRepository.saveAndFlush(department);
+        return this.departmentRepository.saveAndFlush(department);
     }
 
     /**
