@@ -186,7 +186,7 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.verifyEmail, consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public ApiResponseService<Map<String, Object>> verifyEmail(@PathVariable String token) {
+    public ApiResponseService<Map<String, Object>> verifyEmail(@RequestParam String token) {
         Map<String, Object> res = new HashMap<>();
 
         Optional<User> bearerUser = this.profile(SecurityContextHolder.getContext().getAuthentication()).getPayload();

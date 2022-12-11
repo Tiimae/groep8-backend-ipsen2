@@ -35,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeHttpRequests()
                 .antMatchers("/api/building/**").hasRole("User")
                 .antMatchers("/api/auth/profile").hasRole("User")
-                .antMatchers("/api/auth/verify-email/**").hasRole("User")
+                .antMatchers("/api/auth/verify-email").hasRole("User")
                 .antMatchers("/api/auth/send-verify-email").hasRole("User")
                 .antMatchers("/api/wing/**").hasRole("User")
                 .antMatchers("/api/meetingroom/**").hasRole("User")
