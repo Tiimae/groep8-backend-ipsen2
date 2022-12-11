@@ -55,6 +55,7 @@ public class AuthenticationController {
     private final UserMapper userMapper;
     final EmailService emailService;
     private RoleRepository roleRepository;
+    private UserDAO userDAO;
 
     private final VerifyTokenService verifyTokenService;
 
@@ -62,7 +63,7 @@ public class AuthenticationController {
     private String sharedSecret;
     @Value("${jwt_secret}")
     private String jwtSecret;
-    public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository, VerifyTokenService verifyTokenService) {
+    public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository, VerifyTokenService verifyTokenService, UserDAO userDAO) {
         this.userRepo = userRepo;
         this.jwtUtil = jwtUtil;
         this.authManager = authManager;
@@ -71,6 +72,7 @@ public class AuthenticationController {
         this.emailService = emailService;
         this.roleRepository = roleRepository;
         this.verifyTokenService = verifyTokenService;
+        this.userDAO = userDAO;
     }
 
     @GetMapping(value = ApiConstant.toCookie, consumes = MediaType.ALL_VALUE)
@@ -254,6 +256,54 @@ public class AuthenticationController {
         res.put("message", "Successfully sent a verify token to " + user.getEmail());
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
+
+
+
+
+
+    @GetMapping(value = ApiConstant.setNewPassword, consumes = {"application/json"})
+    @ResponseBody
+    public ApiResponseService<Map<String, Object>> setNewPassword(@RequestBody UserDTO newUserPassword, @PathVariable String token, @RequestParam(required = false) boolean encrypted) throws EntryNotFoundException {
+        Map<String, Object> res = new HashMap<>();
+
+        Optional<VerifyToken> verifyToken = this.verifyTokenService.getToken(token);
+
+        if(!verifyToken.isPresent()){
+            res.put("message", "This token is invalid");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        //user opvragen van de verify token
+        Optional<User> foundUser = this.userRepo.findById(verifyToken.get().getUser().getId());
+
+        if(!foundUser.isPresent()){
+            res.put("message", "The user you are trying to reset the password for was not found");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        User user = foundUser.get();
+
+        // Nieuw wachtwoord setten van user
+        UserDTO userDTO = new UserDTO();
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setVerified(user.getVerified());
+        String encodedPass = passwordEncoder.encode(
+                encrypted
+                        ? EncryptionService.decryptAes(newUserPassword.getPassword(), sharedSecret)
+                        : newUserPassword.getPassword()
+        );
+        userDTO.setPassword(encodedPass);
+
+
+        this.userDAO.updateUserInDatabase(user.getId(), userDTO);
+
+        // De user updaten
+        res.put("message", user.getName());
+        return new ApiResponseService<>(HttpStatus.OK, res);
+    }
+
+
 
     @PostMapping(value = ApiConstant.login)
     @ResponseBody

@@ -52,7 +52,7 @@ public class AuthenticationControllerTest {
 
     @Before
     public void setup() {
-        this.authController = new AuthenticationController(userRepository, jwtUtil, authenticationManager, passwordEncoder, userMapper, emailService, roleRepository, verifyTokenService);
+        this.authController = new AuthenticationController(userRepository, jwtUtil, authenticationManager, passwordEncoder, userMapper, emailService, roleRepository, verifyTokenService, userDAO);
     }
 
     @Test
