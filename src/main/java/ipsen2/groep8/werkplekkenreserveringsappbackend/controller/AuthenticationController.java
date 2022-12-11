@@ -265,21 +265,29 @@ public class AuthenticationController {
         Map<String, Object> res = new HashMap<>();
 
         Optional<VerifyToken> verifyToken = this.verifyTokenService.getToken(token);
+        Optional<User> foundUser = this.userRepo.findByEmail(newUser.getEmail());
 
         if(!verifyToken.isPresent() || !verifyToken.get().getType().equals("password")){
             res.put("message", "This token is invalid");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-        //user opvragen van de verify token
-        Optional<User> foundUser = this.userRepo.findById(verifyToken.get().getUser().getId());
+        Optional<User> tokenUser = this.userRepo.findById(verifyToken.get().getUser().getId());
 
-        if(!foundUser.isPresent()){
+        if(!foundUser.isPresent() || !tokenUser.isPresent()){
             res.put("message", "The user you are trying to reset the password for was not found");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-        User user = foundUser.get();
+        String foundUserId = foundUser.get().getId();
+        String tokenUserId = verifyToken.get().getUser().getId();
+
+        if(!foundUserId.equals(tokenUserId)){
+            res.put("message", "This token is invalid");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        User user = tokenUser.get();
 
         // Nieuw wachtwoord setten van user
         UserDTO userDTO = new UserDTO();
