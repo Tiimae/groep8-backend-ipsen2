@@ -53,7 +53,7 @@ public class AuthenticationController {
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    final EmailService emailService;
+    private final EmailService emailService;
     private RoleRepository roleRepository;
 
     private final VerifyTokenService verifyTokenService;
