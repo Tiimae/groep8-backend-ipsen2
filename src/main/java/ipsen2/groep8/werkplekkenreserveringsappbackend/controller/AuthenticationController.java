@@ -184,7 +184,7 @@ public class AuthenticationController {
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
-    @GetMapping(value = ApiConstant.verifyEmail, consumes = MediaType.ALL_VALUE)
+    @PostMapping(value = ApiConstant.verifyEmail, consumes = MediaType.ALL_VALUE)
     @ResponseBody
     public ApiResponseService<Map<String, Object>> verifyEmail(@PathVariable String token) {
         Map<String, Object> res = new HashMap<>();
@@ -198,7 +198,7 @@ public class AuthenticationController {
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-        if(!verifyToken.isPresent()){
+        if(!verifyToken.isPresent() || !verifyToken.get().getType().equals("email")){
             res.put("message", "This token is invalid");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
@@ -264,7 +264,7 @@ public class AuthenticationController {
 
         Optional<VerifyToken> verifyToken = this.verifyTokenService.getToken(token);
 
-        if(!verifyToken.isPresent()){
+        if(!verifyToken.isPresent() || !verifyToken.get().getType().equals("password")){
             res.put("message", "This token is invalid");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
