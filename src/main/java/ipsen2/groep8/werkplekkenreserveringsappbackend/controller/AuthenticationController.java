@@ -223,7 +223,7 @@ public class AuthenticationController {
         }
     }
 
-    @GetMapping(value = ApiConstant.forgotPassword, consumes = MediaType.ALL_VALUE)
+    @PostMapping(value = ApiConstant.forgotPassword, consumes = MediaType.ALL_VALUE)
     @ResponseBody
     public ApiResponseService<Map<String, Object>> forgotPassword(@PathVariable String userEmail) {
         Map<String, Object> res = new HashMap<>();
@@ -257,13 +257,9 @@ public class AuthenticationController {
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
-
-
-
-
-    @GetMapping(value = ApiConstant.setNewPassword, consumes = {"application/json"})
+    @PostMapping(value = ApiConstant.setNewPassword, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponseService<Map<String, Object>> setNewPassword(@RequestBody UserDTO newUserPassword, @PathVariable String token, @RequestParam(required = false) boolean encrypted) throws EntryNotFoundException {
+    public ApiResponseService<Map<String, Object>> setNewPassword(@RequestBody UserDTO newUser, @PathVariable String token, @RequestParam(required = false) boolean encrypted) throws EntryNotFoundException {
         Map<String, Object> res = new HashMap<>();
 
         Optional<VerifyToken> verifyToken = this.verifyTokenService.getToken(token);
@@ -290,17 +286,21 @@ public class AuthenticationController {
         userDTO.setVerified(user.getVerified());
         String encodedPass = passwordEncoder.encode(
                 encrypted
-                        ? EncryptionService.decryptAes(newUserPassword.getPassword(), sharedSecret)
-                        : newUserPassword.getPassword()
+                        ? EncryptionService.decryptAes(newUser.getPassword(), sharedSecret)
+                        : newUser.getPassword()
         );
         userDTO.setPassword(encodedPass);
-
-
         this.userDAO.updateUserInDatabase(user.getId(), userDTO);
 
-        // De user updaten
-        res.put("message", user.getName());
-        return new ApiResponseService<>(HttpStatus.OK, res);
+        try {
+            verifyTokenService.confirmToken(token);
+            res.put("message", "Successfully reset your password. Redirecting you...");
+            return new ApiResponseService<>(HttpStatus.OK, res);
+        } catch (Exception e) {
+            res.put("message", e.getMessage());
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
     }
 
 
