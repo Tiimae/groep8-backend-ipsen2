@@ -69,15 +69,22 @@ public class BuildingMapperTest {
     }
 
     @Test
-    public void should_returnupdatedbuilding_when_mergebuildingmethodhasbeencalled() {
+    public void should_returnupdatedbuilding_when_mergebuildingmethodhasbeencalled() throws EntryNotFoundException {
 
         //Arrange
         Building oldBuilding = new Building("test", "test", "test", "test", new HashSet<>());
-        Building expectedBuilding = new Building("testBuilding", "test", "test", "test", new HashSet<>());
+        BuildingDTO buildingDTO = new BuildingDTO();
+        buildingDTO.setName("testBuilding");
+        buildingDTO.setAddress("testBuilding");
+        buildingDTO.setZipcode("testBuilding");
+        buildingDTO.setCity("testBuilding");
+        buildingDTO.setWingIds(new String[0]);
+
+        Building expectedBuilding = this.buildingMapper.toBuilding(buildingDTO);
 
 
         //Act
-        final Building actualBuilding = this.buildingMapper.mergeBuilding(oldBuilding, expectedBuilding);
+        final Building actualBuilding = this.buildingMapper.mergeBuilding(oldBuilding, buildingDTO);
 
         //Assert
         assertEquals(expectedBuilding.getName(), actualBuilding.getName());
