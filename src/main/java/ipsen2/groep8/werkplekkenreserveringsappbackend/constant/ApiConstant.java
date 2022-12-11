@@ -14,8 +14,8 @@ public class ApiConstant {
     public static final String verifyEmail = apiPrefix + "auth/verify-email/{token}";
     public static final String sendVerifyEmail = apiPrefix + "auth/send-verify-email";
 
-    public static final String setNewPassword = apiPrefix + "auth/set-new-password/{token}";
-    public static final String forgotPassword = apiPrefix + "auth/forgot-password/{userEmail}";
+    public static final String setNewPassword = apiPrefix + "auth/set-new-password";
+    public static final String forgotPassword = apiPrefix + "auth/forgot-password";
 
 
     // Building routes

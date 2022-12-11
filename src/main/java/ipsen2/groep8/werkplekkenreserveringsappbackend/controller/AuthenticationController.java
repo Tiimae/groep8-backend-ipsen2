@@ -225,10 +225,10 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.forgotPassword, consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public ApiResponseService<Map<String, Object>> forgotPassword(@PathVariable String userEmail) {
+    public ApiResponseService<Map<String, Object>> forgotPassword(@RequestParam String email) {
         Map<String, Object> res = new HashMap<>();
 
-        Optional<User> foundUser = this.userRepo.findByEmail(userEmail);
+        Optional<User> foundUser = this.userRepo.findByEmail(email);
 
         if(!foundUser.isPresent()){
             res.put("message", "The user you are trying to reset the password for was not found");
@@ -242,12 +242,15 @@ public class AuthenticationController {
         VerifyToken verifyToken = new VerifyToken(token, "password", LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
         verifyTokenService.saveVerifyToken(verifyToken);
 
+//        String url = "localhost:4200" + "/auth/set-new-password?token=" + token;
+        String url = "http://localhost:4200" + "/auth/set-new-password/" + token;
+
         // Send verification mail
         try {
             this.emailService.sendMessage(
                     user.getEmail(),
                     "CGI account forgot password",
-                    "<p>Hi " + user.getName() + ", you notified us that you forgot your password. Use this token to reset your password: "+token+"</p>"
+                    "<p>Hi " + user.getName() + ", you notified us that you forgot your password. Use this token to reset your password: <a href="+url+">Set new password</a></p>"
             );
         } catch (Throwable e) {
             System.out.println(e.getMessage());
@@ -259,7 +262,7 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.setNewPassword, consumes = {"application/json"})
     @ResponseBody
-    public ApiResponseService<Map<String, Object>> setNewPassword(@RequestBody UserDTO newUser, @PathVariable String token, @RequestParam(required = false) boolean encrypted) throws EntryNotFoundException {
+    public ApiResponseService<Map<String, Object>> setNewPassword(@RequestBody UserDTO newUser, @RequestParam String token, @RequestParam(required = false) boolean encrypted) throws EntryNotFoundException {
         Map<String, Object> res = new HashMap<>();
 
         Optional<VerifyToken> verifyToken = this.verifyTokenService.getToken(token);
