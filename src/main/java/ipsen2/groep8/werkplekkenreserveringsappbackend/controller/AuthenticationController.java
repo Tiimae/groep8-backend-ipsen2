@@ -134,7 +134,7 @@ public class AuthenticationController {
         }
 
         // Send email with new verify-token
-        this.sendVerifyToken();
+        this.sendVerifyEmail();
 
         // response
         Map<String, Object> res = new HashMap<>();
@@ -143,9 +143,9 @@ public class AuthenticationController {
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
-    @GetMapping(value = ApiConstant.sendVerifyToken, consumes = MediaType.ALL_VALUE)
+    @GetMapping(value = ApiConstant.sendVerifyEmail, consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public ApiResponseService<Map<String, Object>> sendVerifyToken() {
+    public ApiResponseService<Map<String, Object>> sendVerifyEmail() {
         Map<String, Object> res = new HashMap<>();
 
         Optional<User> bearerUser = this.profile(SecurityContextHolder.getContext().getAuthentication()).getPayload();
@@ -182,9 +182,9 @@ public class AuthenticationController {
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
-    @GetMapping(value = ApiConstant.confirmVerifyToken, consumes = MediaType.ALL_VALUE)
+    @GetMapping(value = ApiConstant.verifyEmail, consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public ApiResponseService<Map<String, Object>> confirmVerifyToken(@PathVariable String token) {
+    public ApiResponseService<Map<String, Object>> verifyEmail(@PathVariable String token) {
         Map<String, Object> res = new HashMap<>();
 
         Optional<User> bearerUser = this.profile(SecurityContextHolder.getContext().getAuthentication()).getPayload();

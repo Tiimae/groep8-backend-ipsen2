@@ -11,8 +11,8 @@ public class ApiConstant {
     public static final String profile = apiPrefix + "auth/profile";
     public static final String toCookie = apiPrefix + "/to-cookie";
 
-    public static final String confirmVerifyToken = apiPrefix + "auth/verify-email/{token}";
-    public static final String sendVerifyToken = apiPrefix + "auth/send-verify-email";
+    public static final String verifyEmail = apiPrefix + "auth/verify-email/{token}";
+    public static final String sendVerifyEmail = apiPrefix + "auth/send-verify-email";
 
     public static final String resetPassword = apiPrefix + "auth/reset-password/{token}";
     public static final String forgotPassword = apiPrefix + "auth/forgot-password/{userEmail}";
