@@ -55,6 +55,7 @@ public class AuthenticationController {
     private final UserMapper userMapper;
     private final EmailService emailService;
     private RoleRepository roleRepository;
+    private UserDAO userDAO;
 
     private final VerifyTokenService verifyTokenService;
 
@@ -62,7 +63,7 @@ public class AuthenticationController {
     private String sharedSecret;
     @Value("${jwt_secret}")
     private String jwtSecret;
-    public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository, VerifyTokenService verifyTokenService) {
+    public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository, VerifyTokenService verifyTokenService, UserDAO userDAO) {
         this.userRepo = userRepo;
         this.jwtUtil = jwtUtil;
         this.authManager = authManager;
@@ -71,6 +72,7 @@ public class AuthenticationController {
         this.emailService = emailService;
         this.roleRepository = roleRepository;
         this.verifyTokenService = verifyTokenService;
+        this.userDAO = userDAO;
     }
 
     @GetMapping(value = ApiConstant.toCookie, consumes = MediaType.ALL_VALUE)
@@ -106,7 +108,7 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
-    public ApiResponseService register(@Valid @RequestBody UserDTO user, @RequestParam boolean encrypted ) throws EntryNotFoundException {
+    public ApiResponseService register(@Valid @RequestBody UserDTO user, @RequestParam(required = false) boolean encrypted ) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
@@ -134,7 +136,7 @@ public class AuthenticationController {
         }
 
         // Send email with new verify-token
-        this.sendVerifyToken();
+        this.sendVerifyEmail();
 
         // response
         Map<String, Object> res = new HashMap<>();
@@ -143,9 +145,9 @@ public class AuthenticationController {
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
-    @GetMapping(value = ApiConstant.sendVerifyToken, consumes = MediaType.ALL_VALUE)
+    @GetMapping(value = ApiConstant.sendVerifyEmail, consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public ApiResponseService<Map<String, Object>> sendVerifyToken() {
+    public ApiResponseService<Map<String, Object>> sendVerifyEmail() {
         Map<String, Object> res = new HashMap<>();
 
         Optional<User> bearerUser = this.profile(SecurityContextHolder.getContext().getAuthentication()).getPayload();
@@ -160,21 +162,11 @@ public class AuthenticationController {
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-            // Send verification mail
-//            try {
-//                this.emailService.sendMessage(
-//                        foundUser.get().getEmail(),
-//                        "CGI account verify email",
-//                        "<p>Hi " + foundUser.get().getName() + ", here is your code to verify your email:"+token+"</p>"
-//                );
-//            } catch (Throwable e) {
-//                System.out.println(e.getMessage());
-//            }
         User user = bearerUser.get();
 
         // Create and save Token in DB
         String token = UUID.randomUUID().toString();
-        VerifyToken verifyToken = new VerifyToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+        VerifyToken verifyToken = new VerifyToken(token, "email", LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
         verifyTokenService.saveVerifyToken(verifyToken);
 
         // Send verification mail
@@ -192,9 +184,9 @@ public class AuthenticationController {
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
-    @GetMapping(value = ApiConstant.confirmVerifyToken, consumes = MediaType.ALL_VALUE)
+    @PostMapping(value = ApiConstant.verifyEmail, consumes = MediaType.ALL_VALUE)
     @ResponseBody
-    public ApiResponseService<Map<String, Object>> confirmVerifyToken(@PathVariable String token) {
+    public ApiResponseService<Map<String, Object>> verifyEmail(@RequestParam String token) {
         Map<String, Object> res = new HashMap<>();
 
         Optional<User> bearerUser = this.profile(SecurityContextHolder.getContext().getAuthentication()).getPayload();
@@ -206,7 +198,7 @@ public class AuthenticationController {
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-        if(!verifyToken.isPresent()){
+        if(!verifyToken.isPresent() || !verifyToken.get().getType().equals("email")){
             res.put("message", "This token is invalid");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
@@ -229,13 +221,103 @@ public class AuthenticationController {
             res.put("message", "This token is invalid");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
+    }
 
+    @PostMapping(value = ApiConstant.forgotPassword, consumes = MediaType.ALL_VALUE)
+    @ResponseBody
+    public ApiResponseService<Map<String, Object>> forgotPassword(@RequestParam String email) {
+        Map<String, Object> res = new HashMap<>();
+
+        Optional<User> foundUser = this.userRepo.findByEmail(email);
+
+        if(!foundUser.isPresent()){
+            res.put("message", "The user you are trying to reset the password for was not found");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        User user = foundUser.get();
+
+        // Create and save Token in DB
+        String token = UUID.randomUUID().toString();
+        VerifyToken verifyToken = new VerifyToken(token, "password", LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+        verifyTokenService.saveVerifyToken(verifyToken);
+
+        String url = "http://localhost:4200/auth/set-new-password?token=" + token;
+
+        // Send verification mail
+        try {
+            this.emailService.sendMessage(
+                    user.getEmail(),
+                    "CGI account forgot password",
+                    "<p>Hi " + user.getName() + ", you notified us that you forgot your password. Use this token to reset your password: <a href="+url+">Set new password</a></p>"
+            );
+        } catch (Throwable e) {
+            System.out.println(e.getMessage());
+        }
+
+        res.put("message", "Successfully sent a verify token to " + user.getEmail());
+        return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
+    }
+
+    @PostMapping(value = ApiConstant.setNewPassword, consumes = {"application/json"})
+    @ResponseBody
+    public ApiResponseService<Map<String, Object>> setNewPassword(@RequestBody UserDTO newUser, @RequestParam String token, @RequestParam(required = false) boolean encrypted) throws EntryNotFoundException {
+        Map<String, Object> res = new HashMap<>();
+
+        Optional<VerifyToken> verifyToken = this.verifyTokenService.getToken(token);
+        Optional<User> foundUser = this.userRepo.findByEmail(newUser.getEmail());
+
+        if(!verifyToken.isPresent() || !verifyToken.get().getType().equals("password")){
+            res.put("message", "This token is invalid");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        Optional<User> tokenUser = this.userRepo.findById(verifyToken.get().getUser().getId());
+
+        if(!foundUser.isPresent() || !tokenUser.isPresent()){
+            res.put("message", "The user you are trying to reset the password for was not found");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        String foundUserId = foundUser.get().getId();
+        String tokenUserId = verifyToken.get().getUser().getId();
+
+        if(!foundUserId.equals(tokenUserId)){
+            res.put("message", "This token is invalid");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        User user = tokenUser.get();
+
+        // Nieuw wachtwoord setten van user
+        UserDTO userDTO = new UserDTO();
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setVerified(user.getVerified());
+        String encodedPass = passwordEncoder.encode(
+                encrypted
+                        ? EncryptionService.decryptAes(newUser.getPassword(), sharedSecret)
+                        : newUser.getPassword()
+        );
+        userDTO.setPassword(encodedPass);
+        this.userDAO.updateUserInDatabase(user.getId(), userDTO);
+
+        try {
+            verifyTokenService.confirmToken(token);
+            res.put("message", "Successfully reset your password. Redirecting you...");
+            return new ApiResponseService<>(HttpStatus.OK, res);
+        } catch (Exception e) {
+            res.put("message", e.getMessage());
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
 
     }
 
+
+
     @PostMapping(value = ApiConstant.login)
     @ResponseBody
-    public ApiResponseService login(@RequestBody UserDTO user, @RequestParam boolean encrypted) throws AuthenticationException, IOException {
+    public ApiResponseService login(@RequestBody UserDTO user, @RequestParam(required = false) boolean encrypted) throws AuthenticationException, IOException {
         final HashMap<String, String> res = new HashMap<>();
 
         if(encrypted){
