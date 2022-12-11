@@ -242,8 +242,7 @@ public class AuthenticationController {
         VerifyToken verifyToken = new VerifyToken(token, "password", LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
         verifyTokenService.saveVerifyToken(verifyToken);
 
-//        String url = "localhost:4200" + "/auth/set-new-password?token=" + token;
-        String url = "http://localhost:4200" + "/auth/set-new-password/" + token;
+        String url = "http://localhost:4200/auth/set-new-password?token=" + token;
 
         // Send verification mail
         try {
