@@ -164,7 +164,7 @@ public class AuthenticationController {
 
         // Create and save Token in DB
         String token = UUID.randomUUID().toString();
-        VerifyToken verifyToken = new VerifyToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+        VerifyToken verifyToken = new VerifyToken(token, "email", LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
         verifyTokenService.saveVerifyToken(verifyToken);
 
         // Send verification mail
@@ -237,7 +237,7 @@ public class AuthenticationController {
 
         // Create and save Token in DB
         String token = UUID.randomUUID().toString();
-        VerifyToken verifyToken = new VerifyToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+        VerifyToken verifyToken = new VerifyToken(token, "password", LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
         verifyTokenService.saveVerifyToken(verifyToken);
 
         // Send verification mail
