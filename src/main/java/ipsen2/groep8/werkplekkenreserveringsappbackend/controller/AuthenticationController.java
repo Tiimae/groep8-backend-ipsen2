@@ -106,7 +106,7 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
-    public ApiResponseService register(@Valid @RequestBody UserDTO user, @RequestParam boolean encrypted ) throws EntryNotFoundException {
+    public ApiResponseService register(@Valid @RequestBody UserDTO user, @RequestParam(required = false) boolean encrypted ) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
@@ -160,16 +160,6 @@ public class AuthenticationController {
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-            // Send verification mail
-//            try {
-//                this.emailService.sendMessage(
-//                        foundUser.get().getEmail(),
-//                        "CGI account verify email",
-//                        "<p>Hi " + foundUser.get().getName() + ", here is your code to verify your email:"+token+"</p>"
-//                );
-//            } catch (Throwable e) {
-//                System.out.println(e.getMessage());
-//            }
         User user = bearerUser.get();
 
         // Create and save Token in DB
@@ -229,13 +219,45 @@ public class AuthenticationController {
             res.put("message", "This token is invalid");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
+    }
 
+    @GetMapping(value = ApiConstant.forgotPassword, consumes = MediaType.ALL_VALUE)
+    @ResponseBody
+    public ApiResponseService<Map<String, Object>> forgotPassword(@PathVariable String userEmail) {
+        Map<String, Object> res = new HashMap<>();
 
+        Optional<User> foundUser = this.userRepo.findByEmail(userEmail);
+
+        if(!foundUser.isPresent()){
+            res.put("message", "The user you are trying to reset the password for was not found");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        User user = foundUser.get();
+
+        // Create and save Token in DB
+        String token = UUID.randomUUID().toString();
+        VerifyToken verifyToken = new VerifyToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+        verifyTokenService.saveVerifyToken(verifyToken);
+
+        // Send verification mail
+        try {
+            this.emailService.sendMessage(
+                    user.getEmail(),
+                    "CGI account forgot password",
+                    "<p>Hi " + user.getName() + ", you notified us that you forgot your password. Use this token to reset your password: "+token+"</p>"
+            );
+        } catch (Throwable e) {
+            System.out.println(e.getMessage());
+        }
+
+        res.put("message", "Successfully sent a verify token to " + user.getEmail());
+        return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
 
     @PostMapping(value = ApiConstant.login)
     @ResponseBody
-    public ApiResponseService login(@RequestBody UserDTO user, @RequestParam boolean encrypted) throws AuthenticationException, IOException {
+    public ApiResponseService login(@RequestBody UserDTO user, @RequestParam(required = false) boolean encrypted) throws AuthenticationException, IOException {
         final HashMap<String, String> res = new HashMap<>();
 
         if(encrypted){
