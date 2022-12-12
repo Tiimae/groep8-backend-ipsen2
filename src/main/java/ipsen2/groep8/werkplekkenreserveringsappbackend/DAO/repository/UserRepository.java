@@ -21,7 +21,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE User u SET u.reset_required = TRUE WHERE u.id = ?1")
+    @Query("UPDATE User u SET u.reset_required = FALSE WHERE u.id = ?1")
     int resetUser(String userId);
 
 }
