@@ -19,4 +19,9 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query("UPDATE User u SET u.verified = TRUE WHERE u.id = ?1")
     int verifyUser(String userId);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.reset_required = TRUE WHERE u.id = ?1")
+    int resetUser(String userId);
+
 }
