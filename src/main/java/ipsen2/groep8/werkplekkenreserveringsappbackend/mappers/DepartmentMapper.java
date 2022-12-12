@@ -64,11 +64,17 @@ public class DepartmentMapper {
     public Department updateDepartment(Department base, DepartmentDTO update) {
         base.setName(update.getName());
 
-        base.getWings().clear();
-        base.getUsers().clear();
+        for (User user : this.getAllUsers(update.getUserIds())) {
+            if (!base.getUsers().contains(user)) {
+                base.addUser(user);
+            }
+        }
 
-        base.setUsers(this.getAllUsers(update.getUserIds()));
-        base.setWings(this.getAllwings(update.getWingIds()));
+        for (Wing wing : this.getAllwings(update.getWingIds())) {
+            if (!base.getWings().contains(wing)) {
+                base.getWings().add(wing);
+            }
+        }
 
         return base;
     }

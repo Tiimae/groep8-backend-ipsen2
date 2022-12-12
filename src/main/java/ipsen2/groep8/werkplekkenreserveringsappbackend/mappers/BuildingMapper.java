@@ -67,9 +67,11 @@ public class BuildingMapper {
         base.setZipcode(update.getZipcode());
         base.setCity(update.getCity());
 
-        base.getWings().clear();
-
-        base.setWings(this.getAllwings(update.getWingIds()));
+        for (Wing wing : this.getAllwings(update.getWingIds())) {
+            if (!base.getWings().contains(wing)) {
+                base.getWings().add(wing);
+            }
+        }
 
         return base;
     }
