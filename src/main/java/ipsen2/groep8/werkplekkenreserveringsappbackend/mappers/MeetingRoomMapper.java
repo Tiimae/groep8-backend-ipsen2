@@ -69,7 +69,10 @@ public class MeetingRoomMapper {
     public MeetingRoom mergeMeetingRoom(MeetingRoom base, MeetingRoomDTO update) throws EntryNotFoundException {
         base.setName(update.getName());
         base.setAmountPeople(update.getAmountPeople());
-        base.setWing(this.getWing(update.getWingId()));
+
+        if (this.getWing(update.getWingId()) != null) {
+            base.setWing(this.getWing(update.getWingId()));
+        }
 
         return base;
     }

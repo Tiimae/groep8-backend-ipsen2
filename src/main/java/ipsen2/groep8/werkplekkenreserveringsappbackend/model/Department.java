@@ -50,7 +50,7 @@ public class Department {
         }
     }
 
-    private void addUser(User user) {
+    public void addUser(User user) {
         if (user != null) {
             this.getUsers().add(user);
             user.setDepartment(this);

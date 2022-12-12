@@ -88,12 +88,21 @@ public class WingMapper {
         base.setWorkplaces(update.getWorkplaces());
         base.setFloor(update.getFloor());
 
-        base.getDepartments().clear();
-        base.getMeetingRooms().clear();
+        for (Department department : this.getAllDepartments(update.getDepartmentIds())) {
+            if (!base.getDepartments().contains(department)) {
+                base.addDepartment(department);
+            }
+        }
 
-        base.setDepartments(this.getAllDepartments(update.getDepartmentIds()));
-        base.setBuilding(this.getBuilding(update.getBuildingId()));
-        base.setMeetingRooms(this.getAllMeetingRooms(update.getMeetingRoomIds()));
+        for (MeetingRoom meetingRoom : this.getAllMeetingRooms(update.getMeetingRoomIds())) {
+            if (!base.getMeetingRooms().contains(meetingRoom)) {
+                base.addMeetingRoom(meetingRoom);
+            }
+        }
+
+        if (this.getBuilding(update.getBuildingId()) != null) {
+            base.setBuilding(this.getBuilding(update.getBuildingId()));
+        }
 
         return base;
     }

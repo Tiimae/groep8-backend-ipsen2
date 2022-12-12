@@ -55,11 +55,19 @@ public class ReservationMapper {
         base.setType(update.getType());
         base.setNote(update.getNote());
 
-        base.getMeetingRooms().clear();
+        if (this.getUser(update.getUserId()) != null) {
+            base.setUser(this.getUser(update.getUserId()));
+        }
 
-        base.setUser(this.getUser(update.getUserId()));
-        base.setMeetingRooms(this.getAllMeetingRooms(update.getMeetingRoomIds()));
-        base.setWing(this.getWing(update.getWingId()));
+        if (this.getWing(update.getWingId()) != null) {
+            base.setWing(this.getWing(update.getWingId()));
+        }
+
+        for (MeetingRoom meetingRoom : this.getAllMeetingRooms(update.getMeetingRoomIds())) {
+            if (!base.getMeetingRooms().contains(meetingRoom)) {
+                base.addMeetingRoom(meetingRoom);
+            }
+        }
 
         return base;
     }

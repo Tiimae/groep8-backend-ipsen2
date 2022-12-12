@@ -54,9 +54,12 @@ public class RoleMapper {
      */
     public Role mergeRole (Role base, RoleDTO update) {
         base.setName(update.getRoleName());
-        base.getUsers().clear();
 
-        base.setUsers(this.getAllUsers(update.getUserIds()));
+        for (User user : this.getAllUsers(update.getUserIds())) {
+            if (!base.getUsers().contains(user)) {
+                base.addUser(user);
+            }
+        }
 
         return base;
     }

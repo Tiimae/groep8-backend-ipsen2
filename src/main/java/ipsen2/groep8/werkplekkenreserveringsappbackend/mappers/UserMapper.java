@@ -88,10 +88,15 @@ public class UserMapper {
         base.setPassword(update.getPassword());
         base.setVerified(update.getVerified());
 
-        base.getRoles().clear();
+        if (update.getDepartmentId() != null) {
+            base.setDepartment(this.getDepartment(update.getDepartmentId()));
+        }
 
-        base.setDepartment(this.getDepartment(update.getDepartmentId()));
-        base.setRoles(this.getAllRoles(update.getRoleIds()));
+        for (Role role : this.getAllRoles(update.getRoleIds())) {
+            if (!base.getRoles().contains(role)) {
+                base.addRoles(role);
+            }
+        }
 
         return base;
     }
