@@ -10,6 +10,7 @@ public class ApiConstant {
     public static final String secret = apiPrefix + "auth/secret";
     public static final String profile = apiPrefix + "auth/profile";
     public static final String toCookie = apiPrefix + "/to-cookie";
+    public static final String getToken = apiPrefix + "token/user";
 
     public static final String verifyEmail = apiPrefix + "auth/verify-email";
     public static final String sendVerifyEmail = apiPrefix + "auth/send-verify-email";
@@ -41,6 +42,7 @@ public class ApiConstant {
 
     // Department routes
     public static final String getUser = apiPrefix + "user/{userId}";
+    public static final String getUserTokenByEmail = apiPrefix + "user/email/token";
     public static final String getUserReservations = apiPrefix + "user/{userId}/reservation";
     public static final String getAllUsers = apiPrefix + "user";
 

@@ -104,17 +104,17 @@ public class WingMapperTest {
         assertEquals(expectedWing.getWorkplaces(), actualWing.getWorkplaces());
     }
 
-    @Test
-    public void should_returnupdatedwing_when_mergewingmethodhasbeencalled() {
-
-        //Assert
-        final Wing wing = new Wing("test", null, null, new HashSet<>(), null, new HashSet<>(), new HashSet<>());
-        final Wing expectedWing = new Wing("test1", null, null, new HashSet<>(), null, new HashSet<>(), new HashSet<>());
-
-        //Act
-        final Wing actualWing = this.wingMapper.mergeWing(wing, expectedWing);
-
-        //Assign
-        assertEquals(expectedWing.getName(), actualWing.getName());
-    }
+//    @Test
+//    public void should_returnupdatedwing_when_mergewingmethodhasbeencalled() {
+//
+//        //Assert
+//        final Wing wing = new Wing("test", null, null, new HashSet<>(), null, new HashSet<>(), new HashSet<>());
+//        final Wing expectedWing = new Wing("test1", null, null, new HashSet<>(), null, new HashSet<>(), new HashSet<>());
+//
+//        //Act
+//        final Wing actualWing = this.wingMapper.mergeWing(wing, expectedWing);
+//
+//        //Assign
+//        assertEquals(expectedWing.getName(), actualWing.getName());
+//    }
 }

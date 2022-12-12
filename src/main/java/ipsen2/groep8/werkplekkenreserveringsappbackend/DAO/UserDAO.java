@@ -53,6 +53,10 @@ public class UserDAO {
         return this.userRepository.findById(userid);
     }
 
+    public Optional<User> getUserFromDatabaseByEmail(String email) {
+        return this.userRepository.findByEmail(email);
+    }
+
     /**
      * Get all users out of the database and returns it as a list of users
      *

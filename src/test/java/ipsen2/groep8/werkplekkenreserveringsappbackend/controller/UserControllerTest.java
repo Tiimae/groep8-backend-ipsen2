@@ -7,6 +7,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.PasswordGeneratorService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.VerifyTokenService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,9 +40,13 @@ public class UserControllerTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+
+    private VerifyTokenService verifyTokenService;
+
     @Before
     public void setup() {
-        this.userController = new UserController(this.userDAO, this.userMapper, this.roleRepository, this.passwordGeneratorService, this.emailService);
+        this.userController = new UserController(this.userDAO, this.userMapper, this.roleRepository, this.passwordGeneratorService, this.emailService, this.verifyTokenService);
     }
 
     @Test

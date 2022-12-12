@@ -9,9 +9,11 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.VerifyToken;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.PasswordGeneratorService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.VerifyTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.WeekFields;
 import java.util.*;
 
@@ -55,6 +58,8 @@ public class UserController {
 
     private EmailService emailService;
 
+    private VerifyTokenService verifyTokenService;
+
     /**
      * This is the constructor of the UserController. It set the UserDAO and the UserMapper
      *
@@ -62,12 +67,13 @@ public class UserController {
      * @param userMapper The mapper for user
      * @author Tim de Kok
      */
-    public UserController(UserDAO userDAO, UserMapper userMapper, RoleRepository roleRepository, PasswordGeneratorService passwordGeneratorService, EmailService emailService) {
+    public UserController(UserDAO userDAO, UserMapper userMapper, RoleRepository roleRepository, PasswordGeneratorService passwordGeneratorService, EmailService emailService, VerifyTokenService verifyTokenService) {
         this.userDAO = userDAO;
         this.userMapper = userMapper;
         this.roleRepository = roleRepository;
         this.passwordGeneratorService = passwordGeneratorService;
         this.emailService = emailService;
+        this.verifyTokenService = verifyTokenService;
     }
 
     /**
@@ -89,6 +95,23 @@ public class UserController {
         User safeUser = user.get();
 
         return new ApiResponseService(HttpStatus.FOUND, safeUser);
+    }
+
+    @GetMapping(value = ApiConstant.getUserTokenByEmail)
+    @ResponseBody
+    public ApiResponseService<User> getUserTokenByEmail(@RequestParam("userEmail") String userEmail) {
+        Optional<User> user = this.userDAO.getUserFromDatabaseByEmail(userEmail);
+
+        if (user.isEmpty()) {
+            return new ApiResponseService(HttpStatus.NOT_FOUND, "The user has not been found!");
+        }
+
+        User safeUser = user.get();
+
+        final HashMap<String, String> tokenMap = new HashMap<>();
+        tokenMap.put("token", this.verifyTokenService.getPasswordToken(safeUser.getId()));
+
+        return new ApiResponseService(HttpStatus.ACCEPTED, tokenMap);
     }
 
     /**
@@ -151,7 +174,13 @@ public class UserController {
         }
 
         this.userDAO.saveUserToDatabase(user);
+
+        String token = UUID.randomUUID().toString();
+        VerifyToken verifyToken = new VerifyToken(token, "password", LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+        this.verifyTokenService.saveVerifyToken(verifyToken);
+
         user.setPassword("");
+
         return new ApiResponseService(HttpStatus.CREATED, user);
     }
 

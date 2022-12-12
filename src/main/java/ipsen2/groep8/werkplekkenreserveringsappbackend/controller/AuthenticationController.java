@@ -300,6 +300,16 @@ public class AuthenticationController {
                         : newUser.getPassword()
         );
         userDTO.setPassword(encodedPass);
+        final ArrayList<Role> roles = new ArrayList<>();
+        roles.addAll(user.getRoles());
+
+        final String[] roleIds = new String[roles.size()];
+        for (int i = 0; i < roles.size(); i++) {
+            roleIds[i] = roles.get(i).getId();
+        }
+        userDTO.setRoleIds(roleIds);
+        userDTO.setDepartmentId(user.getDepartment().getId());
+
         this.userDAO.updateUserInDatabase(user.getId(), userDTO);
 
         try {

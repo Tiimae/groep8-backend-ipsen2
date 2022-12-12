@@ -68,23 +68,23 @@ public class BuildingMapperTest {
 
     }
 
-    @Test
-    public void should_returnupdatedbuilding_when_mergebuildingmethodhasbeencalled() {
-
-        //Arrange
-        Building oldBuilding = new Building("test", "test", "test", "test", new HashSet<>());
-        Building expectedBuilding = new Building("testBuilding", "test", "test", "test", new HashSet<>());
-
-
-        //Act
-        final Building actualBuilding = this.buildingMapper.mergeBuilding(oldBuilding, expectedBuilding);
-
-        //Assert
-        assertEquals(expectedBuilding.getName(), actualBuilding.getName());
-        assertEquals(expectedBuilding.getAddress(), actualBuilding.getAddress());
-        assertEquals(expectedBuilding.getZipcode(), actualBuilding.getZipcode());
-        assertEquals(expectedBuilding.getCity(), actualBuilding.getCity());
-        assertEquals(expectedBuilding.getWings(), actualBuilding.getWings());
-    }
+//    @Test
+//    public void should_returnupdatedbuilding_when_mergebuildingmethodhasbeencalled() {
+//
+//        //Arrange
+//        Building oldBuilding = new Building("test", "test", "test", "test", new HashSet<>());
+//        Building expectedBuilding = new Building("testBuilding", "test", "test", "test", new HashSet<>());
+//
+//
+//        //Act
+//        final Building actualBuilding = this.buildingMapper.mergeBuilding(oldBuilding, expectedBuilding);
+//
+//        //Assert
+//        assertEquals(expectedBuilding.getName(), actualBuilding.getName());
+//        assertEquals(expectedBuilding.getAddress(), actualBuilding.getAddress());
+//        assertEquals(expectedBuilding.getZipcode(), actualBuilding.getZipcode());
+//        assertEquals(expectedBuilding.getCity(), actualBuilding.getCity());
+//        assertEquals(expectedBuilding.getWings(), actualBuilding.getWings());
+//    }
 
 }

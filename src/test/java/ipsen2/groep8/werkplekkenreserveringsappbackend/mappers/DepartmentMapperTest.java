@@ -76,19 +76,19 @@ public class DepartmentMapperTest {
 //        assertEquals(expectedDepartment.getUsers(), actualDepartment.getUsers());
 //        assertEquals(expectedDepartment.getWings(), actualDepartment.getWings());
 //    }
-
-    @Test
-    public void should_returnupdateddepartment_when_mergedepartemntmethodhasbeencalled() {
-
-        //Assert
-        final Department department = new Department("test", new HashSet<>(), new HashSet<>());
-        final Department expectedDepartment = new Department("test", new HashSet<>(), new HashSet<>());
-
-        //Act
-
-        final Department actualDepartment = this.departmentMapper.updateDepartment(department, expectedDepartment);
-
-        //Assign
-        assertEquals(expectedDepartment.getName(), actualDepartment.getName());
-    }
+//
+//    @Test
+//    public void should_returnupdateddepartment_when_mergedepartemntmethodhasbeencalled() {
+//
+//        //Assert
+//        final Department department = new Department("test", new HashSet<>(), new HashSet<>());
+//        final Department expectedDepartment = new Department("test", new HashSet<>(), new HashSet<>());
+//
+//        //Act
+//
+//        final Department actualDepartment = this.departmentMapper.updateDepartment(department, expectedDepartment);
+//
+//        //Assign
+//        assertEquals(expectedDepartment.getName(), actualDepartment.getName());
+//    }
 }

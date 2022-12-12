@@ -45,4 +45,14 @@ public class VerifyTokenService {
         userService.verifyUser(verifyToken.getUser().getId());
     }
 
+    public String getPasswordToken(String userId) {
+        final Optional<VerifyToken> password = this.verifyTokenRepository.getVerifyTokenByUserIdAndType(userId, "password");
+
+        if (password.isEmpty()) {
+            return null;
+        }
+
+        return password.get().getToken();
+    }
+
 }
