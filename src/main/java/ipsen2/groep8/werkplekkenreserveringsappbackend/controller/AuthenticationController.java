@@ -294,6 +294,7 @@ public class AuthenticationController {
         userDTO.setName(user.getName());
         userDTO.setEmail(user.getEmail());
         userDTO.setVerified(user.getVerified());
+        userDTO.setResetRequired(user.getReset_required());
         String encodedPass = passwordEncoder.encode(
                 encrypted
                         ? EncryptionService.decryptAes(newUser.getPassword(), sharedSecret)
@@ -349,6 +350,7 @@ public class AuthenticationController {
             res.put("jwt-token", token);
             res.put("user-id", foundUser.get().getId());
             res.put("verified", foundUser.get().getVerified().toString());
+            res.put("reset-required", foundUser.get().getReset_required().toString());
             res.put("destination", "/to-cookie");
         }
 
