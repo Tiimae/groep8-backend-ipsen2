@@ -335,25 +335,29 @@ public class AuthenticationController {
             return new ApiResponseService<HashMap<String, String>>(HttpStatus.UNAUTHORIZED, res);
         }
 
-
         Optional<User> foundUser = this.userRepo.findByEmail(user.getEmail());
 
-        if (foundUser.isPresent()) {
-
-            final ArrayList<String> roles = new ArrayList<>();
-            for (Role role : foundUser.get().getRoles()) {
-                roles.add(role.getName());
-            }
-
-            String token = jwtUtil.generateToken(user.getEmail(), roles);
-
-            
-            res.put("jwt-token", token);
-            res.put("user-id", foundUser.get().getId());
-            res.put("verified", foundUser.get().getVerified().toString());
-            res.put("destination", "/to-cookie");
+        if (!foundUser.isPresent()) {
+            res.put("message", "An error has occured, please try again in a moment");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
+        if(foundUser.get().getReset_required() == null || foundUser.get().getReset_required()){
+            res.put("message", "reset_required");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        final ArrayList<String> roles = new ArrayList<>();
+        for (Role role : foundUser.get().getRoles()) {
+            roles.add(role.getName());
+        }
+
+        String token = jwtUtil.generateToken(user.getEmail(), roles);
+
+        res.put("jwt-token", token);
+        res.put("user-id", foundUser.get().getId());
+        res.put("verified", foundUser.get().getVerified().toString());
+        res.put("destination", "/to-cookie");
 
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }
