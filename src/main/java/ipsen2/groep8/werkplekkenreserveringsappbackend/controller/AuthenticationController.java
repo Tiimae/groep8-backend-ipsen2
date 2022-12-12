@@ -331,7 +331,8 @@ public class AuthenticationController {
         try {
             authManager.authenticate(authInputToken);
         } catch (Throwable $throwable) {
-            return new ApiResponseService<HashMap<String, String>>(HttpStatus.UNAUTHORIZED, "Wrong combination");
+            res.put("message", "You have entered an invalid email or password");
+            return new ApiResponseService<HashMap<String, String>>(HttpStatus.UNAUTHORIZED, res);
         }
 
 
@@ -346,11 +347,10 @@ public class AuthenticationController {
 
             String token = jwtUtil.generateToken(user.getEmail(), roles);
 
-
+            
             res.put("jwt-token", token);
             res.put("user-id", foundUser.get().getId());
             res.put("verified", foundUser.get().getVerified().toString());
-            res.put("reset-required", foundUser.get().getReset_required().toString());
             res.put("destination", "/to-cookie");
         }
 
