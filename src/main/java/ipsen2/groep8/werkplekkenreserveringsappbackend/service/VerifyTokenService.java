@@ -43,10 +43,14 @@ public class VerifyTokenService {
 
         this.setConfirmedAt(token);
 
-        if(verifyToken.getType() == "email"){
+        System.out.println(verifyToken.getType());
+
+        if(verifyToken.getType().equals("email")){
+            System.out.println("het is email");
             userService.verifyUser(verifyToken.getUser().getId());
         }
-        if(verifyToken.getType() == "password") {
+        if(verifyToken.getType().equals("password")) {
+            System.out.println("het is password");
             userService.resetUser(verifyToken.getUser().getId());
         }
 
