@@ -248,8 +248,8 @@ public class AuthenticationController {
         try {
             this.emailService.sendMessage(
                     user.getEmail(),
-                    "CGI account forgot password",
-                    "<p>Hi " + user.getName() + ", you notified us that you forgot your password. Use this token to reset your password: <a href="+url+">Set new password</a></p>"
+                    "CGI account change password",
+                    "<p>Hi " + user.getName() + ", you notified us that you want to change your password. Use this link to change your password: <a href="+url+">Set new password</a></p>"
             );
         } catch (Throwable e) {
             System.out.println(e.getMessage());
@@ -343,7 +343,8 @@ public class AuthenticationController {
         }
 
         if(foundUser.get().getReset_required() == null || foundUser.get().getReset_required()){
-            res.put("message", "reset_required");
+            this.forgotPassword(foundUser.get().getEmail());
+            res.put("message", "Because of security, you are required to change your password. We've sent a link to your email to change your password.");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
