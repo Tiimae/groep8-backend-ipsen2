@@ -308,7 +308,9 @@ public class AuthenticationController {
             roleIds[i] = roles.get(i).getId();
         }
         userDTO.setRoleIds(roleIds);
-        userDTO.setDepartmentId(user.getDepartment().getId());
+        if (user.getDepartment() != null) {
+            userDTO.setDepartmentId(user.getDepartment().getId());
+        }
 
         this.userDAO.updateUserInDatabase(user.getId(), userDTO);
 
@@ -354,7 +356,6 @@ public class AuthenticationController {
             }
 
             String token = jwtUtil.generateToken(user.getEmail(), roles);
-
 
             res.put("jwt-token", token);
             res.put("user-id", foundUser.get().getId());
