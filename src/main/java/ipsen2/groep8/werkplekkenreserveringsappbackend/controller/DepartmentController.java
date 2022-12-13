@@ -117,7 +117,7 @@ public class DepartmentController {
         }
         this.departmentDAO.updateDepartmentInDatabase(departmentId, departmentDTO);
 
-        res.put("message", foundDepartment.get().getName() + " has been updated");
+        res.put("message", "Department " + foundDepartment.get().getName() + " has been updated");
         return new ApiResponseService(HttpStatus.ACCEPTED, res);
     }
 
@@ -141,7 +141,7 @@ public class DepartmentController {
         }
         this.departmentDAO.removeDepartmentFromDatabase(departmentId);
 
-        res.put("message", foundDepartment.get().getName() + " has been removed from the database");
+        res.put("message", "Department " + foundDepartment.get().getName() + " has been removed from the database");
         return new ApiResponseService(HttpStatus.ACCEPTED, res);
     }
 }
