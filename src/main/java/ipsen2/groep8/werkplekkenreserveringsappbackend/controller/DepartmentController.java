@@ -5,12 +5,15 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.constant.ApiConstant;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.DepartmentMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -100,12 +103,22 @@ public class DepartmentController {
      * @param departmentId          This is the department id that passed into the url
      * @param departmentDTO This is the data that was send in the api request
      * @return an ApiResponse with a statuscode and the department what just got updated
-     * @author Tim de Kok
+     * @author Frederik Coster
      */
     @PutMapping(value = ApiConstant.getDepartment, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService updateDepartment(@PathVariable String departmentId, @RequestBody @Valid DepartmentDTO departmentDTO) {
-        return new ApiResponseService(HttpStatus.ACCEPTED, this.departmentDAO.updateDepartmentInDatabase(departmentId, departmentDTO));
+        Map<String, Object> res = new HashMap<>();
+
+        Optional<Department> foundDepartment = this.departmentDAO.getDepartmentFromDatabase(departmentId);
+        if(!foundDepartment.isPresent()){
+            res.put("message", "Can't find the department you want to update");
+            return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
+        }
+        this.departmentDAO.updateDepartmentInDatabase(departmentId, departmentDTO);
+
+        res.put("message", foundDepartment.get().getName() + " has been updated");
+        return new ApiResponseService(HttpStatus.ACCEPTED, res);
     }
 
 
@@ -114,13 +127,21 @@ public class DepartmentController {
      *
      * @param departmentId The department id what we get from the url
      * @return an ApiResponse with a statuscode and message
-     * @author Tim de Kok
+     * @author Frederik Coster
      */
     @DeleteMapping(value = ApiConstant.getDepartment)
     @ResponseBody
     public ApiResponseService removeDepartment(@PathVariable String departmentId) {
+        Map<String, Object> res = new HashMap<>();
+
+        Optional<Department> foundDepartment = this.departmentDAO.getDepartmentFromDatabase(departmentId);
+        if(!foundDepartment.isPresent()){
+            res.put("message", "Can't find the department you want to delete");
+            return new ApiResponseService(HttpStatus.BAD_REQUEST, res);
+        }
         this.departmentDAO.removeDepartmentFromDatabase(departmentId);
 
-        return new ApiResponseService(HttpStatus.ACCEPTED, "Department has been removed in the database!");
+        res.put("message", foundDepartment.get().getName() + " has been removed from the database");
+        return new ApiResponseService(HttpStatus.ACCEPTED, res);
     }
 }
