@@ -56,7 +56,7 @@ public class DepartmentController {
      */
     @RequestMapping(value = ApiConstant.getDepartment, method = RequestMethod.GET)
     @ResponseBody
-    public ApiResponseService<Optional<Department>> getDeparment(@PathVariable String departmentId) {
+    public ApiResponseService<Optional<Department>> getDepartment(@PathVariable String departmentId) {
         final Optional<Department> department = this.departmentDAO.getDepartmentFromDatabase(departmentId);
 
         if (department.isEmpty()) {

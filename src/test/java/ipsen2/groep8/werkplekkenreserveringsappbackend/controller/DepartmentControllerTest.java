@@ -37,7 +37,7 @@ public class DepartmentControllerTest {
         when(this.departmentDAO.getDepartmentFromDatabase(departmentId)).thenReturn(Optional.empty());
 
         //Act
-        ApiResponseService actualResponse = this.departmentController.getDeparment(departmentId);
+        ApiResponseService actualResponse = this.departmentController.getDepartment(departmentId);
 
         //Assert
         assertEquals(expectedResult.getCode(), actualResponse.getCode());
