@@ -67,11 +67,16 @@ public class UserMapper {
             verified = userDTO.getVerified();
         }
 
+        Boolean resetRequired = false;
+        if (userDTO.getResetRequired() != null) {
+            resetRequired = userDTO.getResetRequired();
+        }
+
         Department department = this.getDepartment(userDTO.getDepartmentId());
         Set<Role> roles = this.getAllRoles(userDTO.getRoleIds());
         Set<Reservation> reservations = this.getAllReservations(userDTO.getReservationIds());
 
-        return new User(name, email, password, verified, roles, department, reservations);
+        return new User(name, email, password, verified, resetRequired, roles, department, reservations);
     }
 
     /**
@@ -87,6 +92,7 @@ public class UserMapper {
         base.setEmail(update.getEmail());
         base.setPassword(update.getPassword());
         base.setVerified(update.getVerified());
+        base.setReset_required(update.getResetRequired());
 
         if (update.getDepartmentId() != null) {
             base.setDepartment(this.getDepartment(update.getDepartmentId()));

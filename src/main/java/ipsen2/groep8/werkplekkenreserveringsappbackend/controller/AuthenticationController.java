@@ -248,8 +248,8 @@ public class AuthenticationController {
         try {
             this.emailService.sendMessage(
                     user.getEmail(),
-                    "CGI account forgot password",
-                    "<p>Hi " + user.getName() + ", you notified us that you forgot your password. Use this token to reset your password: <a href="+url+">Set new password</a></p>"
+                    "CGI account change password",
+                    "<p>Hi " + user.getName() + ", you notified us that you want to change your password. Use this link to change your password: <a href="+url+">Set new password</a></p>"
             );
         } catch (Throwable e) {
             System.out.println(e.getMessage());
@@ -294,6 +294,7 @@ public class AuthenticationController {
         userDTO.setName(user.getName());
         userDTO.setEmail(user.getEmail());
         userDTO.setVerified(user.getVerified());
+        userDTO.setResetRequired(user.getReset_required());
         String encodedPass = passwordEncoder.encode(
                 encrypted
                         ? EncryptionService.decryptAes(newUser.getPassword(), sharedSecret)
@@ -330,28 +331,34 @@ public class AuthenticationController {
         try {
             authManager.authenticate(authInputToken);
         } catch (Throwable $throwable) {
-            return new ApiResponseService<HashMap<String, String>>(HttpStatus.UNAUTHORIZED, "Wrong combination");
+            res.put("message", "You have entered an invalid email or password");
+            return new ApiResponseService<HashMap<String, String>>(HttpStatus.UNAUTHORIZED, res);
         }
-
 
         Optional<User> foundUser = this.userRepo.findByEmail(user.getEmail());
 
-        if (foundUser.isPresent()) {
-
-            final ArrayList<String> roles = new ArrayList<>();
-            for (Role role : foundUser.get().getRoles()) {
-                roles.add(role.getName());
-            }
-
-            String token = jwtUtil.generateToken(user.getEmail(), roles);
-
-
-            res.put("jwt-token", token);
-            res.put("user-id", foundUser.get().getId());
-            res.put("verified", foundUser.get().getVerified().toString());
-            res.put("destination", "/to-cookie");
+        if (!foundUser.isPresent()) {
+            res.put("message", "An error has occured, please try again in a moment");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
+        if(foundUser.get().getReset_required() == null || foundUser.get().getReset_required()){
+            this.forgotPassword(foundUser.get().getEmail());
+            res.put("message", "Because of security, you are required to change your password. We've sent a link to your email to change your password.");
+            return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
+        }
+
+        final ArrayList<String> roles = new ArrayList<>();
+        for (Role role : foundUser.get().getRoles()) {
+            roles.add(role.getName());
+        }
+
+        String token = jwtUtil.generateToken(user.getEmail(), roles);
+
+        res.put("jwt-token", token);
+        res.put("user-id", foundUser.get().getId());
+        res.put("verified", foundUser.get().getVerified().toString());
+        res.put("destination", "/to-cookie");
 
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
     }

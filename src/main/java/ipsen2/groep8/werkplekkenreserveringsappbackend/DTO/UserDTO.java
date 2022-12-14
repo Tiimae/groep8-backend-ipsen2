@@ -23,6 +23,7 @@ public class UserDTO {
     private String password;
 
     private Boolean verified;
+    private Boolean resetRequired;
 
     private String departmentId;
     private String[] roleIds;

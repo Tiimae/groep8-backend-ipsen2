@@ -19,4 +19,8 @@ public class UserService {
         return userRepository.verifyUser(userId);
     }
 
+    public int resetUser(String userId) {
+        return userRepository.resetUser(userId);
+    }
+
 }

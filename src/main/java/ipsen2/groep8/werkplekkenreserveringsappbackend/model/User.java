@@ -44,6 +44,9 @@ public class User {
     @NotNull
     private Boolean verified;
 
+    @NotNull
+    private Boolean reset_required;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
     @JoinTable(
             name = "user_roles",
@@ -62,11 +65,12 @@ public class User {
 
     public User() { }
 
-    public User(String name, String email, String password, Boolean verified, Set<Role> roles, Department department, Set<Reservation> reservations) {
+    public User(String name, String email, String password, Boolean verified, Boolean resetRequired, Set<Role> roles, Department department, Set<Reservation> reservations) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.verified = verified;
+        this.reset_required = resetRequired;
         this.department = department;
 
         for (Role role : roles) {
