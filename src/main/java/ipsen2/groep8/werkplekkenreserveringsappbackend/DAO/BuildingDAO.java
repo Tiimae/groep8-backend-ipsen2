@@ -77,10 +77,9 @@ public class BuildingDAO {
      * @param buildingUpdate The updated version of the building
      * @author Tim de Kok
      */
-    public Building updateBuildingInDatabase(String id, BuildingDTO buildingUpdate) {
-        Building building = this.buildingRepository.getById(id);
-        building = this.buildingMapper.mergeBuilding(building, buildingUpdate);
-        return this.buildingRepository.save(building);
+    public Building updateBuildingInDatabase(String id, Building buildingUpdate) {
+        buildingUpdate.setId(id);
+        return this.buildingRepository.save(buildingUpdate);
     }
 
     /**
