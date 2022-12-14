@@ -92,7 +92,7 @@ public class UserMapper {
         base.setEmail(update.getEmail());
         base.setPassword(update.getPassword());
         base.setVerified(update.getVerified());
-        base.setReset_required(update.getResetRequired());
+        base.setReset_required(base.getReset_required());
 
         if (update.getDepartmentId() != null) {
             base.setDepartment(this.getDepartment(update.getDepartmentId()));
