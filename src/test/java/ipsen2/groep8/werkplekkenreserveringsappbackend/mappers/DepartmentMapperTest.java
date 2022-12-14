@@ -38,8 +38,8 @@ public class DepartmentMapperTest {
     public void should_returndepartment_when_todeparmentfunctionhasbeencalled() throws EntryNotFoundException {
 
         //Arrange
-        final User user1 = new User("test1", "test1", "test1", false, new HashSet<>(), null, new HashSet<>());
-        final User user2 = new User("test2", "test2", "test2", true, new HashSet<>(), null, new HashSet<>());
+        final User user1 = new User("test1", "test1", "test1", false, false, new HashSet<>(), null, new HashSet<>());
+        final User user2 = new User("test2", "test2", "test2", true, false,  new HashSet<>(), null, new HashSet<>());
         Set<User> users = new HashSet<>();
 
         user1.setId("1");
