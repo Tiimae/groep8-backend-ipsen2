@@ -8,6 +8,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,12 +89,13 @@ public class DepartmentDAO {
      */
     public void removeDepartmentFromDatabase(String departmentId) {
         final Department department = this.departmentRepository.findById(departmentId).get();
-        for (User user : department.getUsers()) {
+
+        for (User user : new ArrayList<User>(department.getUsers())) {
             department.getUsers().remove(user);
             user.setDepartment(null);
         }
 
-        for (Wing wing : department.getWings()) {
+        for (Wing wing : new ArrayList<Wing>(department.getWings())) {
             wing.getDepartments().remove(department);
             department.getWings().remove(wing);
         }
