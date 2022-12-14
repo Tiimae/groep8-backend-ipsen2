@@ -30,6 +30,9 @@ public class VerifyToken {
     private String token;
 
     @Column(nullable = false)
+    private String type;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
@@ -45,8 +48,9 @@ public class VerifyToken {
     private User user;
 
 
-    public VerifyToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt, User user) {
+    public VerifyToken(String token, String type, LocalDateTime createdAt, LocalDateTime expiresAt, User user) {
         this.token = token;
+        this.type = type;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
         this.user = user;

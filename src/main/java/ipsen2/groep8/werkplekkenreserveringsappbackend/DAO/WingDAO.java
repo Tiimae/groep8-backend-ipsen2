@@ -1,8 +1,11 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.WingRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.WingDTO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.WingMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -69,8 +72,8 @@ public class WingDAO {
      * @param wing The wing what needs to be safed in the database
      * @author Tim de Kok
      */
-    public void saveWingToDatabase(Wing wing) {
-        this.wingRepository.save(wing);
+    public Wing saveWingToDatabase(Wing wing) {
+        return this.wingRepository.save(wing);
     }
 
     /**
@@ -80,9 +83,16 @@ public class WingDAO {
      * @param wingUpdate The updated version of the wing
      * @author Tim de Kok
      */
-    public void updateWingInDatabase(String id, Wing wingUpdate) {
-        final Wing wing = this.wingMapper.mergeWing(this.wingRepository.getById(id), wingUpdate);
-        this.wingRepository.saveAndFlush(wing);
+    public Wing updateWingInDatabase(String id, WingDTO wingUpdate) throws EntryNotFoundException {
+        final Optional<Wing> byId = this.wingRepository.findById(id);
+
+        if (byId.isEmpty()) {
+            return null;
+        }
+
+        final Wing wing = this.wingMapper.mergeWing(byId.get(), wingUpdate);
+
+        return this.wingRepository.saveAndFlush(wing);
     }
 
     /**

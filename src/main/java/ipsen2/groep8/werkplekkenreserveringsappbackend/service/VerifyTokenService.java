@@ -42,7 +42,13 @@ public class VerifyTokenService {
         }
 
         this.setConfirmedAt(token);
-        userService.verifyUser(verifyToken.getUser().getId());
+        
+        if(verifyToken.getType().equals("email")){
+            userService.verifyUser(verifyToken.getUser().getId());
+        } else if(verifyToken.getType().equals("password")) {
+            userService.resetUser(verifyToken.getUser().getId());
+        }
+
     }
 
 }

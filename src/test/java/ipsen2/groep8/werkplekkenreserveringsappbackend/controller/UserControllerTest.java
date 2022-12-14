@@ -1,9 +1,12 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.DepartmentRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.PasswordGeneratorService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,9 +33,15 @@ public class UserControllerTest {
     @Mock
     private RoleRepository roleRepository;
 
+    @Mock
+    private PasswordGeneratorService passwordGeneratorService;
+
+    @Mock
+    private EmailService emailService;
+
     @Before
     public void setup() {
-        this.userController = new UserController(this.userDAO, this.userMapper, this.roleRepository);
+        this.userController = new UserController(this.userDAO, this.userMapper, this.roleRepository, this.passwordGeneratorService, this.emailService);
     }
 
     @Test

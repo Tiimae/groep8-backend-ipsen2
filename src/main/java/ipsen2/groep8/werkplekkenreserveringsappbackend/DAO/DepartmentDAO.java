@@ -1,12 +1,14 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.DepartmentRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.DepartmentDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.DepartmentMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Wing;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,10 +75,10 @@ public class DepartmentDAO {
      * @param departmentUpdate The updated version of the department
      * @author Tim de Kok
      */
-    public void updateDepartmentInDatabase(String id, Department departmentUpdate) {
+    public Department updateDepartmentInDatabase(String id, DepartmentDTO departmentUpdate) {
         Department department = this.departmentRepository.getById(id);
         department = this.departmentMapper.updateDepartment(department, departmentUpdate);
-        this.departmentRepository.saveAndFlush(department);
+        return this.departmentRepository.saveAndFlush(department);
     }
 
     /**
@@ -87,12 +89,13 @@ public class DepartmentDAO {
      */
     public void removeDepartmentFromDatabase(String departmentId) {
         final Department department = this.departmentRepository.findById(departmentId).get();
-        for (User user : department.getUsers()) {
+
+        for (User user : new ArrayList<User>(department.getUsers())) {
             department.getUsers().remove(user);
             user.setDepartment(null);
         }
 
-        for (Wing wing : department.getWings()) {
+        for (Wing wing : new ArrayList<Wing>(department.getWings())) {
             wing.getDepartments().remove(department);
             department.getWings().remove(wing);
         }

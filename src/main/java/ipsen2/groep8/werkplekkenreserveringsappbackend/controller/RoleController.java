@@ -103,10 +103,7 @@ public class RoleController {
     @PutMapping(value = ApiConstant.getRole, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService updateRole(@PathVariable String roleId, @RequestBody @Valid RoleDTO roleDTO) {
-        Role role = this.roleMapper.toRole(roleDTO);
-        this.roleDAO.updateRoleToDatabase(roleId, role);
-
-        return new ApiResponseService(HttpStatus.ACCEPTED, "Role has been updated!");
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.roleDAO.updateRoleToDatabase(roleId, roleDTO));
     }
 
     /**

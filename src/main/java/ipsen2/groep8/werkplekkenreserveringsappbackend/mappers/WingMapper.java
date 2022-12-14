@@ -67,32 +67,10 @@ public class WingMapper {
         String name = wingDTO.getName();
         Long workplaces = wingDTO.getWorkplaces();
         Long floor = wingDTO.getFloor();
-        Building building = null;
-        Set<Department> departments = new HashSet<>();
-        Set<Reservation> reservations = new HashSet<>();
-        Set<MeetingRoom> meetingRooms = new HashSet<>();
-
-        if (wingDTO.getBuildingId() != null) {
-            final Optional<Building> buildingFromDatabase = this.buildingDAO.getBuildingFromDatabase(wingDTO.getBuildingId());
-
-            if (buildingFromDatabase.isEmpty()) {
-                throw new EntryNotFoundException("Building not found");
-            }
-
-            building = buildingFromDatabase.get();
-        }
-
-        departments = Arrays.stream(wingDTO.getDepartmentIds())
-                .map(id -> this.departmentDAO.getDepartmentFromDatabase(id).orElse(null))
-                .collect(Collectors.toSet());
-
-        reservations = Arrays.stream(wingDTO.getReservationIds())
-                .map(id -> this.reservationDAO.getReservationFromDatabase(id).orElse(null))
-                .collect(Collectors.toSet());
-
-        meetingRooms = Arrays.stream(wingDTO.getMeetingRoomIds())
-                .map(id -> this.meetingRoomDAO.getMeetingRoomFromDatabase(id).orElse(null))
-                .collect(Collectors.toSet());
+        Building building = this.getBuilding(wingDTO.getBuildingId());
+        Set<Department> departments = this.getAllDepartments(wingDTO.getDepartmentIds());
+        Set<Reservation> reservations = this.getAllReservations(wingDTO.getReservationIds());
+        Set<MeetingRoom> meetingRooms = this.getAllMeetingRooms(wingDTO.getMeetingRoomIds());
 
         return new Wing(name, workplaces, floor, departments, building, meetingRooms, reservations);
     }
@@ -105,15 +83,76 @@ public class WingMapper {
      * @return an updated wing
      * @author Tim de Kok
      */
-    public Wing mergeWing(Wing base, Wing update) {
+    public Wing mergeWing(Wing base, WingDTO update) throws EntryNotFoundException {
         base.setName(update.getName());
         base.setWorkplaces(update.getWorkplaces());
         base.setFloor(update.getFloor());
-        base.setDepartments(update.getDepartments());
-        base.setBuilding(update.getBuilding());
-        base.setReservations(update.getReservations());
-        base.setMeetingRooms(update.getMeetingRooms());
+
+        for (Department department : this.getAllDepartments(update.getDepartmentIds())) {
+            if (!base.getDepartments().contains(department)) {
+                base.addDepartment(department);
+            }
+        }
+
+        for (MeetingRoom meetingRoom : this.getAllMeetingRooms(update.getMeetingRoomIds())) {
+            if (!base.getMeetingRooms().contains(meetingRoom)) {
+                base.addMeetingRoom(meetingRoom);
+            }
+        }
+
+        if (this.getBuilding(update.getBuildingId()) != null) {
+            base.setBuilding(this.getBuilding(update.getBuildingId()));
+        }
 
         return base;
+    }
+
+    public Set<Reservation> getAllReservations(String[] reservationIds) {
+        Set<Reservation> reservations = new HashSet<>();
+        if (reservationIds != null) {
+            reservations = Arrays.stream(reservationIds)
+                    .map(id -> this.reservationDAO.getReservationFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        return reservations;
+    }
+
+    public Set<Department> getAllDepartments(String[] departmentIds) {
+        Set<Department> departments = new HashSet<>();
+        if (departmentIds != null) {
+            departments = Arrays.stream(departmentIds)
+                    .map(id -> this.departmentDAO.getDepartmentFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        return departments;
+    }
+
+    public Set<MeetingRoom> getAllMeetingRooms(String[] meetingRoomIds) {
+        Set<MeetingRoom> meetingRooms = new HashSet<>();
+        if (meetingRoomIds != null) {
+            meetingRooms = Arrays.stream(meetingRoomIds)
+                    .map(id -> this.meetingRoomDAO.getMeetingRoomFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        return meetingRooms;
+    }
+
+    public Building getBuilding(String buildingId) throws EntryNotFoundException {
+        Building building = null;
+
+        if (buildingId != null) {
+            final Optional<Building> buildingFromDatabase = this.buildingDAO.getBuildingFromDatabase(buildingId);
+
+            if (buildingFromDatabase.isEmpty()) {
+                throw new EntryNotFoundException("Building not found");
+            }
+
+            building = buildingFromDatabase.get();
+        }
+
+        return building;
     }
 }

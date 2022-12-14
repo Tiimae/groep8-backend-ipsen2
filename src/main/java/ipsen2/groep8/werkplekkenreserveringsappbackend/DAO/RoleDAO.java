@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.DAO;
 
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.RoleRepository;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.RoleDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.RoleMapper;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
@@ -77,10 +78,10 @@ public class RoleDAO {
      * @param roleUpdate The updated version of the role
      * @author Tim de Kok
      */
-    public void updateRoleToDatabase(String id, Role roleUpdate) {
+    public Role updateRoleToDatabase(String id, RoleDTO roleUpdate) {
         Role role = this.roleRepository.getById(id);
         role = this.roleMapper.mergeRole(role, roleUpdate);
-        this.roleRepository.saveAndFlush(role);
+        return this.roleRepository.saveAndFlush(role);
     }
 
     /**

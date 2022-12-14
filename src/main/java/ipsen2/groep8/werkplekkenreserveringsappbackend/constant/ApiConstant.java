@@ -8,10 +8,14 @@ public class ApiConstant {
     public static final String register = apiPrefix + "auth/register";
     public static final String login = apiPrefix + "auth/login";
     public static final String secret = apiPrefix + "auth/secret";
+    public static final String profile = apiPrefix + "auth/profile";
     public static final String toCookie = apiPrefix + "/to-cookie";
 
-    public static final String confirmVerifyToken = apiPrefix + "auth/verify-email/{token}";
-    public static final String sendVerifyToken = apiPrefix + "auth/send-verify-email/{userId}";
+    public static final String verifyEmail = apiPrefix + "auth/verify-email";
+    public static final String sendVerifyEmail = apiPrefix + "auth/send-verify-email";
+
+    public static final String setNewPassword = apiPrefix + "auth/set-new-password";
+    public static final String forgotPassword = apiPrefix + "auth/forgot-password";
 
 
     // Building routes

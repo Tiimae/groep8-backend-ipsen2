@@ -103,9 +103,7 @@ public class BuildingController {
     @PutMapping(value = ApiConstant.getBuilding, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService updateBuilding(@PathVariable String buildingId, @RequestBody @Valid BuildingDTO buildingDTO) throws EntryNotFoundException {
-        final Building building = this.buildingMapper.toBuilding(buildingDTO);
-        this.buildingDAO.updateBuildingInDatabase(buildingId, building);
-        return new ApiResponseService(HttpStatus.ACCEPTED, building);
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.buildingDAO.updateBuildingInDatabase(buildingId, buildingDTO));
     }
 
     /**

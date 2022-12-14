@@ -80,11 +80,12 @@ public class UserMapperTest {
         userDTO.setName("test");
         userDTO.setEmail("test");
         userDTO.setPassword("test");
+        userDTO.setVerified(true);
         userDTO.setDepartmentId(department.getId());
         userDTO.setReservationIds(new String[]{reservation1.getId(), reservation2.getId(), reservation3.getId()});
         userDTO.setRoleIds(new String[]{role1.getId(), role2.getId(), role3.getId()});
 
-        final User expectedUser = new User("test", "test", "test", roles, department, reservations);
+        final User expectedUser = new User("test", "test", "test", true, roles, department, reservations);
 
         //Act
         final User actualUser = this.userMapper.toUser(userDTO);
@@ -99,15 +100,25 @@ public class UserMapperTest {
     }
 
     @Test
-    public void should_returnupdateduser_when_mergeusermethodhasbeencalled() {
+    public void should_returnupdateduser_when_mergeusermethodhasbeencalled() throws EntryNotFoundException {
 
         //Arrange
-        final User oldUser = new User("test", "test", "test", new HashSet<>(), new Department(), new HashSet<>());
-        final User expectedUser = new User("Tim", "test", "test", new HashSet<>(), new Department(), new HashSet<>());
+        final User oldUser = new User("test", "test", "test", true,  new HashSet<>(), new Department(), new HashSet<>());
+
+        final UserDTO userDTO = new UserDTO();
+        userDTO.setName("Tim");
+        userDTO.setEmail("Test@Test.nl");
+        userDTO.setPassword("test");
+        userDTO.setDepartmentId(null);
+        userDTO.setVerified(false);
+        userDTO.setReservationIds(new String[0]);
+        userDTO.setRoleIds(new String[0]);
+
+        final User expectedUser = this.userMapper.toUser(userDTO);
 
 
         //Act
-        final User actualUser = this.userMapper.mergeUser(oldUser, expectedUser);
+        final User actualUser = this.userMapper.mergeUser(oldUser, userDTO);
 
         //Assert
         assertEquals(actualUser.getName(), expectedUser.getName());

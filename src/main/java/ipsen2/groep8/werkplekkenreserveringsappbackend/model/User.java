@@ -1,8 +1,12 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.istack.NotNull;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.serializer.UserDepartmentSerializer;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -34,12 +38,16 @@ public class User {
     private String email;
 
     @NotNull
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @NotNull
     private Boolean verified;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @NotNull
+    private Boolean reset_required;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -48,7 +56,7 @@ public class User {
     private Set<Role> roles = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonBackReference
+    @JsonManagedReference
     private Department department;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -57,11 +65,12 @@ public class User {
 
     public User() { }
 
-    public User(String name, String email, String password, Boolean verified, Set<Role> roles, Department department, Set<Reservation> reservations) {
+    public User(String name, String email, String password, Boolean verified, Boolean resetRequired, Set<Role> roles, Department department, Set<Reservation> reservations) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.verified = verified;
+        this.reset_required = resetRequired;
         this.department = department;
 
         for (Role role : roles) {

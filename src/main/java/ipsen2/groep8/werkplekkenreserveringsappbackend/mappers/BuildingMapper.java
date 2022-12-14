@@ -48,11 +48,7 @@ public class BuildingMapper {
         String address = buildingDTO.getAddress();
         String zipcode = buildingDTO.getZipcode();
         String city = buildingDTO.getCity();
-        Set<Wing> wings = new HashSet<>();
-
-        wings = Arrays.stream(buildingDTO.getWingIds())
-                .map(id -> this.wingDAO.getWingFromDatabase(id).orElse(null))
-                .collect(Collectors.toSet());
+        Set<Wing> wings = this.getAllwings(buildingDTO.getWingIds());
 
         return new Building(name, address, zipcode, city, wings);
     }
@@ -65,13 +61,29 @@ public class BuildingMapper {
      * @return an updated building
      * @author Tim de Kok
      */
-    public Building mergeBuilding(Building base, Building update) {
+    public Building mergeBuilding(Building base, BuildingDTO update) {
         base.setName(update.getName());
         base.setAddress(update.getAddress());
         base.setZipcode(update.getZipcode());
         base.setCity(update.getCity());
-        base.setWings(update.getWings());
+
+        for (Wing wing : this.getAllwings(update.getWingIds())) {
+            if (!base.getWings().contains(wing)) {
+                base.getWings().add(wing);
+            }
+        }
 
         return base;
+    }
+
+    public Set<Wing> getAllwings(String[] wingIds) {
+        Set<Wing> wings = new HashSet<>();
+        if (wingIds != null) {
+            wings = Arrays.stream(wingIds)
+                    .map(id -> this.wingDAO.getWingFromDatabase(id).orElse(null))
+                    .collect(Collectors.toSet());
+        }
+
+        return wings;
     }
 }

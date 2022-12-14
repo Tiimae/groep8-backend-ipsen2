@@ -103,17 +103,13 @@ public class ReservationController {
     @PutMapping(value =ApiConstant.getReservation, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService updateReservation(@PathVariable String reservationId, @RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
-        Reservation reservation = reservationMapper.toReservation(reservationDTO);
-        this.reservationDAO.updateReservationInDatabase(reservationId, reservation);
-        return new ApiResponseService(HttpStatus.ACCEPTED, "Reservation has been updated");
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.reservationDAO.updateReservationInDatabase(reservationId, reservationDTO));
     }
 
     @PatchMapping(value =ApiConstant.getReservation, consumes = {"application/json"})
     @ResponseBody
     public ApiResponseService patchReservation(@PathVariable String reservationId, @RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
-        Reservation reservation = reservationMapper.toReservation(reservationDTO);
-        this.reservationDAO.updateReservationInDatabase(reservationId, reservation);
-        return new ApiResponseService(HttpStatus.ACCEPTED, "Reservation has been updated");
+        return new ApiResponseService(HttpStatus.ACCEPTED, this.reservationDAO.updateReservationInDatabase(reservationId, reservationDTO));
     }
 
     @DeleteMapping(value = ApiConstant.getReservation)
