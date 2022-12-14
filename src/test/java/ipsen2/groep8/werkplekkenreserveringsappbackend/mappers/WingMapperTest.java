@@ -105,14 +105,23 @@ public class WingMapperTest {
     }
 
     @Test
-    public void should_returnupdatedwing_when_mergewingmethodhasbeencalled() {
+    public void should_returnupdatedwing_when_mergewingmethodhasbeencalled() throws EntryNotFoundException {
 
         //Assert
         final Wing wing = new Wing("test", null, null, new HashSet<>(), null, new HashSet<>(), new HashSet<>());
-        final Wing expectedWing = new Wing("test1", null, null, new HashSet<>(), null, new HashSet<>(), new HashSet<>());
+        final WingDTO wingDTO = new WingDTO();
+        wingDTO.setName("Testing");
+        wingDTO.setWorkplaces(Long.parseLong(String.valueOf(1)));
+        wingDTO.setFloor(Long.parseLong(String.valueOf(1)));
+        wingDTO.setBuildingId(null);
+        wingDTO.setDepartmentIds(new String[0]);
+        wingDTO.setReservationIds(new String[0]);
+        wingDTO.setMeetingRoomIds(new String[0]);
+
+        final Wing expectedWing = this.wingMapper.toWing(wingDTO);
 
         //Act
-        final Wing actualWing = this.wingMapper.mergeWing(wing, expectedWing);
+        final Wing actualWing = this.wingMapper.mergeWing(wing, wingDTO);
 
         //Assign
         assertEquals(expectedWing.getName(), actualWing.getName());
