@@ -48,6 +48,10 @@ public class ReservationMapper {
     }
 
     public Reservation mergeReservations(Reservation base, ReservationDTO update) throws EntryNotFoundException {
+        if(base.isStatus() != update.getStatus()){
+            base.setStatus(update.getStatus());
+            return base;
+        }
         base.setStartDate( LocalDateTime.ofInstant(Instant.ofEpochMilli(update.getStarttime()), TimeZone.getDefault().toZoneId()));
         base.setEndDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(update.getEndtime()), TimeZone.getDefault().toZoneId()));
         base.setAmount(update.getAmount());
@@ -70,6 +74,12 @@ public class ReservationMapper {
         }
 
         return base;
+    }
+
+    private void updateStatus(Reservation base, ReservationDTO update){
+        if(base.isStatus() != update.getStatus()){
+            base.setStatus(update.getStatus());
+        }
     }
 
     public User getUser(String userId) throws EntryNotFoundException {
