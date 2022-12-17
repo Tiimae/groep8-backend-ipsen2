@@ -76,12 +76,6 @@ public class ReservationMapper {
         return base;
     }
 
-    private void updateStatus(Reservation base, ReservationDTO update){
-        if(base.isStatus() != update.getStatus()){
-            base.setStatus(update.getStatus());
-        }
-    }
-
     public User getUser(String userId) throws EntryNotFoundException {
         User user = null;
 
