@@ -1,6 +1,5 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -39,6 +38,7 @@ public class User {
 
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonIgnoreProperties
     private String password;
 
     @NotNull
@@ -63,9 +63,12 @@ public class User {
     @JsonManagedReference
     private Set<Reservation> reservations = new HashSet<>();
 
+    @ManyToMany
+    private Set<User> favorites = new HashSet<>();
+
     public User() { }
 
-    public User(String name, String email, String password, Boolean verified, Boolean resetRequired, Set<Role> roles, Department department, Set<Reservation> reservations) {
+    public User(String name, String email, String password, Boolean verified, Boolean resetRequired, Set<Role> roles, Department department, Set<Reservation> reservations, Set<User> favorites) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -79,6 +82,10 @@ public class User {
 
         for (Reservation reservation : reservations) {
             this.addReservation(reservation);
+        }
+
+        for (User user : favorites) {
+            this.addFavorite(user);
         }
     }
 
@@ -104,11 +111,16 @@ public class User {
         }
     }
 
-
     public void removeReservation(Reservation reservation) {
         if (reservation != null) {
             this.reservations.remove(reservation);
             reservation.setUser(this);
+        }
+    }
+
+    public void addFavorite(User user) {
+        if (user != null) {
+            this.favorites.add(user);
         }
     }
 }

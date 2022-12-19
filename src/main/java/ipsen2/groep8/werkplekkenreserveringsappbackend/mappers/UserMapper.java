@@ -76,7 +76,7 @@ public class UserMapper {
         Set<Role> roles = this.getAllRoles(userDTO.getRoleIds());
         Set<Reservation> reservations = this.getAllReservations(userDTO.getReservationIds());
 
-        return new User(name, email, password, verified, resetRequired, roles, department, reservations);
+        return new User(name, email, password, verified, resetRequired, roles, department, reservations, new HashSet<>());
     }
 
     /**
