@@ -1,13 +1,13 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.istack.NotNull;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.serializer.UserDepartmentSerializer;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -63,12 +63,18 @@ public class User {
     @JsonManagedReference
     private Set<Reservation> reservations = new HashSet<>();
 
-    @ManyToMany
-    private Set<User> favorites = new HashSet<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonBackReference
+    private Set<Favorite> favorite = new HashSet<>();
 
-    public User() { }
+    @OneToMany(mappedBy = "favorite", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonBackReference
+    private Set<Favorite> favoriteOf = new HashSet<>();
 
-    public User(String name, String email, String password, Boolean verified, Boolean resetRequired, Set<Role> roles, Department department, Set<Reservation> reservations, Set<User> favorites) {
+    public User() {
+    }
+
+    public User(String name, String email, String password, Boolean verified, Boolean resetRequired, Set<Role> roles, Department department, Set<Reservation> reservations) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -82,10 +88,6 @@ public class User {
 
         for (Reservation reservation : reservations) {
             this.addReservation(reservation);
-        }
-
-        for (User user : favorites) {
-            this.addFavorite(user);
         }
     }
 
@@ -115,12 +117,6 @@ public class User {
         if (reservation != null) {
             this.reservations.remove(reservation);
             reservation.setUser(this);
-        }
-    }
-
-    public void addFavorite(User user) {
-        if (user != null) {
-            this.favorites.add(user);
         }
     }
 }

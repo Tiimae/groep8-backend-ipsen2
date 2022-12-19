@@ -3,6 +3,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.mappers;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.DepartmentDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.ReservationDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.RoleDAO;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.UserDAO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Department;
@@ -11,10 +12,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -35,6 +33,8 @@ public class UserMapper {
      */
     private ReservationDAO reservationDAO;
 
+    private UserDAO userDAO;
+
     /**
      * This is the constructor of the UserMapper. It set the DepartmentDAO, RoleDAO and ReservationDAO
      *
@@ -43,10 +43,11 @@ public class UserMapper {
      * @param reservationDAO The DAO for reservation
      * @author Tim de Kok
      */
-    public UserMapper(DepartmentDAO departmentDAO, RoleDAO roleDAO, ReservationDAO reservationDAO) {
+    public UserMapper(DepartmentDAO departmentDAO, RoleDAO roleDAO, ReservationDAO reservationDAO, UserDAO userDAO) {
         this.departmentDAO = departmentDAO;
         this.roleDAO = roleDAO;
         this.reservationDAO = reservationDAO;
+        this.userDAO = userDAO;
     }
 
     /**
@@ -76,7 +77,7 @@ public class UserMapper {
         Set<Role> roles = this.getAllRoles(userDTO.getRoleIds());
         Set<Reservation> reservations = this.getAllReservations(userDTO.getReservationIds());
 
-        return new User(name, email, password, verified, resetRequired, roles, department, reservations, new HashSet<>());
+        return new User(name, email, password, verified, resetRequired, roles, department, reservations);
     }
 
     /**
@@ -90,8 +91,11 @@ public class UserMapper {
     public User mergeUser(User base, UserDTO update) throws EntryNotFoundException {
         base.setName(update.getName());
         base.setEmail(update.getEmail());
-        base.setPassword(update.getPassword());
-        base.setVerified(update.getVerified());
+
+        if (!Objects.equals(update.getPassword(), "")) {
+            base.setPassword(update.getPassword());
+        }
+        base.setVerified(base.getVerified());
         base.setReset_required(base.getReset_required());
 
         if (update.getDepartmentId() != null) {
@@ -143,4 +147,5 @@ public class UserMapper {
 
         return department;
     }
+
 }
