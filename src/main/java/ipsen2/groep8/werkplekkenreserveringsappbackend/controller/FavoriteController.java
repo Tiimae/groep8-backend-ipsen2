@@ -28,4 +28,11 @@ public class FavoriteController {
     public ApiResponseService create(@RequestBody FavoriteDTO favoriteDTO) throws EntryNotFoundException {
         return new ApiResponseService(HttpStatus.CREATED, this.favoriteDAO.create(favoriteDTO));
     }
+
+    @DeleteMapping(value = ApiConstant.getFavorite)
+    @ResponseBody
+    public ApiResponseService delete(@PathVariable String favoriteId) {
+        this.favoriteDAO.remove(favoriteId);
+        return new ApiResponseService(HttpStatus.ACCEPTED, "Favorite has been removed");
+    }
 }

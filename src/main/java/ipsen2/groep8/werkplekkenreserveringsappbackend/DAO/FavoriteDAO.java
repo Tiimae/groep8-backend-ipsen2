@@ -8,6 +8,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Favorite;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class FavoriteDAO {
@@ -27,5 +28,19 @@ public class FavoriteDAO {
 
     public Favorite create(FavoriteDTO favoriteDTO) throws EntryNotFoundException {
         return this.favoriteRepository.save(this.favoriteMapper.toFavorite(favoriteDTO));
+    }
+
+    public void remove(String favoriteId) {
+        final Optional<Favorite> byId = this.favoriteRepository.findById(favoriteId);
+
+        if (byId.isEmpty()) {
+            return;
+        }
+
+        final Favorite favorite = byId.get();
+        favorite.setUser(null);
+        favorite.setFavorite(null);
+
+        this.favoriteRepository.delete(favorite.getId());
     }
 }

@@ -18,11 +18,11 @@ public class Favorite {
     @Column(name = "id", columnDefinition = "VARCHAR(255)")
     private String id;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JsonManagedReference
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JsonManagedReference
     private User favorite;
 
