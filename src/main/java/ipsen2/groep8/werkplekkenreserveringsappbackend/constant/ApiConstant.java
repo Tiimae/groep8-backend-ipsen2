@@ -47,4 +47,9 @@ public class ApiConstant {
     // Department routes
     public static final String getWing = apiPrefix + "wing/{wingId}";
     public static final String getAllWings = apiPrefix + "wing";
+
+    // Favorites routes
+    public static final String getFavorite = apiPrefix + "favorite/{favoriteId}";
+    public static final String getAllFavorites = apiPrefix + "favorite";
+    public static final String getFavoritesByUserId = apiPrefix + "favorite/{userId}";
 }
