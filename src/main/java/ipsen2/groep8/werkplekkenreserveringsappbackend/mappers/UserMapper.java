@@ -33,8 +33,6 @@ public class UserMapper {
      */
     private ReservationDAO reservationDAO;
 
-    private UserDAO userDAO;
-
     /**
      * This is the constructor of the UserMapper. It set the DepartmentDAO, RoleDAO and ReservationDAO
      *
@@ -43,11 +41,10 @@ public class UserMapper {
      * @param reservationDAO The DAO for reservation
      * @author Tim de Kok
      */
-    public UserMapper(DepartmentDAO departmentDAO, RoleDAO roleDAO, ReservationDAO reservationDAO, UserDAO userDAO) {
+    public UserMapper(DepartmentDAO departmentDAO, RoleDAO roleDAO, ReservationDAO reservationDAO) {
         this.departmentDAO = departmentDAO;
         this.roleDAO = roleDAO;
         this.reservationDAO = reservationDAO;
-        this.userDAO = userDAO;
     }
 
     /**

@@ -86,7 +86,7 @@ public class UserMapperTest {
         userDTO.setReservationIds(new String[]{reservation1.getId(), reservation2.getId(), reservation3.getId()});
         userDTO.setRoleIds(new String[]{role1.getId(), role2.getId(), role3.getId()});
 
-        final User expectedUser = new User("test", "test", "test", true, true, roles, department, reservations, new HashSet<>());
+        final User expectedUser = new User("test", "test", "test", true, true, roles, department, reservations);
 
         //Act
         final User actualUser = this.userMapper.toUser(userDTO);
@@ -104,7 +104,7 @@ public class UserMapperTest {
     public void should_returnupdateduser_when_mergeusermethodhasbeencalled() throws EntryNotFoundException {
 
         //Arrange
-        final User oldUser = new User("test", "test", "test", true, true,  new HashSet<>(), new Department(), new HashSet<>(), new HashSet<>());
+        final User oldUser = new User("test", "test", "test", true, true,  new HashSet<>(), new Department(), new HashSet<>());
 
         final UserDTO userDTO = new UserDTO();
         userDTO.setName("Tim");
