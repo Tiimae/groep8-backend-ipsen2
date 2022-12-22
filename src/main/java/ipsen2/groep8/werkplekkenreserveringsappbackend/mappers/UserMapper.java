@@ -92,6 +92,7 @@ public class UserMapper {
         if (!Objects.equals(update.getPassword(), "")) {
             base.setPassword(update.getPassword());
         }
+
         base.setVerified(base.getVerified());
         base.setReset_required(base.getReset_required());
 
@@ -99,10 +100,10 @@ public class UserMapper {
             base.setDepartment(this.getDepartment(update.getDepartmentId()));
         }
 
+        base.removeAllRoles();
+
         for (Role role : this.getAllRoles(update.getRoleIds())) {
-            if (!base.getRoles().contains(role)) {
-                base.addRoles(role);
-            }
+            base.addRoles(role);
         }
 
         return base;

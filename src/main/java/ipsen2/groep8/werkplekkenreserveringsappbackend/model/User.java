@@ -106,6 +106,10 @@ public class User {
         }
     }
 
+    public void removeAllRoles(){
+        this.roles.clear();
+    }
+
     public void addReservation(Reservation reservation) {
         if (reservation != null) {
             this.reservations.add(reservation);
