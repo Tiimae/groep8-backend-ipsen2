@@ -11,6 +11,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.VerifyToken;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +52,9 @@ public class UserDAO {
      */
     public Optional<User> getUserFromDatabase(String userid) {
         return this.userRepository.findById(userid);
+    }
+    public Optional<User> getUserFromDatabaseByEmail(String email) {
+        return this.userRepository.findByEmail(email);
     }
 
     /**

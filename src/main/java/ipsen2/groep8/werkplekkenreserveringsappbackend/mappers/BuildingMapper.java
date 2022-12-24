@@ -83,7 +83,6 @@ public class BuildingMapper {
                     .map(id -> this.wingDAO.getWingFromDatabase(id).orElse(null))
                     .collect(Collectors.toSet());
         }
-
         return wings;
     }
 }

@@ -1,14 +1,13 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.istack.NotNull;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.serializer.UserDepartmentSerializer;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -39,6 +38,7 @@ public class User {
 
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonIgnoreProperties
     private String password;
 
     @NotNull
@@ -63,7 +63,16 @@ public class User {
     @JsonManagedReference
     private Set<Reservation> reservations = new HashSet<>();
 
-    public User() { }
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonBackReference
+    private Set<Favorite> favorite = new HashSet<>();
+
+    @OneToMany(mappedBy = "favorite", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonBackReference
+    private Set<Favorite> favoriteOf = new HashSet<>();
+
+    public User() {
+    }
 
     public User(String name, String email, String password, Boolean verified, Boolean resetRequired, Set<Role> roles, Department department, Set<Reservation> reservations) {
         this.name = name;
@@ -97,13 +106,16 @@ public class User {
         }
     }
 
+    public void removeAllRoles(){
+        this.roles.clear();
+    }
+
     public void addReservation(Reservation reservation) {
         if (reservation != null) {
             this.reservations.add(reservation);
             reservation.setUser(this);
         }
     }
-
 
     public void removeReservation(Reservation reservation) {
         if (reservation != null) {

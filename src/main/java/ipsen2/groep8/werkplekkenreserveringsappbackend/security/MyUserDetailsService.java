@@ -4,6 +4,7 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.security;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.RoleResolverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Component
 public class MyUserDetailsService implements UserDetailsService {
@@ -37,7 +39,16 @@ public class MyUserDetailsService implements UserDetailsService {
         List<GrantedAuthority> listAuthorities = new ArrayList<GrantedAuthority>();
 
         for (Role role : user.getRoles()) {
-            listAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+            RoleResolverService roleResolverService = new RoleResolverService();
+            String[] roles = roleResolverService.getAuthorizedRoles(role.getName());
+            for (String currentRole : roles){
+                Stream<GrantedAuthority> foundRole = listAuthorities.stream().filter(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + currentRole));
+
+                if(foundRole.findAny().isEmpty()){
+                    listAuthorities.add(new SimpleGrantedAuthority("ROLE_" + currentRole));
+                }
+            }
+
         }
 
         return new org.springframework.security.core.userdetails.User(
