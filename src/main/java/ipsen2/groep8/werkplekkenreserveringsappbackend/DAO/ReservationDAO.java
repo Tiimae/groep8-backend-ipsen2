@@ -9,6 +9,9 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +30,32 @@ public class ReservationDAO {
     }
 
     public List<Reservation> getAllReservations() {
+//        this.findAllReservations();
         return this.reservationRepository.findAll();
+    }
+
+    public void findAllReservations(){
+        List<Reservation> allReservations = this.reservationRepository.findAll();
+        LocalDateTime date = LocalDateTime.now();
+        for (Reservation reservation : allReservations) {
+            LocalDateTime time = reservation.getEndDate();
+            LocalTime currentTime = date.toLocalTime();
+            LocalTime endTime = time.toLocalTime();
+            if(date.toLocalDate().isEqual(time.toLocalDate()) && endTime.toSecondOfDay()  > currentTime.toSecondOfDay() ){ // Current en Endtime moeten andersom
+
+
+                long diffInSeconds = endTime.toSecondOfDay() - currentTime.toSecondOfDay(); // Moet zijn currentTime - endTime
+
+                double diffInMinutes = Math.floor(diffInSeconds / 60);
+
+                // Every 2 minutes AND current day being reservation day trigger
+                if(diffInMinutes % 2 == 0 && date.toLocalDate().isEqual(time.toLocalDate())){
+                    System.out.println("Current time is: " + currentTime + " - " + "Res endtime is: " + endTime + " - " + "Overgebleven in sec is: " + diffInMinutes + " - " + "Aantal min verschil is: " + diffInMinutes);
+                }
+
+            }
+        }
+
     }
 
     public void saveReservationToDatabase(Reservation reservation) {
