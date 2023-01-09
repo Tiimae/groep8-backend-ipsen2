@@ -7,11 +7,13 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.ReservationMapper
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.MeetingRoom;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,32 +32,26 @@ public class ReservationDAO {
     }
 
     public List<Reservation> getAllReservations() {
-//        this.findAllReservations();
         return this.reservationRepository.findAll();
     }
 
-    public void findAllReservations(){
+
+
+    public List<Reservation> getOneDayExpiredReservations(){
         List<Reservation> allReservations = this.reservationRepository.findAll();
-        LocalDateTime date = LocalDateTime.now();
+        List<Reservation> oneDayExpiredReservations = new ArrayList<>();
+        LocalDateTime currentDate = LocalDateTime.now();
         for (Reservation reservation : allReservations) {
             LocalDateTime time = reservation.getEndDate();
-            LocalTime currentTime = date.toLocalTime();
-            LocalTime endTime = time.toLocalTime();
-            if(date.toLocalDate().isEqual(time.toLocalDate()) && endTime.toSecondOfDay()  > currentTime.toSecondOfDay() ){ // Current en Endtime moeten andersom
+//            System.out.println("Date is " + currentDate.toLocalDate() + " --- " + time.toLocalDate()); // Reservation endDate
+            LocalDate reservationDatePlusADay = time.toLocalDate().plusDays(1); // expired reservation by 1 day on its date
 
-
-                long diffInSeconds = endTime.toSecondOfDay() - currentTime.toSecondOfDay(); // Moet zijn currentTime - endTime
-
-                double diffInMinutes = Math.floor(diffInSeconds / 60);
-
-                // Every 2 minutes AND current day being reservation day trigger
-                if(diffInMinutes % 2 == 0 && date.toLocalDate().isEqual(time.toLocalDate())){
-                    System.out.println("Current time is: " + currentTime + " - " + "Res endtime is: " + endTime + " - " + "Overgebleven in sec is: " + diffInMinutes + " - " + "Aantal min verschil is: " + diffInMinutes);
-                }
-
+            if(currentDate.toLocalDate().isEqual(reservationDatePlusADay)){
+//                System.out.println("Expired reservation by 1 day: " + reservation.isStatus() + " - " + reservation.getUser().getName() + " - " + reservation.getEndDate());
+                oneDayExpiredReservations.add(reservation);
             }
         }
-
+        return oneDayExpiredReservations;
     }
 
     public void saveReservationToDatabase(Reservation reservation) {
