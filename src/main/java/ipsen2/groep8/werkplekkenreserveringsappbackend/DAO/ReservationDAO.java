@@ -43,11 +43,9 @@ public class ReservationDAO {
         LocalDateTime currentDate = LocalDateTime.now();
         for (Reservation reservation : allReservations) {
             LocalDateTime time = reservation.getEndDate();
-//            System.out.println("Date is " + currentDate.toLocalDate() + " --- " + time.toLocalDate()); // Reservation endDate
             LocalDate reservationDatePlusADay = time.toLocalDate().plusDays(1); // expired reservation by 1 day on its date
 
             if(currentDate.toLocalDate().isEqual(reservationDatePlusADay)){
-//                System.out.println("Expired reservation by 1 day: " + reservation.isStatus() + " - " + reservation.getUser().getName() + " - " + reservation.getEndDate());
                 oneDayExpiredReservations.add(reservation);
             }
         }
