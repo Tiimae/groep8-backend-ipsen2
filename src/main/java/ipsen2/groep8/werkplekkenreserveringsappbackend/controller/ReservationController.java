@@ -54,7 +54,6 @@ public class ReservationController {
     // @Scheduled(cron = "0 */5 * ? * *", zone="Europe/Amsterdam") = Does task (Sends email) every 5 minutes of the day
     @Scheduled(cron = "0 30 1 * * *", zone="Europe/Amsterdam")
     public void sendEmailOneDayExpiredReservation(){
-//        System.out.println("CRON JOB works");
         List<Reservation> expiredReservations = this.reservationDAO.getOneDayExpiredReservations();
         for(Reservation reservation : expiredReservations){
             Thread newThread = new Thread(() -> {
