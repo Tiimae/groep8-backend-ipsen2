@@ -54,7 +54,6 @@ public class ReservationController {
     // @Scheduled(cron = "0 */5 * ? * *", zone="Europe/Amsterdam") = Does task (Sends email) every 5 minutes of the day
     @Scheduled(cron = "0 30 1 * * *", zone="Europe/Amsterdam")
     public void sendEmailOneDayExpiredReservation(){
-//        System.out.println("CRON JOB works");
         List<Reservation> expiredReservations = this.reservationDAO.getOneDayExpiredReservations();
         for(Reservation reservation : expiredReservations){
             Thread newThread = new Thread(() -> {
@@ -151,63 +150,3 @@ public class ReservationController {
         Reservation presentReservation = reservationEntry.get();
         return new ApiResponseService<>(HttpStatus.OK, presentReservation.getUser());
     }
-}
-
-
-//                    try {
-//                        this.emailService.sendMessage(
-//                                reservation.getUser().getEmail(),
-//                                "Your CGI reservation",
-//                                "<p>Hi, you have forgotten to checkin or show up on ur your reservation for a " + reservation.getType() + ", .</p><p style=\"margin: 0;\">" + reservation.getStartDate().format(DateTimeFormatter.ofPattern("d MMMM y")) + "</p>" + reservation.getStartDate().toLocalTime() + " - " + reservation.getEndDate().toLocalTime()
-//                        );
-//                    } catch (MessagingException e) {
-//                        System.out.println(e.getMessage());
-//                    }
-
-
-    ////////////////////////
-//    LocalDateTime date = LocalDateTime.now();
-//        for (Reservation reservation : allReservations) {
-//                LocalDateTime time = reservation.getEndDate();
-//                if(!date.toLocalDate().isEqual(time.toLocalDate())){
-//                continue;
-//                }
-//                LocalTime currentTime = date.toLocalTime();
-//                LocalTime endTime = time.toLocalTime();
-//
-//                // Is op dezelfde dag, en huidige tijd is meer dan eindtijd (= expired).
-//                if(currentTime.toSecondOfDay() > endTime.toSecondOfDay()){
-//                System.out.println("Current time is: " + date + " - " + "Reservation endDate is: " + reservation.getEndDate());
-////                Thread newThread = new Thread(() -> {
-////                    try {
-////                        this.emailService.sendMessage(
-////                                reservation.getUser().getEmail(),
-////                                "Your CGI reservation",
-////                                "<p>Hi, you have forgotten to checkin or show up on ur your reservation for a " + reservation.getType() + ", .</p><p style=\"margin: 0;\">" + reservation.getStartDate().format(DateTimeFormatter.ofPattern("d MMMM y")) + "</p>" + reservation.getStartDate().toLocalTime() + " - " + reservation.getEndDate().toLocalTime()
-////                        );
-////
-////                    } catch (MessagingException e) {
-////                        throw new RuntimeException(e);
-////                        }
-////
-////                });
-////                newThread.start();
-//
-//                }
-//                }
-//
-//
-
-// Checks if reservation is expired op current day of reservation AND na endTime of reservation.
-//            if(date.toLocalDate().isEqual(time.toLocalDate()) && currentTime.toSecondOfDay()  > endTime.toSecondOfDay() ){ // Current en Endtime moeten andersom
-//                long diffInSeconds = currentTime.toSecondOfDay() - endTime.toSecondOfDay(); // Moet zijn currentTime - endTime
-//                double diffInMinutes = Math.floor(diffInSeconds / 60);
-//
-//                // Every 2 minutes AND current day being reservation day trigger
-//                if(diffInMinutes % 2 == 0){
-//                    System.out.println("Current time is: " + currentTime + " - " + "Res endtime is: " + endTime + " - " + "Overgebleven in sec is: " + diffInMinutes + " - " + "Aantal min verschil is: " + diffInMinutes);
-//                }
-//
-//            }
-
-//////////////////////////
