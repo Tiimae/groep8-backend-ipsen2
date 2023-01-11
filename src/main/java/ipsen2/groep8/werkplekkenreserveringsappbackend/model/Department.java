@@ -30,7 +30,7 @@ public class Department {
     private String name;
 
     @OneToMany(mappedBy = "department", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonBackReference
+    @JsonIgnoreProperties("department")
     private Set<User> users = new HashSet<>();
 
     @ManyToMany(mappedBy = "departments")
