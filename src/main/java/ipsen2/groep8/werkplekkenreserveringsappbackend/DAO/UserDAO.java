@@ -5,6 +5,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.VerifyToke
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Favorite;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
@@ -33,6 +34,7 @@ public class UserDAO {
 
     private VerifyTokenRepository verifyTokenRepository;
     private ReservationDAO reservationDAO;
+    private FavoriteDAO favoriteDAO;
 
     /**
      * This is the constructor of the UserDAO. It set the userMapper and userRepository
@@ -41,11 +43,12 @@ public class UserDAO {
      * @param userRepository The repository for user
      * @author Tim de Kok
      */
-    public UserDAO(UserRepository userRepository, @Lazy UserMapper userMapper, VerifyTokenRepository verifyTokenRepository, ReservationDAO reservationDAO) {
+    public UserDAO(UserRepository userRepository, @Lazy UserMapper userMapper, VerifyTokenRepository verifyTokenRepository, ReservationDAO reservationDAO, @Lazy FavoriteDAO favoriteDAO) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.verifyTokenRepository = verifyTokenRepository;
         this.reservationDAO = reservationDAO;
+        this.favoriteDAO = favoriteDAO;
     }
 
     /**
@@ -142,11 +145,15 @@ public class UserDAO {
         }
 
         if(!finalUser.getFavorite().isEmpty()) {
-            finalUser.getFavorite().clear();
+            for (Favorite favorite : finalUser.getFavorite()) {
+                this.favoriteDAO.remove(favorite.getId());
+            }
         }
 
         if(!finalUser.getFavoriteOf().isEmpty()) {
-            finalUser.getFavoriteOf().clear();
+            for (Favorite favorite : finalUser.getFavoriteOf()) {
+                this.favoriteDAO.remove(favorite.getId());
+            }
         }
 
         this.userRepository.delete(finalUser);
