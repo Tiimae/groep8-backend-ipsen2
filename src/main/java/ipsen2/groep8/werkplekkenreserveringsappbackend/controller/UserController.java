@@ -12,6 +12,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.PasswordGeneratorService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.thread.MailThread;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -123,15 +124,13 @@ public class UserController {
         User user = userMapper.toUser(userDTO);
         user.setPassword(this.passwordGeneratorService.generate(10));
 
-        try {
-            this.emailService.sendMessage(
-                    user.getEmail(),
-                    "CGI account password",
-                    "<p>Hi " + user.getName() + ", here is your password what you van use once:" + user.getPassword() + "</p>"
-            );
-        } catch (Throwable e) {
-            System.out.println(e.getMessage());
-        }
+        MailThread mail = new MailThread(
+                user.getEmail(),
+                "CGI account password",
+                "<p>Hi " + user.getName() + ", here is your password what you van use once:" + user.getPassword() + "</p>",
+                this.emailService
+        );
+        mail.start();
 
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);

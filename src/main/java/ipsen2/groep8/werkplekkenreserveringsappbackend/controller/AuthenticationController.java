@@ -13,6 +13,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseServic
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EncryptionService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.VerifyTokenService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.thread.MailThread;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -38,6 +39,7 @@ import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.*;
 
@@ -63,6 +65,7 @@ public class AuthenticationController {
     private String sharedSecret;
     @Value("${jwt_secret}")
     private String jwtSecret;
+
     public AuthenticationController(UserRepository userRepo, JWTUtil jwtUtil, AuthenticationManager authManager, PasswordEncoder passwordEncoder, UserMapper userMapper, EmailService emailService, RoleRepository roleRepository, VerifyTokenService verifyTokenService, UserDAO userDAO) {
         this.userRepo = userRepo;
         this.jwtUtil = jwtUtil;
@@ -86,18 +89,18 @@ public class AuthenticationController {
     @GetMapping(value = ApiConstant.secret, consumes = MediaType.ALL_VALUE)
     @ResponseBody()
 //    @CrossOrigin(maxAge = 360/0, )
-    public ApiResponseService secret(HttpServletRequest request){
+    public ApiResponseService secret(HttpServletRequest request) {
         String secret = null;
 
-        if(request.getCookies() != null){
-            secret =  Arrays.stream(request.getCookies())
+        if (request.getCookies() != null) {
+            secret = Arrays.stream(request.getCookies())
                     .filter(c -> c.getName().equals("secret"))
                     .findFirst()
                     .map(Cookie::getValue)
                     .orElse(null);
         }
 
-        if(secret == null || secret.isBlank() || secret.isEmpty()){
+        if (secret == null || secret.isBlank() || secret.isEmpty()) {
             return new ApiResponseService(HttpStatus.FORBIDDEN, "You are not authenticated");
         }
 
@@ -108,7 +111,7 @@ public class AuthenticationController {
 
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
-    public ApiResponseService register(@Valid @RequestBody UserDTO user, @RequestParam(required = false) boolean encrypted ) throws EntryNotFoundException {
+    public ApiResponseService register(@Valid @RequestBody UserDTO user, @RequestParam(required = false) boolean encrypted) throws EntryNotFoundException {
 
         Optional<User> foundUser = userRepo.findByEmail(user.getEmail());
         if (foundUser.isPresent()) {
@@ -152,12 +155,12 @@ public class AuthenticationController {
 
         Optional<User> bearerUser = this.profile(SecurityContextHolder.getContext().getAuthentication()).getPayload();
 
-        if(!bearerUser.isPresent()){
+        if (!bearerUser.isPresent()) {
             res.put("message", "The user you are trying to verify was not found");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-        if(bearerUser.get().getVerified()){
+        if (bearerUser.get().getVerified()) {
             res.put("message", "This user is already verified, cant send a verify token");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
@@ -170,15 +173,13 @@ public class AuthenticationController {
         verifyTokenService.saveVerifyToken(verifyToken);
 
         // Send verification mail
-        try {
-            this.emailService.sendMessage(
-                    user.getEmail(),
-                    "CGI account verify email",
-                    "<p>Hi " + user.getName() + ", here is your code to verify your email:"+token+"</p>"
-            );
-        } catch (Throwable e) {
-            System.out.println(e.getMessage());
-        }
+        MailThread mail = new MailThread(
+                user.getEmail(),
+                "CGI account verify email",
+                "<p>Hi " + user.getName() + ", here is your code to verify your email:" + token + "</p>",
+                this.emailService
+        );
+        mail.start();
 
         res.put("message", "Successfully sent a verify token to " + user.getEmail());
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
@@ -193,12 +194,12 @@ public class AuthenticationController {
         Optional<VerifyToken> verifyToken = this.verifyTokenService.getToken(token);
 
 
-        if(!bearerUser.isPresent()){
+        if (!bearerUser.isPresent()) {
             res.put("message", "Something went wrong, please try again in a moment");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-        if(!verifyToken.isPresent() || !verifyToken.get().getType().equals("email")){
+        if (!verifyToken.isPresent() || !verifyToken.get().getType().equals("email")) {
             res.put("message", "This token is invalid");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
@@ -206,7 +207,7 @@ public class AuthenticationController {
         String bearerUserId = bearerUser.get().getId();
         String tokenUserId = verifyToken.get().getUser().getId();
 
-        if(bearerUserId.equals(tokenUserId)){
+        if (bearerUserId.equals(tokenUserId)) {
             try {
                 verifyTokenService.confirmToken(token);
                 res.put("message", "Successfully confirmed your email. Redirecting you...");
@@ -215,9 +216,7 @@ public class AuthenticationController {
                 res.put("message", e.getMessage());
                 return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
             }
-        }
-
-        else {
+        } else {
             res.put("message", "This token is invalid");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
@@ -230,7 +229,7 @@ public class AuthenticationController {
 
         Optional<User> foundUser = this.userRepo.findByEmail(email);
 
-        if(!foundUser.isPresent()){
+        if (!foundUser.isPresent()) {
             res.put("message", "The user you are trying to reset the password for was not found");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
@@ -244,16 +243,13 @@ public class AuthenticationController {
 
         String url = "http://localhost:4200/auth/set-new-password?token=" + token;
 
-        // Send verification mail
-        try {
-            this.emailService.sendMessage(
-                    user.getEmail(),
-                    "CGI account change password",
-                    "<p>Hi " + user.getName() + ", you notified us that you want to change your password. Use this link to change your password: <a href="+url+">Set new password</a></p>"
-            );
-        } catch (Throwable e) {
-            System.out.println(e.getMessage());
-        }
+        MailThread mail = new MailThread(
+                user.getEmail(),
+                "CGI account change password",
+                "<p>Hi " + user.getName() + ", you notified us that you want to change your password. Use this link to change your password: <a href=" + url + ">Set new password</a></p>",
+                this.emailService
+        );
+        mail.start();
 
         res.put("message", "Successfully sent a verify token to " + user.getEmail());
         return new ApiResponseService<>(HttpStatus.ACCEPTED, res);
@@ -267,14 +263,14 @@ public class AuthenticationController {
         Optional<VerifyToken> verifyToken = this.verifyTokenService.getToken(token);
         Optional<User> foundUser = this.userRepo.findByEmail(newUser.getEmail());
 
-        if(!verifyToken.isPresent() || !verifyToken.get().getType().equals("password")){
+        if (!verifyToken.isPresent() || !verifyToken.get().getType().equals("password")) {
             res.put("message", "This token is invalid");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
         Optional<User> tokenUser = this.userRepo.findById(verifyToken.get().getUser().getId());
 
-        if(!foundUser.isPresent() || !tokenUser.isPresent()){
+        if (!foundUser.isPresent() || !tokenUser.isPresent()) {
             res.put("message", "The user you are trying to reset the password for was not found");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
@@ -282,7 +278,7 @@ public class AuthenticationController {
         String foundUserId = foundUser.get().getId();
         String tokenUserId = verifyToken.get().getUser().getId();
 
-        if(!foundUserId.equals(tokenUserId)){
+        if (!foundUserId.equals(tokenUserId)) {
             res.put("message", "This token is invalid");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
@@ -315,13 +311,12 @@ public class AuthenticationController {
     }
 
 
-
     @PostMapping(value = ApiConstant.login)
     @ResponseBody
     public ApiResponseService login(@RequestBody UserDTO user, @RequestParam(required = false) boolean encrypted) throws AuthenticationException, IOException {
         final HashMap<String, String> res = new HashMap<>();
 
-        if(encrypted){
+        if (encrypted) {
             user.setPassword(EncryptionService.decryptAes(user.getPassword(), sharedSecret));
         }
 
@@ -342,7 +337,7 @@ public class AuthenticationController {
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
         }
 
-        if(foundUser.get().getReset_required() == null || foundUser.get().getReset_required()){
+        if (foundUser.get().getReset_required() == null || foundUser.get().getReset_required()) {
             this.forgotPassword(foundUser.get().getEmail());
             res.put("message", "Because of security, you are required to change your password. We've sent a link to your email to change your password.");
             return new ApiResponseService<>(HttpStatus.BAD_REQUEST, res);
@@ -367,7 +362,7 @@ public class AuthenticationController {
     @ResponseBody
     public ApiResponseService<Optional<User>> profile(Principal securityPrincipal) {
 
-        Optional<User> foundUser =  this.userRepo.findByEmail(securityPrincipal.getName());
+        Optional<User> foundUser = this.userRepo.findByEmail(securityPrincipal.getName());
 
         return new ApiResponseService<>(
                 HttpStatus.ACCEPTED,
@@ -375,12 +370,12 @@ public class AuthenticationController {
         );
     }
 
-    public String createSecret(){
+    public String createSecret() {
         String randomSecret = Date.from(Instant.now()).toString() + String.valueOf((new Random()).nextInt());
         return EncryptionService.getMd5(randomSecret);
     }
 
-    private Cookie createCookie(){
+    private Cookie createCookie() {
         String secret = this.createSecret();
         secret = new EncryptionService().encrypt(secret, jwtSecret);
         Cookie cookie = new Cookie("secret", secret);
