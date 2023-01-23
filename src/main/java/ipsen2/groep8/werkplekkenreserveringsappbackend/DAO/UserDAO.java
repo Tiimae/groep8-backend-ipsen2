@@ -141,6 +141,13 @@ public class UserDAO {
             }
         }
 
+        if(!finalUser.getFavorite().isEmpty()) {
+            finalUser.getFavorite().clear();
+        }
+
+        if(!finalUser.getFavoriteOf().isEmpty()) {
+            finalUser.getFavoriteOf().clear();
+        }
 
         this.userRepository.delete(finalUser);
     }
