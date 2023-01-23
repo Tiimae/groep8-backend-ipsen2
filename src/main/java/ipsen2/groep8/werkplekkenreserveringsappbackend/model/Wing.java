@@ -37,19 +37,19 @@ public class Wing {
             joinColumns = @JoinColumn(name = "wing_id"),
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
+    @JsonIgnoreProperties("wings")
     private Set<Department> departments = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @JsonBackReference
     @JsonIgnoreProperties("wings")
     private Building building;
 
     @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonBackReference
+    @JsonIgnoreProperties("wing")
     private Set<Reservation> reservations = new HashSet<>();
 
     @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnoreProperties("wing")
     private Set<MeetingRoom> meetingRooms = new HashSet<>();
 
     public Wing() {
