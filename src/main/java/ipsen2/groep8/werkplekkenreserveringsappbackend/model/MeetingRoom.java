@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -23,8 +23,9 @@ import java.util.Set;
 @Getter
 @Setter
 @JsonIdentityInfo(
-   generator = ObjectIdGenerators.PropertyGenerator.class,
-   property = "id")
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class MeetingRoom {
     @Id
     @GeneratedValue(generator = "uuid2")
