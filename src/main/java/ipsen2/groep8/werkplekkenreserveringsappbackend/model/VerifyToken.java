@@ -42,7 +42,7 @@ public class VerifyToken {
 
     @ManyToOne
     @JoinColumn(
-            nullable = false,
+            nullable = true,
             name = "user_id"
     )
     private User user;
