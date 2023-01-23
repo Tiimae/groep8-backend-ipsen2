@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,6 +22,6 @@ public interface VerifyTokenRepository extends JpaRepository<VerifyToken, String
     @Query("UPDATE VerifyToken c SET c.confirmedAt = ?2 WHERE c.token = ?1")
     int updateConfirmedAt(String token, LocalDateTime confirmedAt);
 
-    Optional<VerifyToken> getVerifyTokenByUser(User user);
+    List<VerifyToken> getVerifyTokenByUser(User user);
 
 }

@@ -71,6 +71,15 @@ public class User {
     @JsonBackReference
     private Set<Favorite> favoriteOf = new HashSet<>();
 
+    // @ManyToOne
+    // @JoinColumn(
+    //         nullable = false,
+    //         name = "user_id"
+    // )
+    // @Column(nullable = true)
+    // @JsonIgnore
+    // private User user;
+
     public User() {
     }
 

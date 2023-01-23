@@ -5,9 +5,12 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.VerifyToke
 import ipsen2.groep8.werkplekkenreserveringsappbackend.DTO.UserDTO;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.exceptions.EntryNotFoundException;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.mappers.UserMapper;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Reservation;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.Role;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.model.VerifyToken;
+import net.bytebuddy.dynamic.loading.PackageDefinitionStrategy.Definition.Undefined;
+
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +32,7 @@ public class UserDAO {
     private UserMapper userMapper;
 
     private VerifyTokenRepository verifyTokenRepository;
+    private ReservationDAO reservationDAO;
 
     /**
      * This is the constructor of the UserDAO. It set the userMapper and userRepository
@@ -37,10 +41,11 @@ public class UserDAO {
      * @param userRepository The repository for user
      * @author Tim de Kok
      */
-    public UserDAO(UserRepository userRepository, @Lazy UserMapper userMapper, VerifyTokenRepository verifyTokenRepository) {
+    public UserDAO(UserRepository userRepository, @Lazy UserMapper userMapper, VerifyTokenRepository verifyTokenRepository, ReservationDAO reservationDAO) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.verifyTokenRepository = verifyTokenRepository;
+        this.reservationDAO = reservationDAO;
     }
 
     /**
@@ -112,10 +117,13 @@ public class UserDAO {
 
         User finalUser = user.get();
 
-        final Optional<VerifyToken> verifyTokenByUser = this.verifyTokenRepository.getVerifyTokenByUser(finalUser);
+        final List<VerifyToken> verifyTokenByUser = this.verifyTokenRepository.getVerifyTokenByUser(finalUser);
 
-        if (!verifyTokenByUser.isEmpty()) {
-            this.verifyTokenRepository.delete(verifyTokenByUser.get());
+        if (!verifyTokenByUser.isEmpty()){
+            for (VerifyToken token : verifyTokenByUser) {
+                token.setUser(null);
+                this.verifyTokenRepository.delete(token);
+            }
         }
 
         if (!finalUser.getRoles().isEmpty()) {
@@ -125,6 +133,12 @@ public class UserDAO {
         if(finalUser.getDepartment() != null){
             finalUser.getDepartment().getUsers().remove(finalUser);
             finalUser.setDepartment(null);
+        }
+
+        if (!finalUser.getReservations().isEmpty()) {
+            for(Reservation reservation : finalUser.getReservations()) {
+                this.reservationDAO.deleteReservationFromDatabase(reservation.getId());
+            }
         }
 
 
