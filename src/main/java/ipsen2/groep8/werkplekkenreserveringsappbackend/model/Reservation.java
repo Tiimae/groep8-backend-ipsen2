@@ -48,19 +48,16 @@ public class Reservation {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    TODO: write propper mapper and DTO
     @JsonIgnoreProperties("reservations")
-//    @JsonManagedReference
     private User user;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "reservations")
 //    TODO: write propper mapper and DTO
     @JsonIgnoreProperties("reservations")
-//    @JsonManagedReference
     private Set<MeetingRoom> meetingRooms = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    TODO: write propper mapper and DTO
     @JsonIgnoreProperties("reservations")
-    @JsonManagedReference
     private Wing wing;
 
     public Reservation() { }
