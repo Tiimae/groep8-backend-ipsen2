@@ -2,11 +2,8 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.controller;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.validation.Valid;
 
@@ -67,34 +64,48 @@ public class ReservationController {
     @GetMapping(value = ApiConstant.getAllReservations)
     @ResponseBody
     public ApiResponseService<List<Reservation>> getReservations(@RequestParam(required = false) String filter) {
-        List<Reservation> allReservations = this.reservationDAO.getAllReservations();
-        Set<Reservation> filteredReservations = new HashSet<>();
-
-
-        if (filter != null && filter.equals("thismonth")) {
-            for (Reservation reservation : allReservations) {
-                if (LocalDateTime.now().getMonth() == reservation.getStartDate().getMonth()) {
-                    filteredReservations.add(reservation);
-                }
+        List<Reservation> filteredReservations =  this.reservationDAO.getAllReservations().stream().filter(reservation -> {
+            if (filter == null) {
+                return true;
             }
-            return new ApiResponseService(HttpStatus.OK, filteredReservations);
-        }
 
-        if (filter != null && filter.equals("lastmonth")) {
-            for (Reservation reservation : allReservations) {
-                if (LocalDateTime.now().minusMonths(1).getMonth() == reservation.getStartDate().getMonth()) {
-                    filteredReservations.add(reservation);
-                }
+            if (filter.equals("expired")) {
+                return reservation.getStartDate().isBefore(LocalDateTime.now());
             }
-            return new ApiResponseService(HttpStatus.OK, filteredReservations);
-        }
 
-        return new ApiResponseService(HttpStatus.ACCEPTED, allReservations);
+            if (filter.equals("this-month")) {
+                return LocalDateTime.now().getMonth() == reservation.getStartDate().getMonth();
+            }
+
+            if (filter.equals("last-month")) {
+                return LocalDateTime.now().minusMonths(1).getMonth() == reservation.getStartDate().getMonth();
+            }
+
+            return false;
+        }).toList();
+
+        return new ApiResponseService<>(HttpStatus.ACCEPTED, filteredReservations);
     }
 
     @PostMapping(value = ApiConstant.getAllReservations, consumes = {"application/json"})
-    public ApiResponseService<Reservation> postReservation(@RequestBody @Valid ReservationDTO reservationDTO) throws EntryNotFoundException {
+    public ApiResponseService<Reservation> postReservation(@RequestBody @Valid ReservationDTO reservationDTO) throws Exception {
         Reservation reservation = reservationMapper.toReservation(reservationDTO);
+        if(reservation.getStartDate().isBefore(LocalDateTime.now())){
+            throw new Exception("reservation cannot be placed in the past");
+        }
+
+        List<Reservation> filteredReservations =  this.reservationDAO.getAllReservations().stream().filter(res -> {
+            return res.getStartDate().isBefore(reservation.getEndDate()) && (res.getStartDate().isAfter(reservation.getStartDate()) || res.getStartDate().isEqual(reservation.getStartDate()));
+        }).toList();
+
+        AtomicInteger capacity = new AtomicInteger();
+        filteredReservations.forEach(reservation1 -> capacity.addAndGet(reservation1.getAmount()));
+        Boolean alreadyFilled = false;
+
+        if(reservation.getType().equals("Werkplek")){
+            alreadyFilled = capacity.get() + reservation.getAmount() < reservation.getWing().getWorkplaces();
+        }
+
         this.reservationDAO.saveReservationToDatabase(reservation);
         List<String> meetingRooms = new ArrayList<>();
         reservation.getMeetingRooms().stream().forEach(meetingRoom -> {

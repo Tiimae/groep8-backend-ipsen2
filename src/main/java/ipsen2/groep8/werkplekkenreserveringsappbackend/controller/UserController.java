@@ -12,6 +12,7 @@ import ipsen2.groep8.werkplekkenreserveringsappbackend.model.User;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.ApiResponseService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.EmailService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.service.PasswordGeneratorService;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.service.UserService;
 import ipsen2.groep8.werkplekkenreserveringsappbackend.thread.MailThread;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -55,6 +56,9 @@ public class UserController {
     private PasswordGeneratorService passwordGeneratorService;
 
     private EmailService emailService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * This is the constructor of the UserController. It set the UserDAO and the UserMapper
@@ -100,14 +104,10 @@ public class UserController {
      */
     @GetMapping(value = ApiConstant.getAllUsers)
     @ResponseBody
-    public ApiResponseService<List<User>> getUsers() {
-        final List<User> allUsersFromDatabase = this.userDAO.getAllUsersFromDatabase();
+    public List<User> getUsers() {
+        final List<User> allUsersFromDatabase = this.userService.all();
 
-        for (User user : allUsersFromDatabase) {
-            user.setPassword("");
-        }
-
-        return new ApiResponseService(HttpStatus.ACCEPTED, allUsersFromDatabase);
+        return allUsersFromDatabase;
     }
 
     /**
