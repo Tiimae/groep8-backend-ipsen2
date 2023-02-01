@@ -1,9 +1,13 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.security;
 
-import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
+import java.util.Arrays;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,7 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.servlet.http.HttpServletResponse;
+import ipsen2.groep8.werkplekkenreserveringsappbackend.DAO.repository.UserRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -33,14 +37,31 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers("/api/building/**").hasRole("User")
+                .antMatchers(HttpMethod.GET, "/api/building/**").hasRole("User")
+                .antMatchers(
+                    Arrays.toString(new HttpMethod[]{HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH}),
+                    "/api/building/**"
+                ).hasRole("Admin")
                 .antMatchers("/api/auth/profile").hasRole("User")
                 .antMatchers("/api/auth/verify-email").hasRole("User")
                 .antMatchers("/api/auth/send-verify-email").hasRole("User")
-                .antMatchers("/api/wing/**").hasRole("User")
-                .antMatchers("/api/meetingroom/**").hasRole("User")
-                .antMatchers("/api/role/**").hasRole("User")
-                .antMatchers("/api/user/**").hasRole("User")
+                .antMatchers(HttpMethod.GET, "/api/wing/**").hasRole("User")
+                .antMatchers(
+                    Arrays.toString(new HttpMethod[]{HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH}), 
+                    "/api/wing/**"
+                ).hasRole("Admin")
+                .antMatchers(HttpMethod.GET, "/api/meetingroom/**").hasRole("User")
+                .antMatchers(
+                    Arrays.toString(new HttpMethod[]{HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH}), 
+                    "/api/meetingroom/**"
+                ).hasRole("Admin")
+                .antMatchers(HttpMethod.GET, "/api/role/**").hasRole("User")
+                .antMatchers(HttpMethod.GET, "/api/user/**").hasRole("User")
+                .antMatchers(
+                    Arrays.toString(new HttpMethod[]{HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH}), 
+                    "/api/user/**"
+                ).hasRole("User")
+                .antMatchers("/api/reservation/**").hasRole("User")
                 .antMatchers("/api/auth/**").permitAll()
                 .and()
                 .userDetailsService(uds)

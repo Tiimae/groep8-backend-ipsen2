@@ -1,6 +1,7 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
@@ -40,16 +41,15 @@ public class Wing {
     private Set<Department> departments = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @JsonBackReference
     @JsonIgnoreProperties("wings")
     private Building building;
 
     @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonBackReference
+    @JsonIgnoreProperties("wing")
     private Set<Reservation> reservations = new HashSet<>();
 
     @OneToMany(mappedBy = "wing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnoreProperties("wing")
     private Set<MeetingRoom> meetingRooms = new HashSet<>();
 
     public Wing() {

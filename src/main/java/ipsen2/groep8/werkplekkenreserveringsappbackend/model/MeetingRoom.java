@@ -1,6 +1,10 @@
 package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -18,6 +22,10 @@ import java.util.Set;
 @Table(name = "meetingRoom")
 @Getter
 @Setter
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class MeetingRoom {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -30,7 +38,7 @@ public class MeetingRoom {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Nullable
-    @JsonBackReference
+    @JsonIgnoreProperties("meetingRooms")
     private Wing wing;
 
     @ManyToMany
@@ -39,6 +47,7 @@ public class MeetingRoom {
             joinColumns = @JoinColumn(name = "meetingroom_id"),
             inverseJoinColumns = @JoinColumn(name = "reservation_id")
     )
+    @JsonIgnoreProperties("meetingRooms")
     private Set<Reservation> reservations = new HashSet<>();
 
     public MeetingRoom() { }

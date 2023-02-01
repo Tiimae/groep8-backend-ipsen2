@@ -3,7 +3,6 @@ package ipsen2.groep8.werkplekkenreserveringsappbackend.model;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sun.istack.NotNull;
-import ipsen2.groep8.werkplekkenreserveringsappbackend.serializer.UserDepartmentSerializer;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Fetch;
@@ -53,6 +52,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @JsonIgnoreProperties("users")
     private Set<Role> roles = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -60,14 +60,14 @@ public class User {
     private Department department;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnoreProperties("user")
     private Set<Reservation> reservations = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JsonBackReference
     private Set<Favorite> favorite = new HashSet<>();
 
-    @OneToMany(mappedBy = "favorite", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "favorite", fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JsonBackReference
     private Set<Favorite> favoriteOf = new HashSet<>();
 

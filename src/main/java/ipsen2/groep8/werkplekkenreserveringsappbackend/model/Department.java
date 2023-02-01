@@ -31,9 +31,12 @@ public class Department {
 
     @OneToMany(mappedBy = "department", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnoreProperties("department")
+    @JsonIgnore
     private Set<User> users = new HashSet<>();
 
     @ManyToMany(mappedBy = "departments")
+    @JsonIgnoreProperties("departments")
+    @JsonIgnore
     private Set<Wing> wings = new HashSet<>();
 
     public Department() { }
